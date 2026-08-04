@@ -1,0 +1,286 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "oficios",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "ano", "order": "ASCENDING" },
+        { "fieldPath": "numero", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "diarios",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "ano", "order": "DESCENDING" },
+        { "fieldPath": "numero", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "matters",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tipo", "order": "ASCENDING" },
+        { "fieldPath": "data", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "matters",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "tipo", "order": "ASCENDING" },
+        { "fieldPath": "data", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "entities",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "type", "order": "ASCENDING" },
+        { "fieldPath": "lastSeenAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "diarioBackfillJobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "ownerUid", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "videoProjects",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "ownerUid", "order": "ASCENDING" },
+        { "fieldPath": "updatedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "budget_codes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "ano", "order": "ASCENDING" },
+        { "fieldPath": "updatedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "importBatches",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "renderJobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "ownerUid", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "nexo_alertas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "exercicio", "order": "ASCENDING" },
+        { "fieldPath": "ativo", "order": "ASCENDING" },
+        { "fieldPath": "valorEnvolvido", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "nexo_alertas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "exercicio", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "valorEnvolvido", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "nexo_entidades",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tipo", "order": "ASCENDING" },
+        { "fieldPath": "totalEmpenhado", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "nexo_entidades",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tipo", "order": "ASCENDING" },
+        { "fieldPath": "nVinculos", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "nexo_entidades",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "_cnpjRaiz", "order": "ASCENDING" },
+        { "fieldPath": "totalEmpenhado", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "nexo_entidades",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "_entidadeId", "order": "ASCENDING" },
+        { "fieldPath": "_atualizadoEm", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "acervo_leis",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "ano", "order": "DESCENDING" },
+        { "fieldPath": "numero", "order": "DESCENDING" },
+        { "fieldPath": "cod_norma", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "acervo_leis",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tipo", "order": "ASCENDING" },
+        { "fieldPath": "ano", "order": "DESCENDING" },
+        { "fieldPath": "numero", "order": "DESCENDING" },
+        { "fieldPath": "cod_norma", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "acervo_leis",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "vigor", "order": "ASCENDING" },
+        { "fieldPath": "ano", "order": "DESCENDING" },
+        { "fieldPath": "numero", "order": "DESCENDING" },
+        { "fieldPath": "cod_norma", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "acervo_leis",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "temaCategoria", "order": "ASCENDING" },
+        { "fieldPath": "ano", "order": "DESCENDING" },
+        { "fieldPath": "numero", "order": "DESCENDING" },
+        { "fieldPath": "cod_norma", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "acervo_leis",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "ano", "order": "ASCENDING" },
+        { "fieldPath": "numero", "order": "ASCENDING" },
+        { "fieldPath": "cod_norma", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "acervo_leis",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tipo", "order": "ASCENDING" },
+        { "fieldPath": "ano", "order": "ASCENDING" },
+        { "fieldPath": "numero", "order": "ASCENDING" },
+        { "fieldPath": "cod_norma", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "acervo_leis",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "vigor", "order": "ASCENDING" },
+        { "fieldPath": "ano", "order": "ASCENDING" },
+        { "fieldPath": "numero", "order": "ASCENDING" },
+        { "fieldPath": "cod_norma", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "acervo_leis",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "temaCategoria", "order": "ASCENDING" },
+        { "fieldPath": "ano", "order": "ASCENDING" },
+        { "fieldPath": "numero", "order": "ASCENDING" },
+        { "fieldPath": "cod_norma", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "acervo_audit",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "cod", "order": "ASCENDING" },
+        { "fieldPath": "em", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "acervo_audit",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "agente", "order": "ASCENDING" },
+        { "fieldPath": "em", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "nexo_tarefas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "expiraEm", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "nexo_snapshots",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "chave", "order": "ASCENDING" },
+        { "fieldPath": "geradoEm", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "nexo_ranking_vinculo",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "_exercicio", "order": "ASCENDING" },
+        { "fieldPath": "potencial", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "nexo_cruzamentos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "_exercicio", "order": "ASCENDING" },
+        { "fieldPath": "tipo", "order": "ASCENDING" },
+        { "fieldPath": "valorAncora", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "nexo_cruzamentos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "_cnpjRaiz", "order": "ASCENDING" },
+        { "fieldPath": "valorAncora", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "nexo_nomeacoes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "nomeNorm", "order": "ASCENDING" },
+        { "fieldPath": "data", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "telemetria_eventos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tipo", "order": "ASCENDING" },
+        { "fieldPath": "criadoEm", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

@@ -1,0 +1,127 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // --- Recortes (video clippings) ---
+
+    // Binarios dos recortes ficam em `recortes/{folderId}/...` (ver
+    // uploadRecorteVideo em actions.ts). A leitura publica e condicionada ao
+    // `isPublic` da pasta no Firestore (espelha firestore.rules:
+    // recortes/{folderId}/videos), para nao expor recortes de pastas
+    // privadas (P1-V). Usuarios autenticados leem qualquer pasta; escrita
+    // exige auth.
+    match /recortes/{folderId}/{allPaths=**} {
+      allow read: if request.auth != null
+        || get(/databases/$(database)/documents/recortes/$(folderId)).data.isPublic == true;
+      allow write: if request.auth != null;
+    }
+
+    // --- Authenticated-Only Paths ---
+
+    // Configuration assets (logos, etc.)
+    match /configs/{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Acervo de leis — HTML/texto offloaded (leis grandes > 700KB). Leitura
+    // autenticada; escrita só via Admin SDK (ingestão).
+    match /acervo/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // Batch import temporary files
+    match /import-batches/{batchId}/{allPaths=**} {
+      allow read, write: if request.auth != null && get(/databases/$(database)/documents/importBatches/$(batchId)).data.userId == request.auth.uid;
+    }
+
+    // NOTA (P2-sec1): os anexos de documentos JA existentes
+    // (oficios/requerimentos/projetos-de-lei/indicacoes/{docId}/...) sao
+    // legiveis/gravaveis por QUALQUER usuario autenticado. Isto e intencional
+    // no modelo de gabinete unico/compartilhado deste sistema (mesma equipe
+    // ve/edita os documentos uns dos outros). NAO restringir por ownerUid
+    // sem migrar os documentos para um modelo multi-tenant — caso contrario
+    // quebra leituras/edicoes legitimas entre membros do gabinete.
+
+    // Initial attachments for new ofícios. Only the creator can upload.
+    match /oficios/uploads/{userId}/{fileName} {
+       allow read: if request.auth != null;
+       allow write: if isOwner(userId);
+    }
+    
+    // Attachments for existing ofícios (comments, protocol, response)
+    match /oficios/{oficioId}/{allPaths=**} {
+       allow read, write: if request.auth != null;
+    }
+    
+    // Initial attachments for new requerimentos. Only the creator can upload.
+    match /requerimentos/uploads/{userId}/{fileName} {
+       allow read: if request.auth != null;
+       allow write: if isOwner(userId);
+    }
+
+    // Attachments for existing requerimentos (comments)
+    match /requerimentos/{requerimentoId}/{allPaths=**} {
+       allow read, write: if request.auth != null;
+    }
+
+    // Initial attachments for new projetos de lei. Only the creator can upload.
+    match /projetos-de-lei/uploads/{userId}/{fileName} {
+       allow read: if request.auth != null;
+       allow write: if isOwner(userId);
+    }
+
+    // Attachments for existing projetos de lei (anexos, comentarios)
+    match /projetos-de-lei/{projetoId}/{allPaths=**} {
+       allow read, write: if request.auth != null;
+    }
+
+    // Initial attachments for new indicacoes. Only the creator can upload
+    // (indicacao-form escreve em `indicacoes/uploads/{uid}/...`). Sem esta
+    // regra o upload caia no default DENY -> "Erro ao Salvar" (P0-6).
+    match /indicacoes/uploads/{userId}/{fileName} {
+       allow read: if request.auth != null;
+       allow write: if isOwner(userId);
+    }
+
+    // Attachments for existing indicacoes (comments)
+    match /indicacoes/{indicacaoId}/{allPaths=**} {
+       allow read, write: if request.auth != null;
+    }
+
+    // Audio transcriptions
+    match /transcriptions/{userId}/{fileName} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Files uploaded via public QR code links (user should be signed-in anonymously)
+    match /public-uploads/{allPaths=**} {
+       allow read, write: if request.auth != null;
+    }
+
+    // --- Suite Editor de Vídeos ---
+    // Assets de projeto. Idealmente cross-reference com o doc do projeto
+    // no Firestore (ownerUid), mas começamos simples: apenas autenticado.
+    match /videoProjects/{projectId}/assets/{file=**} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Output de renders (cloud-ffmpeg). Owner-only.
+    match /renders/{userId}/{file=**} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // NEXO — snapshots materializados grandes (grafo/alertas) que nao cabem
+    // inline no doc. O worker (Admin SDK) escreve; usuario autenticado le o
+    // .json.gz para renderizar o painel sem recomputar ao vivo (Frente F).
+    match /nexo-snapshots/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+  }
+}

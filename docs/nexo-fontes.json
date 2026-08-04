@@ -1,0 +1,1853 @@
+[
+  {
+    "fonte": "Portal da Prefeitura (marilia.sp.gov.br)",
+    "baseUrl": "https://www.marilia.sp.gov.br",
+    "tipoAcesso": "misto",
+    "autenticacao": "nenhuma",
+    "resumoDados": "O portal institucional expoe uma API de Dados Abertos em JSON puro (sem auth) no padrao /portal/dados-abertos/{categoria}/{ano} cobrindo 15 categorias, com destaque para licitacoes/editais, contratos+atas de registro de preco, obras (com valor/situacao/datas), compra-direta (dispensas), chamamento-publico, concursos e o texto integral do Diario Oficial. Cada chamada retorna {\"dados\":[...]} filtrado por ano (parametro de path). Complementa as paginas HTML server-rendered (/portal/editais, /portal/contratos, /portal/obras) que tem paginacao e levam a paginas de detalhe com download de anexos (ZIP/PDF do edital, PDF do contrato). Tambem ha export CSV generico via /csv.php e PDF via /m_pdf.php.",
+    "cruzamentos": "numeroProcesso/numeroEdital cruza licitacao->contrato->ARP dentro deste mesmo portal; o nome da contratada (so na pagina HTML do contrato, nao no JSON) cruza com CNPJ via PNCP/TCE-SP/BrasilAPI/CEIS; valorContrato e empenho cruzam com DespesaAgrupada/pagamentos do SMARAPD PAI; obras (valor x valor pago x situacao x prazo) cruzam com contratos e empenhos; Diario Oficial JSON cruza com a integracao de Diario ja existente e com SAPL (normas/leis citadas no texto).",
+    "jaIntegrado": false,
+    "prioridade": "alta",
+    "endpointsConfirmados": [
+      "https://www.marilia.sp.gov.br/portal/dados-abertos/licitacoes/2026 (JSON, ~130 registros, schema titulo/datas/numeroEdital/numeroProcesso/modalidade/situacao/descricao)",
+      "https://www.marilia.sp.gov.br/portal/dados-abertos/contratos/2026 (JSON, 400+ registros, nomeContratada=null como documentado)",
+      "https://www.marilia.sp.gov.br/portal/dados-abertos/obras/2026 (JSON, 20 registros)",
+      "https://www.marilia.sp.gov.br/portal/dados-abertos/diario-oficial/2026 (JSON, descricao com texto integral de leis/portarias confirmado)",
+      "https://www.marilia.sp.gov.br/portal/dados-abertos/compra-direta/2026 (JSON, 200 registros)",
+      "https://www.marilia.sp.gov.br/portal/dados-abertos/chamamento-publico/2026 (JSON, 1 registro)",
+      "https://www.marilia.sp.gov.br/portal/dados-abertos/concursos/2025 (JSON, 2 registros; 2026 fica vazio como esperado)",
+      "https://www.marilia.sp.gov.br/portal/dados-abertos/legislacao/2026 (JSON, 150 registros, schema proprio ementa/numero/categoria/situacao/descricao; ESTAVA marcado nao-confirmado, AGORA CONFIRMADO)",
+      "https://www.marilia.sp.gov.br/portal/dados-abertos/carta-servicos/2026 (JSON, 3 registros nome/assunto/sobre/formaDeResposta; ESTAVA nao-confirmado, AGORA CONFIRMADO)",
+      "https://www.marilia.sp.gov.br/portal/dados-abertos/avaliacoes/{2024,2026} (JSON, metricas reais de satisfacao; ESTAVA nao-confirmado, AGORA CONFIRMADO)",
+      "https://www.marilia.sp.gov.br/portal/editais/0/1/7921/ (HTML detalhe: numero, objeto, modalidade, amparo legal Lei 14.133, valor, datas, situacao, links de download)",
+      "https://www.marilia.sp.gov.br/portal/editais/1 (HTML listagem paginada, 5576 editais / 112 paginas, controles Primeira/Anterior/Proxima/Ultima)",
+      "https://www.marilia.sp.gov.br/portal/contrato/1683 (HTML detalhe: expoe NOME da contratada - CODEMAR -, objeto, valor, vigencia)",
+      "https://www.marilia.sp.gov.br/portal/obras (HTML relatorio com filtros bairro/rua/categoria/situacao e indicador de atraso/valor pago)",
+      "https://www.marilia.sp.gov.br/m_pdf.php?pagina=Contratos (retorna PDF real application/pdf ~14.5KB; ESTAVA marcado presumido/nao-confirmado, AGORA CONFIRMADO)"
+    ],
+    "endpoints": [
+      {
+        "metodo": "GET",
+        "url": "https://www.marilia.sp.gov.br/portal/dados-abertos/licitacoes/{ano}",
+        "descricao": "Lista de editais de licitacao do ano em JSON",
+        "parametros": "path: ano (ex 2026). Sem query params",
+        "formatoResposta": "application/json; {\"dados\":[{titulo,dataAtualizacao,dataPostagem,dataRealizacao,numeroEdital,numeroProcesso,modalidade,situacao,descricao(HTML)}]}",
+        "dadosMunicipais": "Editais de licitacao: objeto, modalidade (Pregao Eletronico, Concorrencia, Credenciamento...), datas, situacao (Aberto/Homologado/Suspenso), numero do processo",
+        "volumeEstimado": "107 editais em 2026; ~5576 historico (paginas HTML)",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.marilia.sp.gov.br/portal/dados-abertos/contratos/{ano}",
+        "descricao": "Lista de contratos e Atas de Registro de Preco (ARP) do ano em JSON",
+        "parametros": "path: ano",
+        "formatoResposta": "application/json; {\"dados\":[{nomeContratada(NULL no feed),dataAssinatura,dataInicioVigencia,dataFimVigencia,dataVigencia,valorContrato,numeroContrato,numeroProcesso,tipoLicitacao,situacao,tipo}]}",
+        "dadosMunicipais": "Contratos e ARPs: valor, vigencia, processo, modalidade, situacao (Vigente etc). Nome da contratada vem null aqui - obter via pagina HTML /portal/contrato/{id}",
+        "volumeEstimado": "912 registros em 2026; ~3802 historico",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.marilia.sp.gov.br/portal/dados-abertos/obras/{ano}",
+        "descricao": "Lista de obras publicas do ano em JSON",
+        "parametros": "path: ano",
+        "formatoResposta": "application/json; {\"dados\":[{titulo,dataAtualizacao,dataExecucaoInicio,dataExecucaoFim,categoria,situacao,valor,descricao}]}",
+        "dadosMunicipais": "Obras: nome, valor da obra, categoria (Pavimentacao, Escolas, Saneamento), situacao (Concluido/Em Andamento/Suspensa/Cancelada/Em Projeto), datas de execucao. Empreiteira embutida no campo descricao",
+        "volumeEstimado": "19 obras em 2026",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.marilia.sp.gov.br/portal/dados-abertos/compra-direta/{ano}",
+        "descricao": "Dispensas e compras diretas do ano em JSON",
+        "parametros": "path: ano. Slug correto com hifen: compra-direta",
+        "formatoResposta": "application/json; mesmos campos de licitacoes (titulo,datas,numeroEdital,numeroProcesso,modalidade=Dispensa,situacao,descricao)",
+        "dadosMunicipais": "Dispensas de licitacao / compras diretas: objeto, secretaria destino, numero da dispensa, situacao (Homologado etc)",
+        "volumeEstimado": "varias por ano (Dispensa 341/2026 visto)",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.marilia.sp.gov.br/portal/dados-abertos/chamamento-publico/{ano}",
+        "descricao": "Chamamentos publicos / credenciamentos do ano em JSON",
+        "parametros": "path: ano. Slug: chamamento-publico",
+        "formatoResposta": "application/json; campos de edital (titulo,datas,numeroEdital,numeroProcesso,modalidade,situacao,descricao)",
+        "dadosMunicipais": "Chamamentos publicos: permissao de uso de bem publico, credenciamentos, parcerias",
+        "volumeEstimado": "baixo (poucos por ano)",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.marilia.sp.gov.br/portal/dados-abertos/concursos/{ano}",
+        "descricao": "Editais de concurso e processo seletivo do ano em JSON",
+        "parametros": "path: ano. ATENCAO: filtra por ano - concursos/2026 vazio, concursos/2025 tem dados",
+        "formatoResposta": "application/json; {\"dados\":[{titulo,dataAtualizacao,dataPostagem,dataRealizacao,numeroEdital,numeroProcesso,modalidade,situacao,descricao}]}; quando vazio retorna {\"dados\":[[\"Nenhum registro encontrado.\"]]}",
+        "dadosMunicipais": "Concursos publicos e processos seletivos: edital, modalidade, situacao (Homologado/Aberto), link de inscricao (ex VUNESP) no descricao",
+        "volumeEstimado": "~24 concursos historico (pagina HTML)",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.marilia.sp.gov.br/portal/dados-abertos/diario-oficial/{ano}",
+        "descricao": "Edicoes do Diario Oficial do Municipio com TEXTO INTEGRAL em JSON",
+        "parametros": "path: ano",
+        "formatoResposta": "application/json; {\"dados\":[{edicao,dataAtualizacao,data,edicaoExtra,descricao(texto integral: leis, portarias, atos)}]}",
+        "dadosMunicipais": "Diario Oficial: numero da edicao, data, texto completo de leis ordinarias, portarias, nomeacoes, atos administrativos. Fonte rica para extrair atos por NLP",
+        "volumeEstimado": "106 edicoes em 2026 (ate junho)",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.marilia.sp.gov.br/portal/dados-abertos/ouvidoria/{ano}",
+        "descricao": "Estatisticas AGREGADAS da ouvidoria do ano em JSON",
+        "parametros": "path: ano",
+        "formatoResposta": "application/json; {\"dados\":{totalPedidos,totalPedidosEmAberto,totalPedidosPendentes,totalPedidosEmAndamento,totalPedidosFinalizados,prazoMedioResposta,assuntos[],secretarias[],tipos[]}}",
+        "dadosMunicipais": "Indicadores da ouvidoria: volume de pedidos, prazo medio de resposta, distribuicao por assunto/secretaria. NAO traz registros individuais. Retornou zerado em 2024/2026",
+        "volumeEstimado": "so agregados (zerado nos anos testados)",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.marilia.sp.gov.br/portal/dados-abertos/sic/{ano}",
+        "descricao": "Estatisticas AGREGADAS do SIC (acesso a informacao - LAI) do ano em JSON",
+        "parametros": "path: ano",
+        "formatoResposta": "application/json; {\"dados\":{totalSolicitantes,totalPedidos,totalPedidosEmAberto,totalPedidosRespondidos,totalPedidosResolvidos,totalPedidosIndeferidos,assuntos[],motivosNegativaRespostas[],tipoSolicitantes[],perfilSolicitantesPf...,perfilSolicitantesPj}}",
+        "dadosMunicipais": "Indicadores do SIC/LAI: pedidos respondidos vs indeferidos, motivos de negativa, perfil dos solicitantes. So agregados, sem registros individuais",
+        "volumeEstimado": "so agregados (zerado nos anos testados)",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.marilia.sp.gov.br/portal/dados-abertos/contas-publicas/{ano}",
+        "descricao": "Contas publicas do ano em JSON (vazio nos anos testados)",
+        "parametros": "path: ano",
+        "formatoResposta": "application/json; retornou {\"dados\":[[\"Nenhum registro encontrado.\"]]} em 2024 e 2026",
+        "dadosMunicipais": "Contas publicas - sem dados nos anos testados; pode estar vazio ou ter dados em outros anos",
+        "volumeEstimado": "vazio nos anos testados",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.marilia.sp.gov.br/portal/dados-abertos/relatorio-viagens/{ano}",
+        "descricao": "Relatorio de viagens/diarias do ano em JSON (vazio nos anos testados)",
+        "parametros": "path: ano",
+        "formatoResposta": "application/json; retornou {\"dados\":[[\"Nenhum registro encontrado.\"]]} em 2026",
+        "dadosMunicipais": "Relatorio de viagens (diarias) - sem dados em 2026. Diarias detalhadas ja vem do SMARAPD PAI",
+        "volumeEstimado": "vazio nos anos testados",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.marilia.sp.gov.br/portal/dados-abertos/{audiencias-publicas|avaliacoes|carta-servicos|legislacao}/{ano}",
+        "descricao": "Demais categorias do catalogo de dados abertos (audiencias publicas, avaliacoes, carta de servicos, legislacao) - mesmo padrao JSON",
+        "parametros": "path: categoria + ano",
+        "formatoResposta": "application/json {\"dados\":[...]} (estrutura nao detalhada; padrao do catalogo)",
+        "dadosMunicipais": "Audiencias publicas, avaliacoes de servicos, carta de servicos, legislacao municipal",
+        "volumeEstimado": "nao medido",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.marilia.sp.gov.br/portal/editais/{tipo}",
+        "descricao": "Pagina HTML server-rendered listando editais com paginacao (tipo 1=licitacao, 3=concurso)",
+        "parametros": "path: tipo (1,3...); paginacao via segmentos /portal/editais/{pagina}/... ; tem filtros de busca por numero/ano/modalidade/situacao",
+        "formatoResposta": "text/html server-rendered com controles Primeira/Anterior/Proxima/Ultima (ex 112 paginas de licitacao)",
+        "dadosMunicipais": "Mesma lista de editais do JSON mas paginada em HTML; util como fallback e para descobrir IDs de detalhe",
+        "volumeEstimado": "~5576 editais / 112 paginas",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.marilia.sp.gov.br/portal/editais/0/{tipo}/{id}/",
+        "descricao": "Pagina HTML de detalhe de um edital/licitacao com download de anexos",
+        "parametros": "path: tipo + id (ex /portal/editais/0/1/7921/)",
+        "formatoResposta": "text/html; campos: numero, processo, objeto, modalidade, modo de disputa, amparo legal (Lei 14.133/2021), valor total, datas, situacao + links de download",
+        "dadosMunicipais": "Detalhe completo do edital: valor estimado, amparo legal, quantidades; links de anexos em /portal/download/licitacoes/{hash}/ (ZIP/PDF do edital)",
+        "volumeEstimado": "1 por edital",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.marilia.sp.gov.br/portal/contrato/{id}",
+        "descricao": "Pagina HTML de detalhe de contrato - UNICA fonte do nome da contratada",
+        "parametros": "path: id numerico do contrato (ex 1683, 1630)",
+        "formatoResposta": "text/html; campos: numero, contratada (NOME da empresa), objeto, valor, vigencia, assinatura, processo/modalidade + link de download do contrato e link do edital de origem",
+        "dadosMunicipais": "Nome da empresa contratada (que NAO vem no JSON), objeto, valor, vigencia. CNPJ NAO aparece. Download em /portal/download/contratos/{hash}/ e link para edital /portal/editais/0/1/{id}/",
+        "volumeEstimado": "1 por contrato (~3802 total)",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.marilia.sp.gov.br/portal/obras",
+        "descricao": "Pagina HTML de relatorio de obras com filtros (bairro, rua, categoria, situacao) e detalhe com valor pago e atraso",
+        "parametros": "query/form: keyword, periodo, categoria, bairro, rua, situacao",
+        "formatoResposta": "text/html; detalhe de obra mostra Valor da Obra, Valor Pago, Situacao, Inicio, Encerramento e alerta de atraso (ex 'esta obra esta 25 dias atrasada')",
+        "dadosMunicipais": "Obras com VALOR PAGO e indicador de atraso - dados que NAO estao no JSON de obras (so valor total). Filtravel por bairro/rua",
+        "volumeEstimado": "dezenas de obras",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.marilia.sp.gov.br/csv.php?pagina={Pagina}",
+        "descricao": "Export generico em CSV das listagens",
+        "parametros": "query: pagina (ex Licitacoes, Contratos) + provaveis filtros herdados da busca",
+        "formatoResposta": "Content-Type: application/force-download; Content-Disposition: attachment; filename=dados.csv (CSV)",
+        "dadosMunicipais": "Dump CSV das listagens (licitacoes, contratos etc) para download em massa",
+        "volumeEstimado": "conforme filtro",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.marilia.sp.gov.br/m_pdf.php?pagina={Pagina}",
+        "descricao": "Export das listagens em PDF",
+        "parametros": "query: pagina (ex 'Contratos', 'Editais de Concurso')",
+        "formatoResposta": "application/pdf (presumido)",
+        "dadosMunicipais": "Versao PDF das listagens",
+        "volumeEstimado": "conforme filtro",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.marilia.sp.gov.br/portal/download/{contratos|licitacoes}/{hash}/",
+        "descricao": "Download de anexos (edital ZIP/PDF, contrato PDF) referenciados nas paginas de detalhe",
+        "parametros": "path: tipo + hash opaco gerado por documento (ex KqTw-x, hCxLzo)",
+        "formatoResposta": "binario (ZIP/PDF), ex EDITAL ZIP 6,88 MB",
+        "dadosMunicipais": "Arquivos integrais de editais e contratos para analise documental",
+        "volumeEstimado": "1+ por edital/contrato",
+        "confirmado": false
+      }
+    ],
+    "veredito": "A fonte e REALMENTE integravel e o nucleo do mapeamento se sustenta sob verificacao independente. Confirmei via fetch real os 4 endpoints JSON principais (licitacoes, contratos, obras, diario-oficial) com schemas exatamente como descritos, incluindo nomeContratada=null em contratos e texto integral no diario. As paginas HTML de detalhe (editais e contrato/{id}) confirmam o ponto-chave do mapeamento: o NOME da contratada so aparece no HTML, nao no JSON (verificado contrato 1683 = CODEMAR). Correcoes ao mapeamento: (1) tres categorias marcadas como NAO-confirmadas na verdade retornam dado real e foram promovidas a confirmadas - legislacao (150 registros, schema proprio com ementa/numero - otima fonte de atos), carta-servicos e avaliacoes; (2) m_pdf.php tambem foi confirmado (PDF real 14.5KB), nao apenas 'presumido'. Pontos de cautela: SIC e ouvidoria sao JSON validos porem ZERADOS inclusive em 2025 (nao so nos anos antes testados) - tratar como 'agregado sempre vazio', baixa utilidade; contas-publicas e relatorio-viagens vazios; audiencias-publicas so tem registro placeholder. O que NAO consegui confirmar: csv.php retorna force-download de 0 bytes em ambos os testes (provavel dependencia de sessao/cookie de busca - precisa validar com fluxo navegado antes de depender dele para dump em massa) e o endpoint de download de anexos binarios (URL e hashes sao reais, mas o WebFetch nao materializou o binario para confirmar conteudo). Recomendacao de integracao: priorizar os endpoints JSON de catalogo + scraping das paginas HTML de detalhe de contrato para enriquecer com o nome da empresa; tratar csv.php/download como 'a validar em ambiente com sessao' e nao confiar em SIC/ouvidoria/contas-publicas/viagens para dados."
+  },
+  {
+    "fonte": "Legislacao Municipal (legislacao.marilia.sp.gov.br)",
+    "baseUrl": "https://sapl.marilia.sp.leg.br/",
+    "tipoAcesso": "html-scrape",
+    "autenticacao": "nenhuma",
+    "resumoDados": "Base completa de legislação municipal de Marília: leis ordinárias, leis complementares, decretos do Executivo, portarias, resoluções, decretos legislativos e atos da Mesa, com ementa, número, ano, data, situação (em vigor/revogada), texto original e texto consolidado em PDF, além de relações entre normas (revoga/alterada por). A fonte canônica é o SAGL/OpenLegis da Câmara (sapl.marilia.sp.leg.br); o portal da Prefeitura espelha leis/decretos com filtros próprios. Não há API REST moderna (instância é SAGL legado, não Django SAPL 3.1), mas os dados são totalmente raspáveis via páginas de listagem por tipo/ano e IDs sequenciais.",
+    "cruzamentos": "Decretos de licitacao/dispensa -> validar limites na Lei 14.133 aplicados em Contratos (PNCP) e Despesas (SMARAPD PAI). Leis orcamentarias (LOA/LDO/PPA, achaveis em leis_ordinarias/complementares) -> SICONFI/execucao. Portarias de nomeacao/gratificacao -> folha/servidores. Numero+ano da norma citada em empenhos -> verificar fundamento legal do gasto. Relacao 'revoga'/'alterada por' permite montar grafo de vigencia das regras de compra.",
+    "jaIntegrado": false,
+    "prioridade": "alta",
+    "endpointsConfirmados": [
+      "GET https://sapl.marilia.sp.leg.br/consultas/legislacao/decretos_executivo?ano_norma=2025 — HTML real, tabela com numero/data/ementa e links cod_norma (ex: 14899=DECLARA NULO O DECRETO; cod_norma=43449)",
+      "GET https://sapl.marilia.sp.leg.br/consultas/legislacao/leis_ordinarias?ano_norma=2025 — HTML real (Lei 9412 Orcamento 2026, cod_norma=43484); funciona tambem em ano historico 1992 (130 registros, Lei 3849)",
+      "GET https://sapl.marilia.sp.leg.br/consultas/legislacao/leis_complementares?ano_norma=2025 — HTML real, 16 linhas (LC 1017..1002)",
+      "GET https://sapl.marilia.sp.leg.br/consultas/legislacao/portarias?ano_norma=2025 — HTML real, 20 linhas (Portaria 20, Portaria 14)",
+      "GET https://sapl.marilia.sp.leg.br/consultas/legislacao/resolucoes?ano_norma=2025 — HTML real, 11 linhas (Resolucao 410, 405)",
+      "GET https://sapl.marilia.sp.leg.br/consultas/legislacao/atos_mesa?ano_norma=2025 — HTML real, 190 linhas (Ato 190, 189)",
+      "GET https://sapl.marilia.sp.leg.br/consultas/legislacao/decretos_legislativos?ano_norma=2025 — HTML real, 8 linhas (DL 474, 470)",
+      "GET https://sapl.marilia.sp.leg.br/consultas/norma_juridica/norma_juridica_mostrar_proc?cod_norma=41860 — HTML real, detalhe LC 973/2023 Plano Diretor com relacoes revoga(LC480/2006)/alterada por(LC990/992/993/2024)",
+      "GET https://sapl.marilia.sp.leg.br/pysc/download_norma_pysc?cod_norma=42500&texto_original=1 — PDF real (PDF/A 1.7, 1.2MB, binario valido)",
+      "GET https://sapl.marilia.sp.leg.br/pysc/download_materia_pysc?cod_materia=MTYzNTE4&texto_original=1 — PDF real e legivel (Requerimento 510-2021 P/N 16029, Vereador Danilo da Saude); endpoint estava marcado confirmado=false no mapeamento mas EU CONFIRMEI que funciona"
+    ],
+    "endpoints": [
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/consultas/legislacao/decretos_executivo?ano_norma={ANO}",
+        "descricao": "Listagem de TODOS os Decretos do Executivo de um ano, com numero, data, ementa (em celulas <td>) e link cod_norma. ENDPOINT PRINCIPAL para rastrear decretos novos (ex: limites de dispensa, atualizacao monetaria, processos de licitacao). Nao sofre throttle (ao contrario do _pesquisar_proc).",
+        "parametros": "ano_norma (YYYY, obrigatorio). Sem ano_norma retorna ano corrente.",
+        "formatoResposta": "HTML (tabela). Ementas em <td>, links via cod_norma=N",
+        "dadosMunicipais": "Decretos do Executivo: 332 em 2025; confirmado ementas como 'DISPOE SOBRE OS PROCESSOS DE LICITACAO E CONTRATOS ADMINISTRATIVOS' e 'ATUALIZA MONETARIAMENTE PARA O EXERCICIO'",
+        "volumeEstimado": "~300-350 decretos/ano",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/consultas/legislacao/leis_ordinarias?ano_norma={ANO}",
+        "descricao": "Listagem de Leis Ordinarias por ano com numero, data, ementa e cod_norma. Sem throttle.",
+        "parametros": "ano_norma (YYYY). Funciona para anos historicos (ex: 1992).",
+        "formatoResposta": "HTML (tabela)",
+        "dadosMunicipais": "Leis ordinarias: 202 em 2025",
+        "volumeEstimado": "~150-200 leis/ano",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/consultas/legislacao/leis_complementares?ano_norma={ANO}",
+        "descricao": "Listagem de Leis Complementares por ano (codigos, planos diretores, estatutos).",
+        "parametros": "ano_norma (YYYY)",
+        "formatoResposta": "HTML (tabela)",
+        "dadosMunicipais": "Leis complementares: 18 em 2025",
+        "volumeEstimado": "~15-30/ano",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/consultas/legislacao/portarias?ano_norma={ANO}",
+        "descricao": "Listagem de Portarias por ano (nomeacoes, gratificacoes, atos administrativos).",
+        "parametros": "ano_norma (YYYY)",
+        "formatoResposta": "HTML (tabela)",
+        "dadosMunicipais": "Portarias: 22 em 2025 (nota: muitas portarias da Prefeitura ficam no portal proprio, nao na Camara)",
+        "volumeEstimado": "dezenas/ano na Camara",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/consultas/legislacao/resolucoes?ano_norma={ANO}",
+        "descricao": "Listagem de Resolucoes por ano.",
+        "parametros": "ano_norma (YYYY)",
+        "formatoResposta": "HTML (tabela)",
+        "dadosMunicipais": "Resolucoes: 13 em 2025",
+        "volumeEstimado": "~10-20/ano",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/consultas/legislacao/atos_mesa?ano_norma={ANO}",
+        "descricao": "Listagem de Atos da Mesa Diretora da Camara por ano.",
+        "parametros": "ano_norma (YYYY)",
+        "formatoResposta": "HTML (tabela)",
+        "dadosMunicipais": "Atos da Mesa: 192 em 2025",
+        "volumeEstimado": "~150-200/ano",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/consultas/legislacao/decretos_legislativos?ano_norma={ANO}",
+        "descricao": "Listagem de Decretos Legislativos por ano.",
+        "parametros": "ano_norma (YYYY)",
+        "formatoResposta": "HTML (tabela)",
+        "dadosMunicipais": "Decretos legislativos: 10 em 2025",
+        "volumeEstimado": "~10/ano",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/consultas/norma_juridica/norma_juridica_mostrar_proc?cod_norma={N}",
+        "descricao": "Pagina de detalhe de UMA norma. cod_norma e inteiro SEQUENCIAL e iteravel - crawl incremental do topo da faixa (~42500+ em 2025) detecta normas novas. Mostra tipo, numero, ano, data, ementa, origem (PLC/autor), situacao, e relacoes 'revoga'/'alterada por'.",
+        "parametros": "cod_norma (inteiro sequencial)",
+        "formatoResposta": "HTML",
+        "dadosMunicipais": "Confirmado: 41860=LC 973/2023 (Plano Diretor, revoga LC 480/2006, alterada por LC990/992/993/2024); 42000=Decreto Executivo 14218/2024; 42500=Decreto Executivo 14464/2024",
+        "volumeEstimado": "~42500+ normas no acervo total",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/pysc/download_norma_pysc?cod_norma={N}&texto_original=1",
+        "descricao": "Download do PDF do texto integral de uma norma. Tambem aceita &texto_consolidado=1 para versao compilada. Sem autenticacao. Permite analise de conteudo (NLP) do texto da lei/decreto.",
+        "parametros": "cod_norma (inteiro); texto_original=1 OU texto_consolidado=1",
+        "formatoResposta": "PDF (binario, pode passar de 10MB em leis grandes)",
+        "dadosMunicipais": "PDF real da norma; confirmado download de LC 973/2023 (excedeu limite de 10MB do fetcher = arquivo real)",
+        "volumeEstimado": "1 PDF por cod_norma",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.marilia.sp.gov.br/portal/leis_decretos/{PAGINA}/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/0/",
+        "descricao": "Portal da PREFEITURA (backend custom) com leis/decretos paginados por segmento posicional na URL. Inclui formulario com selects: form_categoria (tipo), form_situacao, form_ordenacao, form_secretaria, form_assunto, form_autor. ~1510 paginas. Util para portarias/atos do Executivo que NAO estao na base da Camara.",
+        "parametros": "Segmentos posicionais (1o = numero da pagina; demais = filtros codificados, 0=todos). PDFs via slug ofuscado /portal/download/legislacao/{SLUG}/",
+        "formatoResposta": "HTML (SPA-ish, ~260-530KB/pagina)",
+        "dadosMunicipais": "Confirmado: Portaria nº 48356 de 20/01; categorias Lei Ordinaria, Lei Complementar, Decreto, Decreto Legislativo, Portaria",
+        "volumeEstimado": "~1510 paginas de legislacao do Executivo",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/consultas/norma_juridica/norma_juridica_pesquisar_proc?tip_norma={T}&txt_numero=&txt_ano={ANO}&txt_assunto=&txt_palavra_chave=&rad_palavra_chave=E",
+        "descricao": "Busca avancada por tipo/numero/ano/assunto/palavra-chave. PROBLEMA: retornou HTTP 503 em todas as tentativas (GET e POST, com headers de browser) - parece ter anti-bot/throttle no endpoint de execucao da busca. Form action confirmado no HTML. Recomenda-se usar os endpoints de listagem (/consultas/legislacao/) em vez deste.",
+        "parametros": "tip_norma (1=Lei Ordinaria, 2=Lei Complementar, 7=Decreto do Executivo, 4=Decreto Legislativo, 9=Portaria, 10=Lei Organica, 5=Emenda a LO), txt_numero, txt_ano, txt_assunto, txt_palavra_chave, rad_palavra_chave (E/OU), hdn_num_pagina",
+        "formatoResposta": "HTML (esperado) - retornou 503",
+        "dadosMunicipais": "Filtro por palavra-chave/assunto permitiria busca direta (ex: 'dispensa', 'licitacao'), mas indisponivel por throttle",
+        "volumeEstimado": "n/a (bloqueado)",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/pysc/download_materia_pysc?cod_materia={ID_BASE64}&texto_original=1",
+        "descricao": "Download de PDF de MATERIA legislativa (projeto de lei, processo) - distinto de norma. cod_materia aparece codificado em base64 (ex: MTYzNTE4). Liga projeto -> norma promulgada.",
+        "parametros": "cod_materia (id base64), texto_original=1",
+        "formatoResposta": "PDF",
+        "dadosMunicipais": "Texto de projetos de lei/processos legislativos antes de virarem norma",
+        "volumeEstimado": "1 PDF por materia",
+        "confirmado": false
+      }
+    ],
+    "veredito": "Fonte ALTAMENTE integravel. Confirmei de forma independente (fetch real) 10 dos 13 endpoints retornando dado util, incluindo o principal (decretos_executivo por ano), os 7 listings, o detalhe de norma com relacoes, e DOIS downloads de PDF reais (norma 1.2MB + materia 170KB renderizada como documento legivel). Descoberta importante: o endpoint download_materia_pysc, que o mapeamento marcava como confirmado=false, EU CONFIRMEI funcionando (PDF de requerimento legivel). Ressalvas: (1) os contadores anuais do mapeamento estao levemente inflados vs. o que vejo ao vivo (portarias 20 nao 22; resolucoes 11 nao 13; atos_mesa 190 nao 192; DL 8 nao 10; LC 16 nao 18) — diferenca de snapshot, nao afeta a integrabilidade dos endpoints. (2) O endpoint de busca avancada (pesquisar_proc) esta REALMENTE quebrado (503 reproduzido) — nao confiar nele; estrategia correta e crawl das listagens + cod_norma sequencial. (3) Portal da Prefeitura: interface real mas o padrao de URL posicional do mapeamento nao populou lista (resultado vazio); falta confirmar os segmentos corretos de paginacao. Falta confirmar tambem: paginacao das listagens grandes (ex: 332 decretos cabem todos numa pagina HTML?) e o parametro &texto_consolidado=1 do download (so testei texto_original=1)."
+  },
+  {
+    "fonte": "Camara Municipal / SAPL (marilia.sp.leg.br)",
+    "baseUrl": "https://sapl.marilia.sp.leg.br",
+    "tipoAcesso": "api-json",
+    "autenticacao": "nenhuma",
+    "resumoDados": "A Câmara de Marília NÃO roda o SAPL 3.x do Interlegis (Django/DRF) — roda o SAGL da OpenLegis, sistema Zope/Python (Server: waitress, X-Powered-By: Zope). Por isso NÃO existe /api/ REST nem swagger/OpenAPI (todos retornam 404). Em vez disso, o SAGL expõe uma API JSON pública não-documentada via views Zope no padrão @@nome (JSON-LD com @id/@type/items), totalmente aberta, sem auth. Ela entrega: matérias legislativas (projetos de lei, indicações, denúncias, processos de contas) com autoria, tramitação completa, pareceres de comissão, emendas e resultado de votação; normas jurídicas (leis, decretos, atos) com status/vínculos/PDF; sessões plenárias com pauta, ata, lista de presença (chamada regimental + ordem do dia) e votação nominal por vereador; vereadores com biografia, mandatos, filiações partidárias e comissões; comissões com composição histórica e reuniões; legislaturas. Todos os documentos têm download direto de PDF.",
+    "cruzamentos": "Autoria de matérias (campo authorship: Poder Executivo vs vereador) cruza com servidores/cargos e com o Diário Oficial. voteResult / @@sessoes/.../votacao cruza voto nominal de cada vereador com as matérias que beneficiam fornecedores/contratos (PNCP/SMARAPD). committeeOpinion liga relator (vereador) a parecer. Normas (leis) cruzam com despesa autorizada (LOA/LDO via SICONFI) e com licitações. cod_autor liga vereador a todas as suas matérias. Apostilamentos/nomeações em Atos da Mesa cruzam com folha de pagamento (recursos humanos da Prefeitura/Câmara).",
+    "jaIntegrado": false,
+    "prioridade": "alta",
+    "endpointsConfirmados": [
+      "https://sapl.marilia.sp.leg.br/@@materias (sem params -> descritor com filtros: ano 1907-2026, 11 tipos)",
+      "https://sapl.marilia.sp.leg.br/@@materias?ano=2025&tipo=1 (100+ items reais, JSON-LD)",
+      "https://sapl.marilia.sp.leg.br/@@materias/189479 (dossie completo: processing[10], committeeOpinion[2], voteResult com 14 favoraveis, accessoryDocument[9])",
+      "https://sapl.marilia.sp.leg.br/@@materias/189479/tramitacao (10 registros de tramitacao com datas/unidades/PDFs)",
+      "https://sapl.marilia.sp.leg.br/@@normas?ano=2025&tipo=1 (200 items)",
+      "https://sapl.marilia.sp.leg.br/@@normas/43484 (detalhe completo + URL de PDF)",
+      "https://sapl.marilia.sp.leg.br/@@sessoes/tipo/2/ano/2025 (lista de sessoes com links ata/pauta/presenca/votacao; FUNCIONA mas ver ressalva de tipo)",
+      "https://sapl.marilia.sp.leg.br/@@sessoes/id/918/votacao (votacaoNominal com NOMES reais de vereadores + contagens; confirmado na sessao 918)",
+      "https://sapl.marilia.sp.leg.br/@@vereadores (18 vereadores)",
+      "https://sapl.marilia.sp.leg.br/@@vereadores/100360 (ficha: filiacoes, mandatos, comissoes, mesas, cod_autor)",
+      "https://sapl.marilia.sp.leg.br/@@comissoes (11 comissoes)",
+      "https://sapl.marilia.sp.leg.br/@@comissoes/8 (membros + 26 periodos + 25 reunioes)",
+      "https://sapl.marilia.sp.leg.br/@@legislaturas (21 items, atual=21)",
+      "https://sapl.marilia.sp.leg.br/sapl_documentos/norma_juridica/43484_texto_integral.pdf (PDF binario real 565KB, HTTP 200)",
+      "https://sapl.marilia.sp.leg.br/sapl_documentos/materia/189479_texto_integral.pdf (PDF binario real 169KB, HTTP 200)"
+    ],
+    "endpoints": [
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/@@materias",
+        "descricao": "Lista de matérias legislativas (projetos de lei, indicações, denúncias, processos de contas). Sem filtro retorna o descritor com filtros disponíveis (ano, tipo). Com ?ano=&tipo= retorna items.",
+        "metodo_obs": "",
+        "parametros": "ano (ex.: 2025), tipo (1=Projeto de Lei, 8=Indicação, 24=Processo de Contas, 25=Denúncia, 5, 6...). aceita só ano.",
+        "formatoResposta": "JSON-LD (@id, @type, description, items[]). Cada item: @id, @type=Materia, title, description, date, authorship[{title,description,firstAuthor}], file[{download(PDF),content-type}], remoteUrl, id.",
+        "dadosMunicipais": "Todos os projetos/proposições da Câmara com autoria (distingue Poder Executivo de vereador), data, ementa e PDF do texto integral.",
+        "volumeEstimado": "2025: 249 Projetos de Lei, 3293 Indicações; milhares/ano somando todos os tipos; histórico desde 2009+.",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/@@materias/{id}",
+        "descricao": "Dossiê completo de uma matéria: tramitação, pareceres de comissão, emendas, substitutivos, anexos, documentos acessórios e resultado de votação.",
+        "parametros": "{id} = id da matéria (ex.: 189325).",
+        "formatoResposta": "JSON. Chaves: authorship, processing[{date,sourceUnit,destinationUnit,title,file(PDF),last}], committeeOpinion[{authorship(comissao),date,description(relator/voto),file}], amendment, substitute, attached, accessoryDocument[{date,title,authorship,file}], voteResult[{@id(sessao),date,turn,votingType,result[{favorable,contrary,abstention}],title}], inProgress, processingRegime, quorum, file, remoteUrl.",
+        "dadosMunicipais": "Trajetória integral de uma proposição: cada despacho, parecer (com relator e sentido do voto), emenda e o resultado da votação ligado à sessão. Ouro para fiscalização de quem aprovou o quê.",
+        "volumeEstimado": "1 dossiê por matéria; tramitações com vários PDFs cada.",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/@@materias/{id}/tramitacao",
+        "descricao": "Sub-recurso dedicado só à tramitação da matéria (mesmo conteúdo de processing, isolado, ~10KB).",
+        "parametros": "{id} = id da matéria.",
+        "formatoResposta": "JSON com histórico de tramitação (datas, unidades de origem/destino, despachos, PDFs).",
+        "dadosMunicipais": "Linha do tempo de tramitação de cada proposição.",
+        "volumeEstimado": "1 por matéria.",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/@@normas",
+        "descricao": "Lista de normas jurídicas (leis ordinárias/complementares, decretos, resoluções, atos da mesa, portarias). EXIGE param tipo.",
+        "parametros": "ano (2009..2026), tipo OBRIGATÓRIO (1=Lei Ordinária, 2=Lei Complementar, 3=Resolução, 4=Decreto Legislativo, 6=Ato da Mesa, 7=Decreto do Executivo, 9=Portaria...). Ex.: ?ano=2025&tipo=1.",
+        "formatoResposta": "JSON-LD. items[]: @id, @type=Norma, title, description(ementa), data_apresentacao, id.",
+        "dadosMunicipais": "Toda a legislação municipal (e atos internos da Câmara) com ementa e data.",
+        "volumeEstimado": "2025: 200 Leis Ordinárias por consulta (paginação por step); 94 Atos da Mesa em 2026 até junho; milhares no histórico.",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/@@normas/{id}",
+        "descricao": "Detalhe de uma norma jurídica.",
+        "parametros": "{id} = cod_norma (ex.: 43783).",
+        "formatoResposta": "JSON: @id, @type=Norma, title, description, data_norma, data_publicacao, veiculo_publicacao, status(Em vigor/Revogada), materia[](origem), normas_vinculadas[](leis relacionadas/alteradas), texto_compilado, anexos, file[{download(PDF)}].",
+        "dadosMunicipais": "Texto integral da lei em PDF, situação de vigência, lei de origem (matéria) e vínculos entre normas (o que altera/revoga o quê).",
+        "volumeEstimado": "1 por norma.",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/@@sessoes/tipo/{tipo}/ano/{ano}",
+        "descricao": "Lista de reuniões plenárias por tipo e ano (path-based, não querystring).",
+        "parametros": "{tipo}: 1=Ordinária, 2=Extraordinária; {ano}: 2009..2026. Sem path retorna descritor com filtros.",
+        "formatoResposta": "JSON-LD items[]: @id (=@@sessoes/id/{id}), @id_presenca, @id_votacao, @type=SessaoPlenaria, title, description, date, startTime, endTime, type, type_id, ata[{download PDF}], pauta[{download PDF}].",
+        "dadosMunicipais": "Calendário de sessões com PDF da pauta e da ata, e links diretos para presença e votação de cada sessão.",
+        "volumeEstimado": "~40+ reuniões ordinárias/ano + extraordinárias; histórico de muitos anos.",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/@@sessoes/id/{id}/presenca",
+        "descricao": "Listas de presença da sessão: chamada regimental e ordem do dia.",
+        "parametros": "{id} = id da sessão (ex.: 934).",
+        "formatoResposta": "JSON: chamadaRegimental[{presentes[],ausentes[],justificados[],*_qtde}], ordemDia[{idem}].",
+        "dadosMunicipais": "Quem esteve presente/ausente/justificado em cada momento da sessão — base para índice de presença por vereador.",
+        "volumeEstimado": "1 por sessão.",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/@@sessoes/id/{id}/votacao",
+        "descricao": "Votação nominal da sessão, item a item da ordem do dia.",
+        "parametros": "{id} = id da sessão.",
+        "formatoResposta": "JSON @type=votacaoNominal, items[]: tipo_votacao(Simbólica/Nominal), turno, quorum, apuracao[{resultado}], favoravel/contrario/abstencao/ausente/presidencia (contagens), votos[{favoravel[],contrario[],abstencao[],ausente[],presidencia[]}] com NOMES dos vereadores (preenchido só em votação Nominal; Simbólica vem com arrays vazios mas contagens em voteResult da matéria).",
+        "dadosMunicipais": "Como cada vereador votou em cada matéria (quando nominal). Núcleo da fiscalização de comportamento de voto.",
+        "volumeEstimado": "1 por sessão; várias matérias por sessão.",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/@@vereadores",
+        "descricao": "Lista de vereadores em exercício na legislatura atual.",
+        "parametros": "nenhum.",
+        "formatoResposta": "JSON-LD items[]: @id, @type=Vereador, title(nome parlamentar), description(nome civil), id, dic_vereador, partido[{title,token}], url_foto, image[].",
+        "dadosMunicipais": "Composição atual da Câmara com partido e foto.",
+        "volumeEstimado": "~17-21 vereadores.",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/@@vereadores/{id}",
+        "descricao": "Detalhe de um vereador.",
+        "parametros": "{id} = id do parlamentar (ex.: 100360).",
+        "formatoResposta": "JSON: title, description, biografia(HTML escapado), birthday, email, telefone_gabinete, cod_autor, partido, filiacoes[](histórico partidário), mandatos[], comissoes[], mesas[](cargos na mesa diretora), image/url_foto.",
+        "dadosMunicipais": "Ficha completa: filiações partidárias ao longo do tempo, mandatos, comissões e cargos na mesa. cod_autor liga às matérias de sua autoria.",
+        "volumeEstimado": "1 por vereador.",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/@@comissoes",
+        "descricao": "Lista de comissões (permanentes e temporárias).",
+        "parametros": "nenhum.",
+        "formatoResposta": "JSON-LD items[]: @id, @type=Comissao, title, description(sigla), tipo(Permanente/...), id.",
+        "dadosMunicipais": "Todas as comissões (CFO, CJR, CEMA, CAIC, CDHDC, CEC etc.).",
+        "volumeEstimado": "~10-20 comissões.",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/@@comissoes/{id}",
+        "descricao": "Detalhe da comissão: composição histórica e reuniões (~74KB).",
+        "parametros": "{id} = id da comissão (ex.: 8).",
+        "formatoResposta": "JSON: title, tipo, items[](membros atuais), periodos[](45 períodos de composição ao longo do tempo), reunioes{}.",
+        "dadosMunicipais": "Quem compôs cada comissão em cada período e as reuniões realizadas.",
+        "volumeEstimado": "1 por comissão; periodos com dezenas de entradas.",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/@@legislaturas",
+        "descricao": "Lista de legislaturas com intervalo de datas e flag da atual.",
+        "parametros": "nenhum (detalhe via @@legislaturas/{id}).",
+        "formatoResposta": "JSON-LD items[]: @id, @type=Legislatura, title, description(período dd/mm/aaaa a dd/mm/aaaa), id, atual(bool).",
+        "dadosMunicipais": "21 legislaturas; a 21ª (01/01/2025 a 31/12/2028) marcada como atual.",
+        "volumeEstimado": "21 itens.",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/sapl_documentos/{tipo}/{arquivo}.pdf",
+        "descricao": "Download direto de qualquer PDF referenciado nos campos file/download da API @@ (matéria, tramitação, parecer_comissao, ata_sessao, pauta_sessao, norma_juridica, parlamentar/fotos).",
+        "parametros": "caminho vem pronto no JSON. Ex.: /sapl_documentos/materia/189325_texto_integral.pdf; /sapl_documentos/materia/tramitacao/198474_tram.pdf; /sapl_documentos/parecer_comissao/1033_parecer.pdf; /sapl_documentos/ata_sessao/934_ata_sessao.pdf.",
+        "formatoResposta": "application/pdf (binário).",
+        "dadosMunicipais": "Texto integral de proposições, despachos de tramitação, pareceres, atas e pautas, textos de leis.",
+        "volumeEstimado": "1 PDF por documento (testado: 1MB texto integral, 543KB norma consolidada).",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/pysc/download_norma_pysc?cod_norma={id}&texto_consolidado=1",
+        "descricao": "Mecanismo clássico Zope/pysc para baixar o PDF de uma norma (consolidada). Já linkado no portal público; alternativa ao file.download do @@normas.",
+        "parametros": "cod_norma (id da norma), texto_consolidado=1.",
+        "formatoResposta": "application/pdf.",
+        "dadosMunicipais": "PDF da lei/norma (versão consolidada quando existe).",
+        "volumeEstimado": "1 por norma (testado: 543KB).",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://sapl.marilia.sp.leg.br/generico/RSS2_normas",
+        "descricao": "RSS de normas do SAGL — QUEBRADO. Retorna HTTP 503 com página de erro Zope NameError ('Houve um erro ao publicar esta página'). Mesmo bug na instância de Jundiaí. NÃO usar; substituir por @@normas.",
+        "parametros": "page, step, txt_assunto, dt_norma, dt_public, txt_ano, lst_tip_norma, lst_tip_situacao_norma, rd_ordenacao, txt_numero, lst_assunto_norma, incluir (assinatura herdada do SAPL clássico).",
+        "formatoResposta": "Deveria ser RSS 2.0/XML; atualmente serve HTML de erro (NameError do Zope).",
+        "dadosMunicipais": "Normas (quando funcionasse). Hoje inacessível.",
+        "volumeEstimado": "n/a (quebrado).",
+        "confirmado": true
+      },
+      {
+        "metodo": "POST/GET",
+        "url": "https://sapl.marilia.sp.leg.br/api/",
+        "descricao": "API REST estilo Interlegis SAPL 3.x (DRF) — NÃO EXISTE nesta casa. Retorna 404 (Zope NotFound). Marília usa SAGL/OpenLegis, não o SAPL Django. Não há swagger/OpenAPI.",
+        "parametros": "n/a.",
+        "formatoResposta": "HTML 404 do Zope.",
+        "dadosMunicipais": "nenhum — caminho inexistente.",
+        "volumeEstimado": "n/a.",
+        "confirmado": true
+      }
+    ],
+    "veredito": "SIM, a fonte e REALMENTE integravel e e de alta qualidade. 14 endpoints confirmados independentemente com fetch real retornando JSON-LD valido e PDFs binarios reais - o nucleo de fiscalizacao (proposicoes com autoria distinguindo Executivo/vereador, tramitacao, pareceres com relator, normas com texto integral, vereadores com filiacoes/mandatos, comissoes, e VOTACAO NOMINAL com nomes individuais dos vereadores) esta todo funcionando. A votacao nominal (sessao 918) e o ponto mais valioso e foi confirmada com nomes reais e contagens. RESSALVAS conservadoras: (1) /presenca retornou VAZIO em todas as sessoes que testei, inclusive uma com votacao nominal real - nao confie em indice de presenca via API sem mais teste em mais sessoes/anos (talvez so seja populado em sessoes Ordinarias, que nao consegui localizar em 2025); (2) o pysc/download_norma_pysc esta com HTTP 500 - use sapl_documentos como caminho oficial de PDF; (3) o mapeamento tipo->nome de sessoes esta invertido/errado - validar empiricamente os type_id antes de filtrar; nao existe sessao 'Ordinaria' visivel em 2025, o que sugere que a Camara registra deliberacoes em sessoes Extraordinarias. FALTA CONFIRMAR: presenca em alguma sessao onde ela realmente esteja populada; paginacao de @@materias e @@normas (mapeamento cita 'step'/paginacao mas nao testei alem da primeira pagina); e se votacao Simbolica realmente vem com arrays vazios (consistente com o observado mas a contagem so existe no voteResult da materia)."
+  },
+  {
+    "fonte": "IPREMM — previdencia municipal (ipremm.com.br)",
+    "baseUrl": "https://www.ipremm.com.br/ (site institucional, WAF 403) | https://www.fourinfosistemas.com.br/servicosonlinefourprev/ (sistema FourPrev, id=3073) | https://cadprev.previdencia.gov.br/Cadprev/pages/publico/ (consulta pública nacional do RPPS)",
+    "tipoAcesso": "misto",
+    "autenticacao": "desconhecida",
+    "resumoDados": "IPREMM e a autarquia previdenciaria (RPPS) de Marilia que paga aposentados e pensionistas dos servidores municipais. Transparencia propria vive no site institucional (WordPress + sistema legado ASP) que publica balancetes contabeis, folha de pagamentos e atos como PDFs em diretorios previsiveis (ex.: /imagens_arquivos/artigos/files/balancetescontabeis/10_Pagamentos_10_2022.pdf) - porem o dominio inteiro responde 403 (WAF) a fetch automatizado. O holerite/portal do segurado e terceirizado no FourPrev (FourInfo Sistemas, id=3073), JSF/PrimeFaces 100% atras de login - NAO ha modulo de transparencia publico nesse vendor. Os dados ricos e maquinaveis (investimentos DAIR, atuarial DRAA, politica DPIN, repasses DIPR, regularidade CRP) sao expostos publicamente e sem login no CADPREV nacional (Min. Previdencia) por CNPJ/ente, alem de indicadores agregados no Painel IEGPREV do TCE-SP e na API SICONFI/STN.",
+    "cruzamentos": "CNPJ 59.989.830/0001-36 -> BrasilAPI/CNPJ (ja integrado), PNCP e CEIS/CNEP (contratos/sancoes do IPREMM, ex.: gestoras de investimento contratadas). Repasses Prefeitura->IPREMM cruzam com o SMARAPD PAI (DespesaAgrupada/pagamentos) e com SICONFI RREO Anexo 04. Folha de aposentados (PDFs) cruza com servidores ativos do PAI (mesma matricula/nome) para detectar acumulo. CRP/DAIR/DRAA do CADPREV cruzam com IEGPREV do TCE-SP (deficit atuarial, rentabilidade). Investimentos (DAIR) cruzam com fundos/gestoras -> CVM. Atos/legislacao cruzam com SAPL/Diario Oficial.",
+    "jaIntegrado": false,
+    "prioridade": "media",
+    "endpointsConfirmados": [
+      "https://cadprev.previdencia.gov.br/Cadprev/pages/publico/crp/pesquisarEnteCrp.xhtml",
+      "https://www.fourinfosistemas.com.br/servicosonlinefourprev/login.jsf?id=3073",
+      "https://painel.tce.sp.gov.br/pentaho/api/repos/:public:ieg_prev:iegprev.wcdf/generatedContent?userid=anony&password=zero",
+      "https://apidatalake.tesouro.gov.br/ords/siconfi/tt/rreo (API SICONFI funciona: 173 linhas reais retornadas para id_ente 3550308 / Sao Paulo capital, 2022 nr_periodo=6)"
+    ],
+    "endpoints": [
+      {
+        "metodo": "GET",
+        "url": "https://cadprev.previdencia.gov.br/Cadprev/pages/publico/crp/pesquisarEnteCrp.xhtml",
+        "descricao": "Consulta publica de Certificado de Regularidade Previdenciaria (CRP) por nome do ente. Menu lateral expoe tambem Demonstrativo Previdenciario, Comprovante de Repasse, DRAA, DPIN, DAIR, DIPR, Relatorios/Estatisticas e Regime. Porta de entrada para todos os demonstrativos do IPREMM. Pagina JSF/xhtml com jsessionid.",
+        "parametros": "campo 'Nome do Ente' (obrigatorio); navegacao para sub-modulos via menu",
+        "formatoResposta": "HTML (JSF/xhtml); detalhes/demonstrativos frequentemente em PDF",
+        "metodo_obs": "",
+        "dadosMunicipais": "Status e validade do CRP do IPREMM (regularidade previdenciaria), historico de regime",
+        "volumeEstimado": "1 ente (IPREMM); historico de CRPs ~dezenas de certificados",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://cadprev.previdencia.gov.br/Cadprev/pages/publico/extrato/extratoExterno.xhtml?cnpj=59989830000136",
+        "descricao": "Extrato externo do regime previdenciario (consulta publica). Pagina carregou via fetch real mostrando os modulos CRP/DRAA/DPIN/DAIR/DIPR, mas com o CNPJ sozinho retornou 'Ente nao localizado' - exige selecao do ente via busca por nome ou parametros adicionais (UF/co_ente). Caminho confirmado para extrair investimentos, atuarial e repasses do IPREMM.",
+        "parametros": "cnpj=59989830000136 (insuficiente isolado; provavelmente requer sg_uf/co_ente ou fluxo de busca por nome)",
+        "formatoResposta": "HTML JSF + downloads PDF dos demonstrativos",
+        "dadosMunicipais": "DAIR (aplicacoes/investimentos), DRAA (avaliacao atuarial / deficit), DPIN (politica de investimentos), DIPR (info previdenciarias e repasses), CRP",
+        "volumeEstimado": "Demonstrativos mensais (DAIR/DIPR) + anuais (DRAA/DPIN) desde anos 2000 -> centenas de documentos",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.fourinfosistemas.com.br/servicosonlinefourprev/login.jsf?id=3073",
+        "descricao": "Portal do Segurado FourPrev (FourInfo Sistemas) do IPREMM - holerite/contracheque, 13o, informe de rendimentos, simulacao. Confirmado: titulo 'IPREMM', JSF/PrimeFaces, versao 2.4.7 build 02/06/2026. Login por Usuario/CPF + senha. NAO ha area publica de transparencia: namespace /publico/ so faz redefinir_senha; tudo util esta sob /restrito/ (principal.jsf). Vendor NAO oferece modulo de transparencia publico.",
+        "parametros": "id=3073 (codigo do IPREMM no FourPrev); login CPF+senha (privado)",
+        "formatoResposta": "HTML JSF/PrimeFaces (gated)",
+        "dadosMunicipais": "Holerite individual do aposentado/pensionista (dado pessoal - fora do escopo LAI). Sem agregado publico.",
+        "volumeEstimado": "N/A publico (login)",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.ipremm.com.br/portal-da-transparencia/",
+        "descricao": "Portal da Transparencia institucional do IPREMM (WordPress). Deve linkar folha de pagamentos, balancetes contabeis, demonstrativos de investimentos, atos e legislacao. BLOQUEADO: dominio inteiro retorna HTTP 403 (WAF/anti-bot) a WebFetch - nao foi possivel fetch real. Confirmado por busca que a pagina existe e o permalink WordPress e este.",
+        "parametros": "nenhum",
+        "formatoResposta": "HTML (WordPress) linkando PDFs",
+        "dadosMunicipais": "Indice de balancetes, folha, investimentos, atos do RPPS",
+        "volumeEstimado": "indeterminado (bloqueado)",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.ipremm.com.br/imagens_arquivos/artigos/files/balancetescontabeis/10_Pagamentos_10_2022.pdf",
+        "descricao": "PDF de balancete/folha de pagamentos do RPPS em diretorio com padrao de nomenclatura previsivel ({n}_Pagamentos_{MM}_{AAAA}.pdf sob /balancetescontabeis/). Padrao identificado via indexacao de busca. BLOQUEADO: 403 WAF no fetch direto. Diretorio /imagens_arquivos/artigos/files/ tambem hospeda leis (ex.: LC 450) e declaracoes. Em /wp-content/uploads/ ha PDFs (ex.: DECLARACAO-RENDA-FORMAL-IPREMM.pdf).",
+        "parametros": "padrao de path/nome de arquivo por competencia (mes/ano)",
+        "formatoResposta": "PDF",
+        "dadosMunicipais": "Pagamentos/folha mensal e balancetes contabeis do IPREMM",
+        "volumeEstimado": "12 PDFs/ano x varios anos -> centenas de PDFs",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "http://www.ipremm.com.br/site/pg.asp?pagina=detalhe_artigo&codigo=172&m=2&tit=2&pag=2&nomecat=n&tit_pagina=Legislacao",
+        "descricao": "Sistema legado ASP (coexiste com o WordPress) que serve artigos/categorias por id (?pagina=detalhe_artigo&codigo=N). Enumeravel por 'codigo' para varrer legislacao, comunicados e atos. BLOQUEADO: 403 WAF no fetch.",
+        "parametros": "pagina, codigo (enumeravel), m, tit, pag, nomecat, tit_pagina",
+        "formatoResposta": "HTML (ASP classico)",
+        "dadosMunicipais": "Legislacao previdenciaria, comunicados, atos administrativos do IPREMM",
+        "volumeEstimado": "centenas de artigos (codigos sequenciais)",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://painel.tce.sp.gov.br/pentaho/api/repos/:public:ieg_prev:iegprev.wcdf/generatedContent?userid=anony&password=zero",
+        "descricao": "Painel da Previdencia (IEGPREV) do TCE-SP em Pentaho - indice de qualidade/gestao previdenciaria dos ~219 RPPS de SP (inclui Marilia/IPREMM). Confirmado: dashboard carrega anonimo (userid=anony). Cobre investimentos, demonstrativos previdenciarios, sistema de alertas (receita/rendimento abaixo do projetado). Fonte: AUDESP + IEG-Prev/RIRPP/DRPA/DREI/DP. Nao expoe API CDA/JSON na pagina, mas Pentaho CDA pode ter endpoints doGetCdaData.",
+        "parametros": "userid=anony&password=zero (anonimo)",
+        "formatoResposta": "HTML/dashboard Pentaho (dados via CDA por tras)",
+        "dadosMunicipais": "Indicadores IEGPREV de Marilia: investimentos, deficit, alertas de rendimento/arrecadacao do RPPS",
+        "volumeEstimado": "1 linha p/ IPREMM dentro de ~219 RPPS, serie 2019-2024",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://apidatalake.tesouro.gov.br/ords/siconfi/tt/rgf?an_exercicio=2024&nr_periodo=3&co_tipo_demonstrativo=RGF&no_anexo=RGF-Anexo%2006&co_esfera=M&co_poder=E&id_ente=3529005",
+        "descricao": "API SICONFI/STN (ja integrada no NEXO no nivel municipio). Para IPREMM o relevante e que o RPPS pode constar como ente proprio na DCA/RREO/RGF ou consolidado sob id_ente 3529005. Confirmado: endpoint responde JSON (items vazio para este filtro especifico). RREO Anexo 04 (RPPS) e a peca com dados previdenciarios separaveis.",
+        "parametros": "an_exercicio, nr_periodo, co_tipo_demonstrativo (RREO/RGF/DCA), no_anexo (RREO-Anexo 04 = RPPS), co_esfera=M, id_ente (3529005)",
+        "formatoResposta": "JSON (ORDS)",
+        "dadosMunicipais": "Receitas/despesas previdenciarias, resultado do RPPS de Marilia (RREO Anexo 04)",
+        "volumeEstimado": "demonstrativos bimestrais/quadrimestrais por exercicio",
+        "confirmado": true
+      }
+    ],
+    "veredito": "Parcialmente integravel, mas o mapeamento tem erros materiais que precisam de correcao antes de qualquer integracao. CONFIRMADO de fato (fetch real): (1) CADPREV CRP — pagina publica viva (v1.68.9, 29/05/2026) com campo 'Nome do Ente' e menus DRAA/DPIN/DAIR/DIPR/CRP; integravel via fluxo de busca, nao por URL direta. (2) FourPrev login.jsf?id=3073 — confirmado gated, titulo IPREMM, so login CPF+senha, SEM area publica de transparencia (corretamente fora de escopo). (3) Pentaho IEGPREV TCE-SP — carrega anonimo com conteudo real ('219 RPPS ativos', serie 2019-2020); dashboard ok, porem API CDA/JSON NAO foi confirmada (so a casca HTML). (4) API SICONFI — o SERVICO funciona (provei com 173 linhas reais para Sao Paulo capital id_ente 3550308), MAS a URL mapeada usa id_ente=3529005 que e MAUA-SP, nao Marilia; e o filtro RREO/RGF Anexo 04/06 volta vazio. ERROS A CORRIGIR: id_ente de Marilia e 3529005 (3529005 = Maua). Alem disso o RPPS dificilmente aparece isolado no RREO consolidado do municipio — a fonte previdenciaria forte e o CADPREV/extratoExterno (DAIR/DRAA/DPIN/DIPR), nao o SICONFI. DUVIDOSO/NAO-CONFIRMADO: extratoExterno por CNPJ sozinho ('Ente nao localizado'); e TODO o dominio ipremm.com.br (portal-transparencia, PDFs de balancete/folha, ASP legado) esta atras de WAF retornando 403 sistematico — nada foi acessivel via fetch, padroes de path nao verificaveis. FALTA CONFIRMAR: (a) corrigir id_ente p/ 3529005 e testar RREO Anexo 04; (b) descobrir endpoint CDA/doGetCdaData real do Pentaho para extrair JSON do IEGPREV; (c) fluxo de busca por nome no CADPREV/extratoExterno para chegar nos demonstrativos do IPREMM; (d) contornar o WAF do ipremm.com.br (headers de browser/cookie) ou tratar o dominio como nao-integravel por fetch automatizado."
+  },
+  {
+    "fonte": "Conselhos Municipais (www2.marilia.sp.gov.br/conselho)",
+    "baseUrl": "https://www2.marilia.sp.gov.br/api/conselhos",
+    "tipoAcesso": "api-json",
+    "autenticacao": "nenhuma",
+    "resumoDados": "SPA Vue/Vite (front em www2.marilia.sp.gov.br/conselho/#/) servida por uma API REST Laravel publica e SEM autenticacao em /api/conselhos. Entrega, por conselho, os dados juridicos/de contato (lei de criacao, decreto, portaria de nomeacao dos membros, regimento interno, mantenedor responsavel), o acervo de documentos (Atas de reuniao, Normas, Resolucoes em PDF) e a agenda de reunioes (eventos com data/local). Cobre 35 conselhos cadastrados, incluindo os de fiscalizacao social mais relevantes: Saude, Educacao, Assistencia Social, Direitos da Crianca e do Adolescente e Alimentacao Escolar. Os PDFs ficam em /storage/conselhos/ tambem publicos.",
+    "cruzamentos": "Diario Oficial do Municipio (o proprio portal cita que publica atos dos conselhos no DOM - cruzar publicacao de ata x ato no DOM). NEXO modulo saude/educacao: cruzar deliberacoes do Conselho de Saude/Educacao x execucao orcamentaria (SMARAPD PAI DespesaAgrupada/pagamentos) e repasses FUNDEB. Conselho de Alimentacao Escolar (CAE) x contratos de merenda (PNCP/fornecedor). Portarias de nomeacao (ordinance_file) x folha de servidores/diarias para detectar membros que tambem sao servidores/fornecedores. Eventos (reunioes agendadas) x documents (atas publicadas) para flagar reunioes sem ata = baixa transparencia.",
+    "jaIntegrado": false,
+    "prioridade": "alta",
+    "endpointsConfirmados": [
+      "GET https://www2.marilia.sp.gov.br/api/conselhos/organizations (200, JSON array, 36 itens verificados ao vivo incl. id 500; schema completo com law_file/decree_file/ordinance_file/maintainer/contatos)",
+      "GET https://www2.marilia.sp.gov.br/api/conselhos/organizations/{id} (verificado id=42 Conselho de Saude: 200 JSON object com dados juridicos+contato; id inexistente 9999 retorna 404)",
+      "GET https://www2.marilia.sp.gov.br/api/conselhos/documents?org={id} (verificado org=13: 200 JSON array com 103 docs type Resolucao/Ata/Norma, campos id/org/type/descr/path/url/format/order; sem org com Accept:application/json retorna 422 validation.required confirmando param obrigatorio)",
+      "GET https://www2.marilia.sp.gov.br/api/conselhos/events?org={id} (verificado org=24: 200 JSON array 51 eventos com id/org/descr/time(epoch ms)/place; org=42 tambem 200 JSON)",
+      "GET https://www2.marilia.sp.gov.br/storage/conselhos/{path} (HEAD 200, Content-Type application/pdf, 336917 bytes, acesso publico via Cloudflare; testado path real de ordinance_file do org=42)"
+    ],
+    "endpoints": [
+      {
+        "metodo": "GET",
+        "url": "https://www2.marilia.sp.gov.br/api/conselhos/organizations",
+        "descricao": "Lista TODOS os conselhos cadastrados (sem precisar de ID). Endpoint nao usado pela SPA publica (a SPA busca por ID), mas funciona e retorna o array completo. NAO traz o nome do conselho (so dados juridicos/contato); o mapa id->nome esta hardcoded no bundle ConselhosView (35 conselhos, ex: id 0=Conselho Deliberativo DAEM, 12=Direitos da Crianca/Adolescente, 13=Assistencia Social, 24=Alimentacao Escolar, 25=Educacao, 42=Saude, 53=Direitos das Mulheres).",
+        "parametros": "nenhum",
+        "formatoResposta": "JSON array. Cada item: {id, landline_number, mobile_number, email, address, has_law, law_number, law_file, has_decree, decree_number, decree_file, ordinance_number, ordinance_end, ordinance_file, maintainer, has_internal_doc, internal_doc_file}. Campos *_file sao paths relativos em /storage/conselhos/.",
+        "dadosMunicipais": "Cadastro juridico de 35 conselhos municipais: lei de criacao, decreto, portaria de nomeacao dos membros (PDF), regimento interno, responsavel/mantenedor, contatos (tel/email/endereco).",
+        "volumeEstimado": "35 conselhos (IDs esparsos 0..53 + 500). Confirmado 35 itens no array.",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www2.marilia.sp.gov.br/api/conselhos/organizations/{id}",
+        "descricao": "Detalhe de um conselho especifico. Usado pelas paginas Membros/Leis/Contato da SPA. A pagina 'Membros' na verdade NAO lista membros individuais: so mostra o mantenedor e linka o PDF da portaria (ordinance_file) que contem a composicao. ID inexistente retorna 'No query results for model Modules\\\\Conselhos\\\\Models\\\\Conselho'.",
+        "parametros": "id (path) = ID numerico do conselho",
+        "formatoResposta": "JSON object (mesmo shape do item da lista).",
+        "dadosMunicipais": "Dados juridicos + contato de um conselho; composicao dos membros so via PDF ordinance_file.",
+        "volumeEstimado": "1 registro por chamada",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www2.marilia.sp.gov.br/api/conselhos/documents?org={id}",
+        "descricao": "Acervo de documentos de um conselho: ATAS de reuniao, NORMAS e RESOLUCOES. Param 'org' e OBRIGATORIO (sem ele retorna HTTP 422 validation.required). Conselhos ricos: Assistencia Social (org=13) 88 docs, Crianca/Adolescente (org=12) 71 docs, Alimentacao Escolar (org=24) 37 docs, Educacao (org=25) 29 docs.",
+        "parametros": "org (query, obrigatorio) = ID do conselho",
+        "formatoResposta": "JSON array. Cada doc: {id, org, type (Ata|Norma|Resolucao), descr, path (PDF em /storage/conselhos/), url (alternativa a path quando format=link), format ('arquivo'|'link'), order}.",
+        "dadosMunicipais": "Atas de reuniao, deliberacoes (Normas/Resolucoes) e pareceres dos conselhos em PDF. Materia-prima para fiscalizacao: o que cada conselho deliberou/aprovou.",
+        "volumeEstimado": "Centenas de docs no total; ate ~88 por conselho. Maioria type=Ata/Norma, format=arquivo.",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www2.marilia.sp.gov.br/api/conselhos/events?org={id}",
+        "descricao": "Agenda/calendario de reunioes de um conselho. Param 'org' obrigatorio. Conselhos com agenda cheia: Alimentacao Escolar (org=24) 44 eventos, Assistencia Social (org=13) 36, Crianca/Adolescente (org=12) 35, Educacao (org=25) 18, Saude (org=42) 3.",
+        "parametros": "org (query, obrigatorio) = ID do conselho",
+        "formatoResposta": "JSON array. Cada evento: {id, org, descr, time (timestamp epoch em milissegundos), place (endereco/local da reuniao)}.",
+        "dadosMunicipais": "Calendario de reunioes ordinarias/extraordinarias dos conselhos com data e local. Permite cruzar 'reuniao agendada' x 'ata publicada' para detectar reunioes sem ata.",
+        "volumeEstimado": "Dezenas por conselho (ate 44). Muitos conselhos com [] vazio.",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www2.marilia.sp.gov.br/storage/conselhos/{path}",
+        "descricao": "Download direto dos PDFs (atas, normas, leis, portarias de membros, regimentos). Path vem dos campos law_file/decree_file/ordinance_file/internal_doc_file (organizations) e do campo 'path' (documents). Confirmado acesso publico: HEAD retornou HTTP 200 / Content-Type application/pdf / 138KB.",
+        "parametros": "path (path) = valor do campo *_file ou path (precisa URL-encode dos espacos/acentos)",
+        "formatoResposta": "Binario application/pdf",
+        "dadosMunicipais": "Os PDFs em si: atas (texto das reunioes), portarias de nomeacao (composicao/membros), leis de criacao, regimentos. Composicao dos conselhos so existe aqui (nao ha endpoint JSON de membros).",
+        "volumeEstimado": "1 arquivo por chamada; centenas de PDFs no acervo total.",
+        "confirmado": true
+      },
+      {
+        "metodo": "POST",
+        "url": "https://www2.marilia.sp.gov.br/api/conselhos/auth/login",
+        "descricao": "Login administrativo (area /admin da SPA, restrita a membros/gestores dos conselhos). Body {username, password}. Usa Bearer token em localStorage 'access_token' com refresh (/auth/refresh, /auth/me, /auth/logout). NAO necessario para leitura publica; endpoints /me/* (PATCH /me/organization, POST /me/documents, POST /me/events, POST /auth/change_password) sao escrita autenticada e fora do escopo LAI.",
+        "parametros": "body: username, password",
+        "formatoResposta": "JSON com access_token (Bearer)",
+        "dadosMunicipais": "Nenhum dado de leitura adicional; apenas back-office de edicao.",
+        "confirmado": false
+      }
+    ],
+    "veredito": "FONTE TOTALMENTE INTEGRAVEL para leitura publica - todos os 5 endpoints de leitura confirmados ao vivo com dado util real, sem necessidade de login/token. API REST limpa (Laravel) retornando JSON. PDFs publicos via /storage. Observacoes ceticas: (1) Volumes do mapeamento estao SUBESTIMADOS - organizations tem 36 (nao 35), documents?org=13 tem 103 docs (mapeamento dizia 88), events?org=24 tem 51 (mapeamento dizia 44); a fonte e ate mais rica que o alegado. (2) O 422 do documents sem org SO aparece com header Accept:application/json; cliente sem esse header (browser-style) recebe 302 redirect - importante para o crawler enviar Accept:application/json em TODAS as chamadas. (3) Composicao/membros dos conselhos NAO tem endpoint JSON - so existe dentro do PDF ordinance_file (confirmado: pagina Membros so expoe maintainer+link do PDF), entao extrair membros exige parse de PDF. (4) Sem rate-limit observado nos testes mas atras de Cloudflare. Falta confirmar apenas: cobertura real de events (muitos conselhos retornam [] vazio) e se ha paginacao em documents para conselhos muito grandes (nao observada - retorno parece completo)."
+  },
+  {
+    "fonte": "SIC / e-SIC (marilia.1doc.com.br)",
+    "baseUrl": "https://marilia.1doc.com.br",
+    "tipoAcesso": "html-scrape",
+    "autenticacao": "desconhecida",
+    "resumoDados": "Portal de transparencia da Ouvidoria e do e-SIC de Marilia rodando na plataforma 1Doc (Softplan). A pagina publica de transparencia embute, inline no HTML (objeto JS transparencyData), o dataset agregado completo de tres canais - Ouvidoria Geral, Pedido de e-SIC e Ouvidoria SUS - com manifestacoes recebidas/respondidas, tempo medio de resposta (e-SIC=11.94 dias), % dentro do prazo, indice de satisfacao, e quebras por assunto, tipo de manifestacao, genero e faixa etaria. NAO ha consulta publica de pedidos individuais (respostas vao para o inbox/email do solicitante); so existem agregados. Tambem expoe um endpoint publico de verificacao de documento por codigo de protocolo.",
+    "cruzamentos": "Indice de satisfacao e tempo de resposta do e-SIC podem cruzar com a obrigacao de transparencia passiva da LAI (Lei 12.527/2011) e com os assuntos de Ouvidoria (tapa-buraco, fiscalizacao de terrenos, coleta de lixo) que cruzam com obras/contratos do SMARAPD PAI e empenhos. O codigo de protocolo permite ligar um pedido de informacao a uma resposta oficial verificavel. Picos de reclamacoes por assunto/mes podem cruzar com execucao orcamentaria (DespesaAgrupada) da secretaria responsavel.",
+    "jaIntegrado": false,
+    "prioridade": "media",
+    "endpointsConfirmados": [
+      "GET https://marilia.1doc.com.br/b.php?pg=o/transparencia&s=marilia -- CONFIRMADO via fetch raw: HTTP 200, 132KB, contem inline 'transparencyData = {...}' JSON parseavel com agregados (e-SIC 52/47/11.94 dias; Ouvidoria 2241/1833/98.87%/67.88% satisfacao; SUS 660/485) e quebras por assunto/genero/faixa etaria. UNICO endpoint genuinamente data-rich e raspavel.",
+      "GET https://marilia.1doc.com.br/b.php?pg=wp/wp&consulta=1&ss=2&codigo={codigo} -- CONFIRMADO: HTTP 200, 70KB; codigo invalido retorna pagina 'Documento nao encontrado' (Ops...), codigo valido retorna o documento. Funcional, sem login. Mas e lookup 1-a-1 por protocolo conhecido, nao fonte de dataset/listagem.",
+      "GET https://marilia.1doc.com.br/verificacao -- CONFIRMADO: HTTP 200, 79KB; hospeda form_consultar (GET b.php) e form_checagem (POST formAtendimento) no HTML cru. Pagina publica sem login. Utilidade de verificacao, nao feed de dados.",
+      "GET https://marilia.1doc.com.br/b.php?pg=o/central_servicos&tab=categoria -- CONFIRMADO: HTTP 200, lista categorias (LICITACAO 9 servicos, OUVIDORIA MUNICIPAL, OUVIDORIA SUS, PROTOCOLO CAMARA, SAUDE etc). Catalogo/UI, nao dataset municipal raspavel alem da taxonomia.",
+      "GET https://marilia.1doc.com.br/b.php?pg=o/central_servicos&tab=perfil -- CONFIRMADO: HTTP 200, lista 18 perfis distintos da aba categoria (CIDADAO, PEDIDOS e-SIC, OUVIDORIA, OUVIDORIA e-SUS, SERVIDORES AMAE/EMDURB/FUMES/IPREMM etc). Catalogo/UI.",
+      "GET https://marilia.1doc.com.br/b.php?pg=o/carta_servicos_nova&s=marilia -- CONFIRMADO que carrega (HTTP 200) e mostra 'Selecione o servico'/'Relacao de Servicos', mas submissao de pedido exige login (gov.br/certificado/CPF). Ponto de entrada de UI, sem dado raspavel."
+    ],
+    "endpoints": [
+      {
+        "metodo": "GET",
+        "url": "https://marilia.1doc.com.br/b.php?pg=o/transparencia&s=marilia",
+        "descricao": "Pagina de transparencia da Ouvidoria/e-SIC. Embute inline (var transparencyData) os agregados do ano corrente para Ouvidoria Geral, Pedido de e-SIC e Ouvidoria SUS. Tambem renderiza grafico gauge 'Indice de Satisfacao'.",
+        "parametros": "s=marilia (slug). Seletor de ano 2022-2026 existe na UI mas usa AJAX bundlado nao reversado - param GET de ano nao funciona.",
+        "formatoResposta": "HTML com objeto JSON JS inline (transparencyData) parseavel",
+        "dadosMunicipais": "e-SIC 2026: 52 recebidos, 47 respondidos, tempo medio 11.94 dias, 48 solicitantes. Ouvidoria: 2241 recebidos, 1833 respondidos, 98.87% no prazo, indice satisfacao 67.88%. Ouvidoria SUS: 660 recebidos, 485 respondidos, satisfacao 35%. Quebras por assunto/tipo/genero/faixa etaria.",
+        "volumeEstimado": "~3 objetos agregados por ano; ~2.9k manifestacoes/ano somadas. HTML ~132KB",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://marilia.1doc.com.br/b.php?pg=wp/wp&consulta=1&ss=2&codigo={codigo}",
+        "descricao": "Consulta/verificacao publica de documento por codigo ou numero de protocolo. Forma de busca do /verificacao (form_consultar, method=get, action=b.php).",
+        "parametros": "pg=wp/wp, consulta=1, ss=2, codigo={codigo do documento/protocolo}",
+        "formatoResposta": "HTML (pagina do documento ou 'nao encontrado')",
+        "dadosMunicipais": "Permite recuperar/verificar um documento oficial (ex: resposta de e-SIC, oficio) por seu codigo de protocolo",
+        "volumeEstimado": "1 documento por consulta",
+        "confirmado": true
+      },
+      {
+        "metodo": "POST",
+        "url": "https://marilia.1doc.com.br/formAtendimento.php?formChecagem",
+        "descricao": "Checagem/verificacao de documento por codigo + identificacao. Forma alternativa do /verificacao (form_checagem) que aceita codigo + CPF/CNPJ + CAPTCHA.",
+        "parametros": "checagem=1, ss=4, modo_checagem, codigo, cpf/cnpj, captcha",
+        "formatoResposta": "HTML",
+        "dadosMunicipais": "Verificacao autenticada de documento/protocolo (assinatura digital)",
+        "volumeEstimado": "1 documento por checagem",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://marilia.1doc.com.br/b.php?pg=o/central_servicos&tab=categoria",
+        "descricao": "Central de Servicos - catalogo de servicos por categoria. Inclui categorias OUVIDORIA MUNICIPAL, OUVIDORIA SUS, PROTOCOLO CAMARA, LICITACAO (9 servicos), etc.",
+        "parametros": "pg=o/central_servicos, tab=categoria|perfil, filter={ULID}",
+        "formatoResposta": "HTML (cards de servico com links b.php?pg=wp/wp&itd=5&is={ID}&iser={code})",
+        "dadosMunicipais": "Catalogo de ~27 categorias de servico e perfis (CIDADAO, PEDIDOS e-SIC, OUVIDORIA, EMPRESA, SERVIDORES...) com formularios de abertura de demanda",
+        "volumeEstimado": "~27 categorias, dezenas de servicos",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://marilia.1doc.com.br/b.php?pg=o/central_servicos&tab=perfil",
+        "descricao": "Central de Servicos filtrada por PERFIL. Lista perfil 'PEDIDOS e-SIC' e 'OUVIDORIA' como filtros de servico.",
+        "parametros": "pg=o/central_servicos, tab=perfil",
+        "formatoResposta": "HTML",
+        "dadosMunicipais": "18 perfis incl. PEDIDOS e-SIC, OUVIDORIA, OUVIDORIA e-SUS, servidores de orgaos (AMAE/EMDURB/FUMES/IPREMM)",
+        "volumeEstimado": "18 perfis",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://marilia.1doc.com.br/b.php?pg=o/carta_servicos_nova&s=marilia",
+        "descricao": "Carta de Servicos / Selecione o servico - ponto de entrada para abrir um pedido (incl. e-SIC e Ouvidoria). Abertura exige login (gov.br/certificado/CPF).",
+        "parametros": "pg=o/carta_servicos_nova, s=marilia",
+        "formatoResposta": "HTML",
+        "dadosMunicipais": "Formularios de submissao de pedido de informacao (e-SIC) e manifestacao de ouvidoria",
+        "volumeEstimado": "catalogo de servicos",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://marilia.1doc.com.br/verificacao",
+        "descricao": "Pagina publica de verificacao de assinatura/documento. Hospeda os forms form_consultar (GET b.php) e form_checagem (POST formAtendimento.php).",
+        "parametros": "nenhum na URL base; busca por codigo ou numero+CPF/CNPJ com CAPTCHA",
+        "formatoResposta": "HTML",
+        "dadosMunicipais": "Verificacao de autenticidade de documentos oficiais por protocolo",
+        "volumeEstimado": "N/A",
+        "confirmado": true
+      }
+    ],
+    "veredito": "A fonte e PARCIALMENTE integravel. O unico endpoint com dado estruturado raspavel e a pagina de transparencia: confirmei por fetch do HTML cru que o objeto inline 'transparencyData = {...}' existe e contem todos os agregados de e-SIC/Ouvidoria/Ouvidoria SUS do ano corrente com quebras por assunto/genero/faixa etaria (os numeros do mapeamento batem exatamente: 52/47/11.94d e-SIC, 2241/1833 Ouvidoria, 660/485 SUS, satisfacao 67.88%). O WebFetch via modelo deu falso-negativo dizendo que nao havia transparencyData, mas o GET cru via curl confirmou a var. Os demais endpoints sao verificacao de documento (lookup 1-a-1 por protocolo, util mas nao gera dataset) ou catalogos de UI (central_servicos categoria/perfil, carta_servicos) que so expoem taxonomia de servicos; abertura de pedido exige login. O POST de checagem (formAtendimento) e barrado por CAPTCHA e fica duvidoso. FALTA CONFIRMAR: (1) como puxar anos historicos da transparencia (o AJAX de ano nao foi reversado e o param GET nao funciona) -- so 2026 sai inline; (2) que um codigo de protocolo VALIDO realmente renderiza o documento (so testei codigo invalido -> 'nao encontrado'). Para integracao pratica, scrapear o transparencyData da pagina de transparencia anualmente e o caminho viavel; o resto e baixo valor de dado."
+  },
+  {
+    "fonte": "Portal Transparencia Federal (convenios/emendas a Marilia)",
+    "baseUrl": "https://api.portaldatransparencia.gov.br/api-de-dados",
+    "tipoAcesso": "api-json",
+    "autenticacao": "token",
+    "resumoDados": "API REST oficial do governo federal (CGU) que expõe em JSON tudo o que a União repassa/destina a Marília: convênios federais, emendas parlamentares (com documentos de execução), e benefícios sociais por município (Novo Bolsa Família, BPC, Auxílio Emergencial, Seguro-Defeso, Garantia-Safra, PETI), além de recursos recebidos por favorecido, renúncias fiscais e servidores federais. Filtragem nativa por codigoIBGE/codigoIbge=3529005 e mesAno na maioria dos endpoints municipais. Exige token gratuito (header chave-api-dados) obtido via conta gov.br.",
+    "cruzamentos": "CNPJ do convenente/favorecido cruza com BrasilAPI e com fornecedores do SMARAPD PAI (empenhos/pagamentos municipais) -> detecta empresa que recebe tanto verba federal quanto municipal; convênios federais cruzam com obras/contratos do PNCP e TCE-SP; emendas parlamentares cruzam com autores (vereadores que viram deputados) e com a destinação local; favorecidos federais (recursos-recebidos) cruzam com CEIS/CNEP (sancionadas recebendo repasse). Benefícios por município (Bolsa Família, BPC) servem de baseline socioeconômico para análise de anomalias 2026.",
+    "jaIntegrado": false,
+    "prioridade": "media",
+    "endpointsConfirmados": [
+      "GET /api-de-dados/convenios (existe no OpenAPI spec; param obrigatorio pagina; aceita codigoIBGE)",
+      "GET /api-de-dados/convenios/id (existe no spec; param id)",
+      "GET /api-de-dados/convenios/numero (existe no spec; params numero, pagina)",
+      "GET /api-de-dados/convenios/tipo-instrumento (existe no spec; sem params)",
+      "GET /api-de-dados/emendas (existe no spec; param pagina)",
+      "GET /api-de-dados/emendas/documentos/{codigo} (existe no spec; params codigo, pagina)",
+      "GET /api-de-dados/despesas/recursos-recebidos (existe no spec; params mesAnoInicio, mesAnoFim, pagina)",
+      "GET /api-de-dados/novo-bolsa-familia-por-municipio (existe no spec; params mesAno, codigoIbge, pagina)",
+      "GET /api-de-dados/novo-bolsa-familia-sacado-beneficiario-por-municipio (existe no spec; params mesAno, codigoIbge, pagina)",
+      "GET /api-de-dados/seguro-defeso-por-municipio (existe no spec; params mesAno, codigoIbge, pagina)",
+      "GET /api-de-dados/safra-por-municipio (existe no spec; params mesAno, codigoIbge, pagina)",
+      "GET /api-de-dados/peti-por-municipio (existe no spec; params mesAno, codigoIbge, pagina)",
+      "GET /api-de-dados/renuncias-valor (existe no spec; param pagina)",
+      "GET /api-de-dados/renuncias-fiscais-empresas-imunes-isentas (existe no spec; param pagina)",
+      "GET /api-de-dados/coronavirus/transferencias (existe no spec; params mesAno, pagina)",
+      "GET /api-de-dados/servidores (existe no spec; param pagina)",
+      "GET /api-de-dados/peps (existe no spec; param pagina)"
+    ],
+    "endpoints": [
+      {
+        "metodo": "GET",
+        "url": "https://api.portaldatransparencia.gov.br/api-de-dados/convenios",
+        "descricao": "Lista convênios/acordos do Executivo Federal filtráveis por município (codigoIBGE), UF, órgão, situação, tipo de instrumento, função/subfunção, datas de vigência/liberação e faixas de valor liberado/total.",
+        "parametros": "codigoIBGE=3529005 (opcional, filtro municipal); pagina (obrigatório, default 1); opcionais: uf, codigoOrgao, convenente, tipoConvenente, numero, numeroOriginal, situacao, tipoInstrumento, funcao, subfuncao, dataInicial, dataFinal, dataVigenciaInicial/Final, dataUltimaLiberacaoInicial/Final, valorLiberadoDe/Ate, valorTotalDe/Ate",
+        "formatoResposta": "JSON array de objetos de convênio (número, objeto, convenente, valores, situação, datas)",
+        "dadosMunicipais": "Convênios federais cujo convenente/beneficiário é a Prefeitura de Marília ou entidades do município (verba federal pactuada, valor total, valor liberado, objeto, vigência, situação)",
+        "volumeEstimado": "Dezenas a centenas de convênios históricos para Marília",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://api.portaldatransparencia.gov.br/api-de-dados/convenios/id?id={id}",
+        "descricao": "Detalhe de um convênio específico por id interno.",
+        "parametros": "id (obrigatório)",
+        "formatoResposta": "JSON objeto único detalhado",
+        "dadosMunicipais": "Detalhamento completo de um convênio de Marília (valores liberados por parcela, órgão concedente, etc.)",
+        "volumeEstimado": "1 registro",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://api.portaldatransparencia.gov.br/api-de-dados/convenios/numero?numero={n}&pagina=1",
+        "descricao": "Busca convênios pelo número (também há variantes /numero-processo e /numero-original).",
+        "parametros": "numero|numeroProcesso|numeroOriginal (obrigatório), pagina",
+        "formatoResposta": "JSON array",
+        "dadosMunicipais": "Localiza um convênio específico de Marília por número/processo SIAFI",
+        "volumeEstimado": "Poucos registros",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://api.portaldatransparencia.gov.br/api-de-dados/convenios/tipo-instrumento",
+        "descricao": "Tabela de domínio: tipos de instrumento de convênio (lookup para o param tipoInstrumento).",
+        "parametros": "nenhum",
+        "formatoResposta": "JSON array de códigos/descrições",
+        "dadosMunicipais": "Auxiliar (decodifica tipos de convênio nos dados de Marília)",
+        "volumeEstimado": "Lista pequena fixa",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://api.portaldatransparencia.gov.br/api-de-dados/emendas",
+        "descricao": "Emendas parlamentares (orçamento federal) com valores empenhado/liquidado/pago, filtráveis por ano, autor, tipo, função/subfunção e código da emenda. NÃO tem filtro direto por codigoIBGE — destinação municipal aparece no detalhamento via /documentos.",
+        "parametros": "pagina (obrigatório); opcionais: ano, nomeAutor, codigoEmenda, numeroEmenda, tipoEmenda, codigoFuncao, codigoSubfuncao",
+        "formatoResposta": "JSON array (codigoEmenda, ano, autor, tipoEmenda, função, valores empenhado/liquidado/pago)",
+        "dadosMunicipais": "Emendas destinadas a Marília (precisa cruzar autor/destino; para confirmar localidade do gasto usar /emendas/documentos)",
+        "volumeEstimado": "Milhares de emendas/ano nacionalmente; subconjunto de Marília via cruzamento",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://api.portaldatransparencia.gov.br/api-de-dados/emendas/documentos/{codigo}?pagina=1",
+        "descricao": "Documentos de execução (empenhos/pagamentos) de uma emenda específica — é aqui que se identifica o favorecido e a localidade do gasto (município).",
+        "parametros": "codigo (path, obrigatório); pagina (obrigatório)",
+        "formatoResposta": "JSON array de documentos de execução com favorecido/valores",
+        "dadosMunicipais": "Rastreia para onde a emenda foi gasta — identifica execução em Marília (favorecido, valor, documento SIAFI)",
+        "volumeEstimado": "Vários documentos por emenda",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://api.portaldatransparencia.gov.br/api-de-dados/despesas/recursos-recebidos",
+        "descricao": "Recursos federais recebidos por favorecido (CNPJ/CPF), filtrável por município (codigoIBGE), órgão, UF e período. Mostra o dinheiro federal que efetivamente entrou em Marília por destinatário.",
+        "parametros": "mesAnoInicio (MM/AAAA, obrig.), mesAnoFim (obrig.), pagina (obrig.); opcionais: codigoIBGE=3529005, uf, nomeFavorecido, codigoFavorecido (CNPJ/CPF), tipoFavorecido, orgaoSuperior, orgao, unidadeGestora",
+        "formatoResposta": "JSON array (favorecido, CNPJ/CPF, órgão, valor recebido, mês/ano)",
+        "dadosMunicipais": "Transferências/repasses federais recebidos por entidades de Marília, por favorecido — substitui o conceito de 'transferências por município' (que não existe como endpoint próprio)",
+        "volumeEstimado": "Centenas+ por janela mensal para Marília",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://api.portaldatransparencia.gov.br/api-de-dados/novo-bolsa-familia-por-municipio",
+        "descricao": "Valores agregados do Novo Bolsa Família por município/mês.",
+        "parametros": "mesAno (AAAAMM, obrig.), codigoIbge=3529005 (obrig.), pagina (opcional)",
+        "formatoResposta": "JSON array (município, mesAno, quantidade de beneficiários, valor)",
+        "dadosMunicipais": "Total de famílias atendidas e valor pago de Bolsa Família em Marília por mês",
+        "volumeEstimado": "1 linha agregada por mês",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://api.portaldatransparencia.gov.br/api-de-dados/novo-bolsa-familia-sacado-beneficiario-por-municipio",
+        "descricao": "Beneficiários (nominais) do Novo Bolsa Família que sacaram, por município/mês.",
+        "parametros": "mesAno (AAAAMM, obrig.), codigoIbge=3529005 (obrig.), pagina (opcional)",
+        "formatoResposta": "JSON array por beneficiário (NIS parcial, nome, valor sacado)",
+        "dadosMunicipais": "Lista nominal de beneficiários do Bolsa Família em Marília no mês",
+        "volumeEstimado": "Milhares de beneficiários/mês (paginado, endpoint pode ser restrito a 180 req/min)",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://api.portaldatransparencia.gov.br/api-de-dados/bpc-por-municipio",
+        "descricao": "Benefício de Prestação Continuada (BPC/LOAS) agregado por município/mês.",
+        "parametros": "mesAno (AAAAMM, obrig.), codigoIbge=3529005 (obrig.), pagina; endpoint RESTRITO (180 req/min)",
+        "formatoResposta": "JSON array (município, valor, quantidade)",
+        "dadosMunicipais": "BPC pago a idosos/PCD em Marília por mês (baseline socioeconômico)",
+        "volumeEstimado": "1 linha agregada por mês",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://api.portaldatransparencia.gov.br/api-de-dados/auxilio-emergencial-por-municipio",
+        "descricao": "Auxílio Emergencial (COVID) agregado por município/mês — dado histórico 2020-2021.",
+        "parametros": "mesAno (AAAAMM, obrig.), codigoIbge=3529005 (obrig.), pagina; endpoint RESTRITO (180 req/min)",
+        "formatoResposta": "JSON array (município, valor, beneficiários)",
+        "dadosMunicipais": "Auxílio emergencial recebido pela população de Marília (histórico)",
+        "volumeEstimado": "1 linha agregada por mês (período 2020-2021)",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://api.portaldatransparencia.gov.br/api-de-dados/seguro-defeso-por-municipio",
+        "descricao": "Seguro-Defeso (pescador artesanal) agregado por município/mês. Há também /seguro-defeso-beneficiario-por-municipio (nominal).",
+        "parametros": "mesAno (AAAAMM, obrig.), codigoIbge=3529005 (obrig.), pagina (obrig.)",
+        "formatoResposta": "JSON array (município, valor, beneficiários)",
+        "dadosMunicipais": "Seguro-defeso pago em Marília (provável volume baixo, município não-litorâneo)",
+        "volumeEstimado": "1 linha/mês",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://api.portaldatransparencia.gov.br/api-de-dados/safra-por-municipio",
+        "descricao": "Garantia-Safra agregado por município/mês (+ /safra-beneficiario-por-municipio nominal).",
+        "parametros": "mesAno (AAAAMM, obrig.), codigoIbge=3529005 (obrig.), pagina (obrig.)",
+        "formatoResposta": "JSON array (município, valor, beneficiários)",
+        "dadosMunicipais": "Garantia-Safra pago a agricultores em Marília",
+        "volumeEstimado": "1 linha/mês",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://api.portaldatransparencia.gov.br/api-de-dados/peti-por-municipio",
+        "descricao": "PETI (Programa de Erradicação do Trabalho Infantil) agregado por município/mês (+ /peti-beneficiario-por-municipio).",
+        "parametros": "mesAno (AAAAMM, obrig.), codigoIbge=3529005 (obrig.), pagina (obrig.)",
+        "formatoResposta": "JSON array (município, valor, beneficiários)",
+        "dadosMunicipais": "PETI pago em Marília",
+        "volumeEstimado": "1 linha/mês",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://api.portaldatransparencia.gov.br/api-de-dados/renuncias-valor",
+        "descricao": "Valores de renúncia fiscal (benefícios tributários) por município/UF/CNPJ.",
+        "parametros": "pagina (obrig.); opcionais: codigoIbge=3529005, nomeSiglaUF, cnpj",
+        "formatoResposta": "JSON array (CNPJ, valor renunciado, município)",
+        "dadosMunicipais": "Renúncias fiscais federais concedidas a empresas sediadas em Marília (cruza com fornecedores municipais e sancionadas)",
+        "volumeEstimado": "Dezenas a centenas de empresas em Marília",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://api.portaldatransparencia.gov.br/api-de-dados/renuncias-fiscais-empresas-imunes-isentas",
+        "descricao": "Empresas imunes/isentas por município/UF/CNPJ (há também variante empresas-habilitadas-beneficios-fiscais).",
+        "parametros": "pagina (obrig.); opcionais: codigoIbge=3529005, nomeSiglaUF, cnpj, beneficiarioNomeFantasia",
+        "formatoResposta": "JSON array (CNPJ, nome fantasia, benefício)",
+        "dadosMunicipais": "Empresas de Marília com imunidade/isenção tributária federal",
+        "volumeEstimado": "Dezenas em Marília",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://api.portaldatransparencia.gov.br/api-de-dados/coronavirus/transferencias",
+        "descricao": "Transferências federais COVID por município/mês (histórico 2020-2021).",
+        "parametros": "mesAno (AAAAMM, obrig.), pagina (obrig.); opcionais: codigoIbge=3529005, uf, codigoOrgao, tipoTransferencia",
+        "formatoResposta": "JSON array (órgão, tipo, valor, município)",
+        "dadosMunicipais": "Repasses COVID que Marília recebeu (FNS, FNAS, etc.) — histórico",
+        "volumeEstimado": "Vários registros/mês no período COVID",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://api.portaldatransparencia.gov.br/api-de-dados/servidores",
+        "descricao": "Servidores do Executivo Federal (não há filtro municipal direto; filtra por órgão/CPF/nome). Detalhe por id e /servidores/remuneracao por mesAno+cpf/id.",
+        "parametros": "pagina (obrig.); opcionais: cpf, nome, orgaoServidorExercicio, orgaoServidorLotacao, tipoServidor, situacaoServidor",
+        "formatoResposta": "JSON array de servidores federais",
+        "dadosMunicipais": "Indireto: servidores federais lotados em órgãos com atuação em Marília (ex.: campus UNESP/IF, INSS, Receita) via filtro por órgão — não por codigoIBGE",
+        "volumeEstimado": "Nacional, milhões; subconjunto via órgão",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://api.portaldatransparencia.gov.br/api-de-dados/peps",
+        "descricao": "Pessoas Expostas Politicamente (PEP) — útil para análise de risco/integridade.",
+        "parametros": "pagina (obrig.); opcionais: cpf, nome, descricaoFuncao, orgaoServidorLotacao",
+        "formatoResposta": "JSON array de PEPs",
+        "dadosMunicipais": "Cruzamento de integridade (PEP ligado a fornecedores/convenentes de Marília)",
+        "volumeEstimado": "Nacional",
+        "confirmado": false
+      }
+    ],
+    "veredito": "Fonte e REAL e integravel, porem SO com cadastro de chave de API (chave-api-dados via cadastro de e-mail no portaldatransparencia.gov.br) -- requisito de auth que o mapeamento nao menciona e que e bloqueante. Verificacao independente feita lendo o OpenAPI spec oficial (/v3/api-docs) e testando rotas via curl/WebFetch. ACHADO CRITICO 1: nenhum dado pode ser confirmado sem chave -- todas as rotas retornam 401 identico, incluindo rota inexistente, entao 401 nao prova nada sobre utilidade. ACHADO CRITICO 2: dois endpoints marcados confirmado:true no mapeamento (bpc-por-municipio e auxilio-emergencial-por-municipio) estao AUSENTES do spec em 3 leituras -- precisam ser re-verificados/renomeados antes de confiar. Caveat: o /v3/api-docs vem truncado (~90-100 paths), mas os dois ausentes ordenam no inicio do alfabeto e cairiam na porcao recuperada, e endpoints vizinhos (safra, seguro-defeso, peti, novo-bolsa-familia) aparecem normalmente -- logo a ausencia e provavelmente real, nao artefato de truncamento. FALTA CONFIRMAR: (a) obter chave e fazer 1 fetch real por endpoint para validar payload e filtro IBGE 3529005; (b) achar o nome/path correto de BPC e Auxilio Emergencial (ou confirmar que sairam da API); (c) confirmar limites de rate (180 req/min nos endpoints restritos). Prioridade rebaixada de alta para media justamente pela dependencia de chave + 2 endpoints nao localizados."
+  },
+  {
+    "fonte": "Parcerias 3o setor (lei13019.com.br + SMARAPD parcerias)",
+    "baseUrl": "https://www.lei13019.com.br/",
+    "tipoAcesso": "misto",
+    "autenticacao": "nenhuma",
+    "resumoDados": "Entrega a relacao COMPLETA das parcerias do 3o setor de Marilia sob a Lei 13.019/2014: termos de colaboracao, fomento e acordos de cooperacao com OSCs, mais prestacao de contas, repasses, devolucoes, chamamentos publicos (editais), planos de trabalho e execucao de emendas parlamentares. A fonte canonica e a Plataforma Terceiro Setor (lei13019.com.br) com orgao_id=23, descoberta dentro do menu do SMARAPD PAI (visao fixa siafic/parceriascelebradas, que so contem texto-link, nao dados). Foram extraidas 59 OSCs parceiras com CNPJ direto do HTML de parcerias.php. Cruzamento poderoso: cada CNPJ casa com fornecedor/DespesaAgrupada do PAI, despesas_subvencoes, CEIS/CNEP (sancoes) e BrasilAPI.",
+    "cruzamentos": "CNPJ das 59 OSCs cruza com: (1) modulo fornecedor e DespesaAgrupada/pagamentos do SMARAPD PAI (quanto a prefeitura efetivamente pagou a cada entidade); (2) modulo despesas_subvencoes do PAI (/dinamico/despesas_subvencoes/subvencoes); (3) CEIS/CNEP para checar se OSC parceira esta sancionada/inidonea; (4) BrasilAPI/ReceitaWS para situacao cadastral, socios e data de abertura do CNPJ (sinal de OSC-fantasma criada perto do chamamento); (5) PNCP/portal de contratos marilia.sp.gov.br tipo 9 (numero do Termo de Colaboracao, ex TC-128/23); (6) emendas_parlamentares do PAI cruza com a aba prestacao-de-contas-emenda (origem_de_recurso 1/2/5). Anomalias: multiplas filiais do mesmo CNPJ-base (ex Hosp Universitario 09.528.436/0001,0002,0003) recebendo parcerias separadas; OSCs com CNPJ recente; valor repassado divergente do pago no PAI.",
+    "jaIntegrado": false,
+    "prioridade": "alta",
+    "endpointsConfirmados": [
+      "https://www.lei13019.com.br/parcerias.php?orgao_id=23&orgao_nome=Prefeitura+Municipal+de+Marilia&orgao_estado=SP&orgao_logomarca=jpg&covid= (59 parcerias + nomes de OSC; CNPJs estao em atributos HTML cnpjEntidade nao surfados via markdown mas catalogo confirmado)",
+      "https://www.lei13019.com.br/inicial.php?orgao_id=23&orgao_nome=Prefeitura+Municipal+de+Marilia&orgao_estado=SP&orgao_logomarca=jpg&pasta=sp/marilia/ (hub funcional, todos os links de navegacao presentes)",
+      "https://www.lei13019.com.br/prestacao-de-contas.php?orgao_id=23&orgao_nome=Prefeitura+Municipal+de+Marilia&orgao_estado=SP&orgao_logomarca=jpg&covid= (shell funcional, seletor de 59 entidades; dados de contrato exigem selecao/AJAX)",
+      "https://www.lei13019.com.br/prestacao-de-contas-emenda.php?orgao_id=23&orgao_nome=Prefeitura+Municipal+de+Marilia&orgao_estado=SP&orgao_logomarca=jpg&origem_de_recurso=1 (RETORNA 107 linhas tabulares reais no HTML: Proposta, Instrumento, Autor/Emenda, Valor R$ - dados NAO sao so via AJAX como o mapeamento afirmava)",
+      "https://www.lei13019.com.br/editais.php?orgao_id=23&orgao_nome=Prefeitura+Municipal+de+Marilia&orgao_estado=SP&orgao_logomarca=jpg&covid= (funcional; 1 edital ativo Chamamento 3/2026)",
+      "https://transparencia.marilia.sp.gov.br/paiportalserver/modulovisao/fixo/siafic/parceriascelebradas (200 com header Origin; JSON {Titulo, Informacao.Texto:HTML, VisaoItens:[]}; sem dados estruturados, so links + PDFs - comporta-se exatamente como descrito; 400 sem Origin confirmado)",
+      "https://transparencia.marilia.sp.gov.br/paiportalserver/MenuPortal (200, 34KB com Origin; arvore de menu inclui chaves despesas_subvencoes, siafic/parceriascelebradas, convenio, 3x lei13019 origem_de_recurso)",
+      "https://www.marilia.sp.gov.br/portal/contratos/1/0/0/0/0/0/9/0/0/0/0/0/0/0 (200, 683KB; 50 permalinks /portal/contrato/{id} + 51 mencoes 'Termo de Colaboracao')",
+      "https://www.marilia.sp.gov.br/portal/contrato/3717 (detalhe funcional: TC 252/TC/2025, EDUCANDARIO BENTO DE ABREU SAMPAIO VIDAL, R$ 150.000,00, PDF disponivel)",
+      "https://www.lei13019.com.br/prestacao-de-contas-propostas-emenda.php?orgao_id=23&origem_de_recurso=1 (RECLASSIFICADO: o mapeamento marcou como nao-confirmado, mas WebFetch renderizou 107 propostas reais; RESSALVA: curl recebe 403/WAF, acessivel mas sensivel a user-agent)"
+    ],
+    "endpoints": [
+      {
+        "metodo": "GET",
+        "url": "https://www.lei13019.com.br/parcerias.php?orgao_id=23&orgao_nome=Prefeitura+Municipal+de+Marilia&orgao_estado=SP&orgao_logomarca=jpg&covid=",
+        "descricao": "Pagina 'Parcerias' do portal lei13019 de Marilia. HTML server-side com <select> de contratos onde cada <option> carrega atributos nomeEntidade e cnpjEntidade. Extrai catalogo completo de OSCs parceiras com CNPJ. Botao 'Mostrar Contratos' (tipo=ContratoDados) dispara AJAX p/ detalhe (nao reproduzido via curl).",
+        "parametros": "orgao_id=23 (fixo p/ Marilia), orgao_nome, orgao_estado=SP, orgao_logomarca, covid (vazio=normal, 1=covid)",
+        "formatoResposta": "HTML (~31KB); CNPJs em atributos cnpjEntidade dos <option>",
+        "dadosMunicipais": "59 OSCs parceiras de Marilia com CNPJ e nome (ex: APAE 52.061.264/0001-59, Santa Casa 52.049.244/0001-62, Hosp Espirita 52.050.010/0001-35, FAMEMA/Fund Ensino 52.052.420/0001-15, ACC Combate ao Cancer 59.990.960/0001-99)",
+        "volumeEstimado": "59 entidades unicas (extraidas e confirmadas)",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.lei13019.com.br/inicial.php?orgao_id=23&orgao_nome=Prefeitura+Municipal+de+Marilia&orgao_estado=SP&orgao_logomarca=jpg&pasta=sp/marilia/",
+        "descricao": "Home do Portal das Parcerias com Terceiro Setor de Marilia. Hub que linka todas as paginas: parcerias.php, prestacao-de-contas.php, prestacao-de-contas-emenda.php, editais.php, legislacao.php, liberacao.php, publicidade.php, tomada-de-contas-especial.php, denuncia.php, manifestacao-social.php, e abas dinamicas (aba=despesas, repasses, instrumentos, devolucoes, despesas_grupo).",
+        "parametros": "orgao_id=23, pasta=sp/marilia/, aba (opcional: despesas|repasses|instrumentos|devolucoes|despesas_grupo - conteudo via AJAX)",
+        "formatoResposta": "HTML (~40KB)",
+        "dadosMunicipais": "Indice de navegacao + links diretos para todas as visoes de parceria/repasse/prestacao de contas de Marilia",
+        "volumeEstimado": "1 pagina-indice; ~13 sub-paginas",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.lei13019.com.br/prestacao-de-contas.php?orgao_id=23&orgao_nome=Prefeitura+Municipal+de+Marilia&orgao_estado=SP&orgao_logomarca=jpg&covid=",
+        "descricao": "Pagina de Prestacao de Contas das parcerias. Form com botoes mostrarDados tipo=PrestacaoContas e tipo=Contrato que disparam AJAX para tabela de prestacao (valores/documentos carregados via JS - nao reproduzido com curl).",
+        "parametros": "orgao_id=23, covid",
+        "formatoResposta": "HTML (~21KB) shell; dados de prestacao via AJAX",
+        "dadosMunicipais": "Prestacao de contas por OSC/termo (relatorios, documentos, saldos) - estrutura confirmada, dados financeiros dependem de JS",
+        "volumeEstimado": "desconhecido (depende de execucao JS)",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.lei13019.com.br/prestacao-de-contas-emenda.php?orgao_id=23&orgao_nome=Prefeitura+Municipal+de+Marilia&orgao_estado=SP&orgao_logomarca=jpg&origem_de_recurso=1",
+        "descricao": "Execucao Terceiro Setor por origem de recurso (linkado direto no menu do SMARAPD PAI). Pagina grande (225KB) com 64 linhas de tabela, 493 mencoes 'emenda' e 848 'proposta'; foca em parcerias financiadas por emenda parlamentar. Linka prestacao-de-contas-propostas-emenda.php.",
+        "parametros": "orgao_id=23, origem_de_recurso (1, 2 ou 5 - tres variantes no menu do PAI)",
+        "formatoResposta": "HTML (~225KB); valores numericos via AJAX",
+        "dadosMunicipais": "Parcerias/repasses de Marilia custeados por emendas parlamentares, por origem de recurso - cruza com modulo emendas_parlamentares do PAI",
+        "volumeEstimado": "64 linhas estruturais x3 origens; dados via JS",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.lei13019.com.br/editais.php?orgao_id=23&orgao_nome=Prefeitura+Municipal+de+Marilia&orgao_estado=SP&orgao_logomarca=jpg&covid=",
+        "descricao": "Chamamentos publicos / editais das parcerias (fase de selecao das OSCs). HTML server-side.",
+        "parametros": "orgao_id=23, covid",
+        "formatoResposta": "HTML (~13KB)",
+        "dadosMunicipais": "Editais de chamamento publico de Marilia (ex Chamamento 001/2022)",
+        "volumeEstimado": "~3 chamamentos listados na pagina",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://transparencia.marilia.sp.gov.br/paiportalserver/modulovisao/fixo/siafic/parceriascelebradas",
+        "descricao": "Visao fixa do SMARAPD PAI 'Terceiro Setor - Parcerias Celebradas'. NAO contem dados estruturados (VisaoItens=[]) - apenas bloco de texto/HTML com links para o Portal das Parcerias (lei13019 orgao_id=23), para o portal de contratos de Marilia (tipo 9), e PDFs de editais/planos de trabalho/termos. Serve como ponte de descoberta. EXIGE header Origin: https://transparencia.marilia.sp.gov.br (senao HTTP 400).",
+        "parametros": "path fixo: chave=siafic, visao=parceriascelebradas; header Origin obrigatorio",
+        "formatoResposta": "JSON {Titulo, Informacao:{Texto:HTML}, VisaoItens:[]}",
+        "dadosMunicipais": "Links canonicos + PDFs de termos (ex TC-128/23 Cham 001/22 residencia); sem tabela de dados",
+        "volumeEstimado": "1 registro de texto/links",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://transparencia.marilia.sp.gov.br/paiportalserver/MenuPortal",
+        "descricao": "Menu raiz do SMARAPD PAI. Onde foram descobertas as entradas de 3o setor: 'Despesas com Subvencoes' (/dinamico/despesas_subvencoes/subvencoes), 'Convenios e Transferencias', 'Terceiro Setor - Parcerias Celebradas' (/fixo/siafic/parceriascelebradas), 'Execucao Terceiro Setor' (3 links lei13019 orgao_id=23 origem 1/2/5). EXIGE header Origin senao HTTP 400.",
+        "parametros": "nenhum query param; header Origin: https://transparencia.marilia.sp.gov.br obrigatorio",
+        "formatoResposta": "JSON (~34KB) arvore de menu com ChaveModulo e URI",
+        "dadosMunicipais": "Indice de modulos incluindo despesas_subvencoes, convenio, siafic; rota de descoberta das parcerias",
+        "volumeEstimado": "arvore completa de menu",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.marilia.sp.gov.br/portal/contratos/1/0/0/0/0/0/9/0/0/0/0/0/0/0",
+        "descricao": "Portal de contratos da prefeitura filtrado por tipo 9 (parcerias/terceiro setor - posicao 7 da URL). HTML server-side (PHP, 683KB) com 51 mencoes de Termo (TC-). Cada parceria tem permalink estavel /portal/contrato/{id} (ex /portal/contrato/3717) com valor e PDF do termo. NAO ha API JSON (/api/contratos = 404).",
+        "parametros": "segmentos posicionais na URL; posicao 7 = tipo do instrumento (9 = parceria 3o setor)",
+        "formatoResposta": "HTML (~683KB), tabela paginada; detalhe em /portal/contrato/{id}",
+        "dadosMunicipais": "Termos de colaboracao/fomento de Marilia com numero, OSC, valor e PDF; rota oficial alternativa (prefeitura, nao fornecedor)",
+        "volumeEstimado": "dezenas de termos (51 ocorrencias TC- na primeira pagina)",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://transparencia.marilia.sp.gov.br/paiportalserver/modulovisao/dinamico/despesas_subvencoes/subvencoes",
+        "descricao": "Modulo dinamico 'Despesas com Subvencoes' do SMARAPD PAI - subvencoes sociais pagas a entidades. Complementa as parcerias (lado do desembolso). Provavelmente aceita POST /modulovisao/filter com a chave despesas_subvencoes (padrao dos 17 modulos). NAO testei o fetch real deste endpoint especifico.",
+        "parametros": "chave=despesas_subvencoes, visao=subvencoes; provavel POST filter; header Origin obrigatorio",
+        "formatoResposta": "JSON (presumido, padrao modulovisao) - NAO confirmado",
+        "dadosMunicipais": "Subvencoes/repasses sociais de Marilia por entidade e valor",
+        "volumeEstimado": "desconhecido",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.lei13019.com.br/prestacao-de-contas-propostas-emenda.php?orgao_id=23&origem_de_recurso=1",
+        "descricao": "Detalhe de propostas/planos de trabalho de emenda (linkado da pagina prestacao-de-contas-emenda). Listado nos <form action> da pagina de emenda mas nao fiz fetch direto.",
+        "parametros": "orgao_id=23, origem_de_recurso",
+        "formatoResposta": "HTML (presumido)",
+        "dadosMunicipais": "Propostas de parceria por emenda parlamentar",
+        "volumeEstimado": "desconhecido",
+        "confirmado": false
+      }
+    ],
+    "veredito": "A fonte e integravel e mais robusta do que o mapeamento original sugeria. Verificacao independente: 9 dos 11 endpoints retornam dado util confirmado por fetch real. DESCOBERTAS RELEVANTES: (1) prestacao-de-contas-emenda.php e prestacao-de-contas-propostas-emenda.php NAO dependem de JS/AJAX como afirmado - servem 107 linhas tabulares com valores em R$ diretamente no HTML server-side, o que torna a extracao MUITO mais facil que o esperado. (2) O endpoint propostas-emenda (que o mapeamento marcou confirmado:false) na verdade FUNCIONA. (3) Comportamento do header Origin nos endpoints SMARAPD confirmado (400 sem, 200 com). PONTOS DE ATENCAO: (a) despesas_subvencoes/subvencoes da 404 em todas as variantes apesar de aparecer no MenuPortal - falta descobrir a rota/metodo real do modulo de subvencoes (provavelmente nao e /modulovisao/dinamico/... ou exige POST /filter com payload especifico). (b) lei13019 esta atras de WAF: WebFetch passa mas curl simples leva 403 - uma integracao em producao precisa de user-agent de browser e possivelmente cookies/rate-limit handling. (c) Os CNPJs das 59 OSCs estao em atributos HTML (cnpjEntidade nos <option>) que a conversao markdown descarta - extracao exige parser de HTML cru, nao texto. (d) Portal de contratos confirma que termos usam 'Termo de Colaboracao' por extenso na pagina (a sigla TC- so aparece em nomes de PDF), 50 permalinks estaveis por pagina. FALTA CONFIRMAR: paginacao completa do portal de contratos e do prestacao-emenda (vi 'pagina 1 de 2' e '50 permalinks na 1a pagina'); rota correta do modulo de subvencoes; parsing real dos CNPJs no HTML."
+  },
+  {
+    "fonte": "SMARAPD — modulos ainda nao integrados",
+    "baseUrl": "https://transparencia.marilia.sp.gov.br/paiportalserver/",
+    "tipoAcesso": "api-json",
+    "autenticacao": "nenhuma",
+    "resumoDados": "Os 8 módulos-alvo são todos servidos pelo MESMO endpoint central POST /modulovisao/filter, variando apenas ChaveModulo+NomeVisao+Exercicio. Entregam: empenhos COVID-19 (884 reg. 2020-25), subvenções a entidades (457-675 reg/ano 2013-21), passagens/locomoção (278 reg 2026), publicidade/propaganda com drill-down aninhado (até 13 reg/ano, com URLs de itens/liquidações/pagamentos), patrimônio mobiliário (153.211 bens em 2026), emendas parlamentares (21-294 reg/ano 2020-26), balancete de receita arrecadada mês-a-mês (179 naturezas 2026) e restos a pagar (82 reg 2026). Catálogo mestre vem do GET /DadosAbertos (17 módulos com versão, sync e exercícios). Sem auth, mas exige headers User-Agent + Origin/Referer.",
+    "cruzamentos": "Campo Fornecedor/NomeFornecedor (e CNPJ embutido em patrimonio_mobiliario.Fornecedor e fornecedor.*) cruza com: módulo fornecedor já integrado, CEIS/CNEP (empresas sancionadas), BrasilAPI (CNPJ), PNCP (contratos). NroEmpenho/ID cruza empenhos entre módulos e com DespesaAgrupada e restoapagar. despesas_subvencoes e emendas_parlamentares cruzam beneficiário (entidade) com terceiro setor. balancetereceita cruza com SICONFI/STN RREO (receita LRF) e diarias/despesa_viagem complementam o já-integrado 'diarias'. ID de empenho (campo IDDespesa) liga publicidade -> empenho_sintetico/itensempenho -> liquidações -> pagamentos via FiltroRedirecionaVisao.",
+    "jaIntegrado": false,
+    "prioridade": "alta",
+    "endpointsConfirmados": [
+      "GET https://transparencia.marilia.sp.gov.br/paiportalserver/DadosAbertos (HTTP 200, ~54KB, JSON {Informacao,Modulos[]}; lista os 8 ChaveModulo alvo + outros; DataUltimaSicronizacao=2026-06-02 fresca) — exige headers User-Agent+Origin+Referer",
+      "GET https://transparencia.marilia.sp.gov.br/paiportalserver/MenuPortal (HTTP 200, ~34KB, JSON array aninhado com URI/ChaveModulo) — exige mesmos headers",
+      "POST https://transparencia.marilia.sp.gov.br/paiportalserver/modulovisao/filter | despesa_covid/despesacovid — 2020=499 reg (HTTP 200), 2025=3 reg; schema empenho confirmado",
+      "POST .../modulovisao/filter | despesas_subvencoes/subvencoes — 2019=675 reg (HTTP 200); 2022=0 (gap confirmado, serie congela 2021)",
+      "POST .../modulovisao/filter | despesa_viagem/passagenslocomocao — 2026=278 reg (HTTP 200); campo extra UG presente (ex: CAMARA MUNICIPAL DE MARILIA)",
+      "POST .../modulovisao/filter | despesas_de_pagamentos/publicidade — 2025=13 reg (HTTP 200); campos drill-down Itens/Liquidacoes URLs com FiltroRedirecionaVisao IDDespesa confirmados; 2017=0 (gap confirmado)",
+      "POST .../modulovisao/filter | patrimonio_mobiliario/patrimonio — 2026: QuantidadePaginas=51071, QuantidadeRegistros=153211 (HTTP 200); schema Chapa/incorporacao/Fornecedor-com-CNPJ confirmado",
+      "POST .../modulovisao/filter | emendas_parlamentares/EmendasParlamentares — 2025=193 reg, 2026=21 reg (HTTP 200); beneficiario ASSOCIACAO BENEFICENTE HOSPITAL UNIVERSITARIO confirmado; CamelCase do NomeVisao validado",
+      "POST .../modulovisao/filter | balancetereceita/Arrecadacoes — 2026=179 naturezas (HTTP 200); schema colunar 12 meses + TotalArrecadado/TotalPrevisto confirmado; valores negativos (estornos) presentes",
+      "POST .../modulovisao/filter | restoapagar/restoapagar — 2026=82 reg (HTTP 200); schema enxuto sem ValorEmpenhado/Liquidado confirmado; 2024=0 (so 2025/2026 confirmado)"
+    ],
+    "endpoints": [
+      {
+        "metodo": "GET",
+        "url": "https://transparencia.marilia.sp.gov.br/paiportalserver/DadosAbertos",
+        "descricao": "Catálogo-mestre: lista os 17 módulos com ChaveModulo, Nome, Versao, Icone e VisaoAnalitica{NomeVisaoAnalitica, FiltroHabilitado, DataUltimaSicronizacaoModulo, Exercicios[], Periodicidades[]}. É a fonte de verdade para descobrir ChaveModulo+NomeVisao+anos disponíveis de cada módulo antes de chamar o filter.",
+        "metodo_obs": "GET",
+        "parametros": "Nenhum. Headers obrigatórios: User-Agent, Origin: https://transparencia.marilia.sp.gov.br, Referer: https://transparencia.marilia.sp.gov.br/ (sem eles devolve HTTP 400 'Não foi possível obter a origem da requisição').",
+        "formatoResposta": "JSON {Informacao:{}, Modulos:[...]}",
+        "dadosMunicipais": "Metadados de todos os módulos: chave, visão, versão, última sincronização, lista de exercícios e os últimos meses sincronizados por periodicidade.",
+        "volumeEstimado": "17 módulos, ~54 KB",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://transparencia.marilia.sp.gov.br/paiportalserver/MenuPortal",
+        "descricao": "Árvore de menu do portal com rota de UI (URI) e ChaveModulo de cada visão. Mapeia ChaveModulo -> rota /dinamico/{chave}/{visao} usada pelo SPA. Útil para descobrir o NomeVisao correto de cada módulo.",
+        "parametros": "Nenhum. Mesmos headers obrigatórios (User-Agent + Origin/Referer).",
+        "formatoResposta": "JSON array aninhado (TipoMenuPortal, Titulo, URI, ChaveModulo, SubItens[])",
+        "dadosMunicipais": "Estrutura de navegação e rotas dos módulos; confirma URI: /dinamico/despesa_covid/despesacovid, /dinamico/despesas_subvencoes/subvencoes, /dinamico/despesa_viagem/passagenslocomocao, /dinamico/despesas_de_pagamentos/publicidade, /dinamico/patrimonio_mobiliario/patrimonio, /dinamico/emendas_parlamentares/EmendasParlamentares, /dinamico/balancetereceita/Arrecadacoes, /dinamico/restoapagar/restoapagar.",
+        "volumeEstimado": "~34 KB",
+        "confirmado": true
+      },
+      {
+        "metodo": "POST",
+        "url": "https://transparencia.marilia.sp.gov.br/paiportalserver/modulovisao/filter",
+        "descricao": "MÓDULO despesa_covid — empenhos pagos com recursos/ação COVID-19. Body: {ChaveModulo:'despesa_covid', NomeVisao:'despesacovid', Exercicio:2020..2025, Periodicidade:'ANUAL', Periodo:null, Filtros:[], Ordenacao:[], Pagina:1, QuantidadeRegistros:N, FiltroRedirecionaVisao:{Campo:null,Valor:null,TipoValor:null}, UrlExportacao:''}.",
+        "parametros": "ChaveModulo=despesa_covid; NomeVisao=despesacovid; Exercicio ∈ {2020,2021,2022,2023,2024,2025}; Pagina+QuantidadeRegistros para paginar.",
+        "formatoResposta": "JSON {QuantidadePaginas, QuantidadeRegistros, Valores[{NroEmpenho, Modalidade, NomeFornecedor, DataEmp, ValorEmpenhado, ValorLiquidado, ValorPago, Programa, UnidadeOrcamentaria, ID, Id}]}",
+        "dadosMunicipais": "Empenhos COVID com fornecedor, modalidade de licitação, valores empenhado/liquidado/pago, programa e unidade orçamentária.",
+        "volumeEstimado": "884 registros totais (2020=499, 2021=225, 2022=100, 2023=16, 2024=41, 2025=3)",
+        "confirmado": true
+      },
+      {
+        "metodo": "POST",
+        "url": "https://transparencia.marilia.sp.gov.br/paiportalserver/modulovisao/filter",
+        "descricao": "MÓDULO despesas_subvencoes — subvenções/auxílios/contribuições a entidades do terceiro setor. ChaveModulo='despesas_subvencoes', NomeVisao='subvencoes'.",
+        "parametros": "ChaveModulo=despesas_subvencoes; NomeVisao=subvencoes; Exercicio ∈ {2013..2021} (NÃO há 2022+); Periodicidade=ANUAL.",
+        "formatoResposta": "JSON {QuantidadePaginas, QuantidadeRegistros, Valores[{NroEmpenho, Modalidade, NomeFornecedor, DataEmp, ValorEmpenhado, ValorLiquidado, ValorPago, Programa, UnidadeOrcamentaria, ID, Id}]}",
+        "dadosMunicipais": "Repasses (subvenções) a OSCs/entidades: fornecedor=entidade, valores empenhado/liquidado/pago, programa. Dado-chave para fiscalizar terceiro setor. Atenção: série congela em 2021.",
+        "volumeEstimado": "~600/ano (2013=457, 2019=675, 2021=671); ~5-6 mil registros na série 2013-2021",
+        "confirmado": true
+      },
+      {
+        "metodo": "POST",
+        "url": "https://transparencia.marilia.sp.gov.br/paiportalserver/modulovisao/filter",
+        "descricao": "MÓDULO despesa_viagem — despesas com passagens e locomoção (distinto do módulo 'diarias' já integrado). ChaveModulo='despesa_viagem', NomeVisao='passagenslocomocao'.",
+        "parametros": "ChaveModulo=despesa_viagem; NomeVisao=passagenslocomocao; Exercicio ∈ {2013..2026} (série longa de 14 anos); Periodicidade=ANUAL.",
+        "formatoResposta": "JSON {QuantidadePaginas, QuantidadeRegistros, Valores[{NroEmpenho, UG, Modalidade, NomeFornecedor, DataEmp, ValorEmpenhado, ValorLiquidado, ValorPago, Programa, UnidadeOrcamentaria, ID, Id}]}",
+        "dadosMunicipais": "Empenhos de passagens/locomoção: tem campo extra UG (unidade gestora). Complementa diárias para mapear custos de viagem.",
+        "volumeEstimado": "278 registros em 2026 (parcial); série 2013-2026",
+        "confirmado": true
+      },
+      {
+        "metodo": "POST",
+        "url": "https://transparencia.marilia.sp.gov.br/paiportalserver/modulovisao/filter",
+        "descricao": "MÓDULO despesas_de_pagamentos — Publicidade e Propaganda. RESPOSTA MAIS RICA: traz drill-down aninhado. ChaveModulo='despesas_de_pagamentos', NomeVisao='publicidade'.",
+        "parametros": "ChaveModulo=despesas_de_pagamentos; NomeVisao=publicidade; Exercicio ∈ {2013,2014,2015,2016,2018,2019,2020,2021,2022,2023,2024,2025} (faltam 2017 e 2026).",
+        "formatoResposta": "JSON {..., Valores[{NroEmpenho, Modalidade, NomeFornecedor, DataEmp, ValorEmpenhado, ValorLiquidado, ValorPago, Programa, UnidadeOrcamentaria, Itens, Liquidacoes, Documentos, Pagamentos, ID, Id}]}. Os 4 campos Itens/Liquidacoes/Documentos/Pagamentos são URLs de drill-down que apontam para outras visões (empenho_sintetico/itensempenho, despesa_por_categoria/liquidacoes, etc.) usando FiltroRedirecionaVisao com Campo='IDDespesa', Valor=<ID>, TipoValor='3'.",
+        "dadosMunicipais": "Gastos com publicidade/propaganda por agência/fornecedor com cadeia completa empenho->itens->liquidação->documento->pagamento. Alto valor fiscalizatório.",
+        "volumeEstimado": "Baixo volume por ano (2013=6, 2020=4, 2024=4, 2025=13)",
+        "confirmado": true
+      },
+      {
+        "metodo": "POST",
+        "url": "https://transparencia.marilia.sp.gov.br/paiportalserver/modulovisao/filter",
+        "descricao": "MÓDULO patrimonio_mobiliario — inventário de bens móveis do município. ChaveModulo='patrimonio_mobiliario', NomeVisao='patrimonio'. MAIOR VOLUME de todos os módulos-alvo.",
+        "parametros": "ChaveModulo=patrimonio_mobiliario; NomeVisao=patrimonio; Exercicio=2026 (só snapshot atual disponível); Pagina/QuantidadeRegistros obrigatórios para paginar 51 mil páginas.",
+        "formatoResposta": "JSON {QuantidadePaginas:51071, QuantidadeRegistros:153211, Valores[{Chapa, incorporacao, Tipo, Descricao, Dataaquisicao, Situacao, Valor, Fornecedor, ID, Id}]}",
+        "dadosMunicipais": "Cada bem patrimonial: nº de chapa, forma de incorporação (COMPRA/DOAÇÃO), tipo, descrição, data de aquisição, situação (ATIVO/BAIXADO), valor e fornecedor (com CNPJ embutido no campo Fornecedor). Cruzável com fornecedor/empenhos por CNPJ.",
+        "volumeEstimado": "153.211 bens (51.071 páginas a 3/pág; usar QuantidadeRegistros alto ~1000 para coletar)",
+        "confirmado": true
+      },
+      {
+        "metodo": "POST",
+        "url": "https://transparencia.marilia.sp.gov.br/paiportalserver/modulovisao/filter",
+        "descricao": "MÓDULO emendas_parlamentares — despesas custeadas por emendas parlamentares. ChaveModulo='emendas_parlamentares', NomeVisao='EmendasParlamentares' (atenção ao CamelCase do NomeVisao).",
+        "parametros": "ChaveModulo=emendas_parlamentares; NomeVisao=EmendasParlamentares; Exercicio ∈ {2020,2021,2022,2023,2024,2025,2026}.",
+        "formatoResposta": "JSON {..., Valores[{NroEmpenho, Modalidade, NomeFornecedor, DataEmp, ValorEmpenhado, ValorLiquidado, ValorPago, Programa, UnidadeOrcamentaria, ID, Id}]}",
+        "dadosMunicipais": "Empenhos vinculados a emendas parlamentares: beneficiário (ex.: ASSOCIAÇÃO BENEFICENTE HOSPITAL UNIVERSITÁRIO), valores, programa, unidade orçamentária. Identifica destinação de emendas.",
+        "volumeEstimado": "2020=112, 2024=294, 2025=193, 2026=21; ~900 registros na série",
+        "confirmado": true
+      },
+      {
+        "metodo": "POST",
+        "url": "https://transparencia.marilia.sp.gov.br/paiportalserver/modulovisao/filter",
+        "descricao": "MÓDULO balancetereceita — arrecadação por natureza de receita, distribuída mês-a-mês. ChaveModulo='balancetereceita', NomeVisao='Arrecadacoes'. ESTRUTURA DIFERENTE (não é empenho): uma linha por natureza com 12 colunas mensais.",
+        "parametros": "ChaveModulo=balancetereceita; NomeVisao=Arrecadacoes; Exercicio=2026 (só exercício corrente disponível); Periodicidade=ANUAL.",
+        "formatoResposta": "JSON {..., Valores[{NaturezaReceita, Janeiro, Fevereiro, Marco, Abril, Maio, Junho, Julho, Agosto, Setembro, Outubro, Novembro, Dezembro, TotalArrecadado, TotalPrevisto, ID, Id}]}",
+        "dadosMunicipais": "Receita arrecadada por código de natureza (ex.: 1.3.2.1.01.1.1.07.00) com valor por mês, total arrecadado e total previsto. Permite comparar previsto x arrecadado e detectar quedas/anomalias de receita. Pode ter valores negativos (estornos).",
+        "volumeEstimado": "179 naturezas de receita (60 páginas a 3/pág) para 2026",
+        "confirmado": true
+      },
+      {
+        "metodo": "POST",
+        "url": "https://transparencia.marilia.sp.gov.br/paiportalserver/modulovisao/filter",
+        "descricao": "MÓDULO restoapagar — pagamentos de Restos a Pagar (empenhos de exercícios anteriores pagos no atual). ChaveModulo='restoapagar', NomeVisao='restoapagar'. Schema enxuto (sem ValorEmpenhado/Liquidado).",
+        "parametros": "ChaveModulo=restoapagar; NomeVisao=restoapagar; Exercicio ∈ {2025,2026} apenas.",
+        "formatoResposta": "JSON {..., Valores[{NroEmpenho, Modalidade, NomeFornecedor, DataEmp, ValorPago, Programa, UnidadeOrcamentaria, ID, Id}]}",
+        "dadosMunicipais": "Restos a pagar quitados: fornecedor, valor pago, programa, unidade orçamentária e data do empenho original. Cruzável com fornecedor para ver acúmulo de RAP por credor.",
+        "volumeEstimado": "82 registros em 2026 (28 páginas a 3/pág)",
+        "confirmado": true
+      }
+    ],
+    "veredito": "A fonte e REALMENTE integravel e o mapeamento esta solido — confirmei de forma independente (fetch real via curl, nao WebFetch que nao seta headers/POST) os 10 endpoints. Todos os 8 ChaveModulo alvo existem no catalogo DadosAbertos (sync de 2026-06-02, dado fresco) e cada POST filter retornou HTTP 200 com dado util e schema exatamente como descrito. Contagens batem ao numero: covid 2020=499, subvencoes 2019=675, viagem 2026=278, publicidade 2025=13, patrimonio=153211, emendas 2025=193/2026=21, restoapagar 2026=82, balancetereceita=179 naturezas. As lacunas de serie tambem foram validadas pelo lado negativo (subvencoes 2022=0, publicidade 2017=0, restoapagar 2024=0), entao as afirmacoes de 'so estes anos' NAO estao infladas. Pre-requisito critico de integracao: os 3 headers (User-Agent, Origin, Referer) sao OBRIGATORIOS em TODAS as chamadas — sem eles e HTTP 400. Falta confirmar apenas: (1) fetch ponta-a-ponta dos drill-downs de publicidade e (2) tolerancia do servidor a QuantidadeRegistros alto na coleta massiva de patrimonio (rate-limit/timeout). Nenhum endpoint exige login/token. Recomendo seguir com a integracao."
+  },
+  {
+    "fonte": "PNCP — contratacoes (pncp.gov.br)",
+    "baseUrl": "https://pncp.gov.br/api",
+    "tipoAcesso": "api-json",
+    "autenticacao": "nenhuma",
+    "resumoDados": "PNCP expoe duas APIs publicas distintas e complementares. (1) API de Consulta (/api/consulta/v1) = busca paginada por periodo+CNPJ/IBGE para contratos, atas de registro de preco, contratacoes (editais/licitacoes por modalidade) e instrumentos de cobranca. (2) API de Detalhe/Integracao (/api/pncp/v1/orgaos/{cnpj}/...) = drill-down de um contrato/compra especifico, incluindo TERMOS ADITIVOS, arquivos/documentos (PDF do edital/contrato), empenhos, itens da licitacao e resultados/vencedores. Para Marilia (CNPJ 44477909000100, IBGE 3529005) ambas retornam dados reais sem auth. Fornecedor do sistema de origem e a SMARAPD INFORMATICA LTDA (mesmo do portal PAI).",
+    "cruzamentos": "niFornecedor (CNPJ/CPF do fornecedor) cruza com BrasilAPI/CNPJ, CEIS/CNEP (sancoes) e com fornecedor/pagamentos do SMARAPD PAI. numeroControlePNCP do contrato cruza com empenhos do PAI (DespesaAgrupada/pagamentos/restoapagar) via objeto/processo. processo administrativo cruza com Diario Oficial do Municipio e SAPL. valorGlobal vs valorAcumulado vs empenhos permite detectar aditivos que estouram limite. emendaParlamentar liga a autor da emenda. frutoAdesao=true sinaliza carona em ata de outro orgao (indicio de fuga de licitacao).",
+    "jaIntegrado": true,
+    "prioridade": "alta",
+    "endpointsConfirmados": [
+      "GET https://pncp.gov.br/api/consulta/v1/contratos — 200, contrato real Marilia 2024/126 com ~41 campos (objeto, fornecedor, valores, vigencia)",
+      "GET https://pncp.gov.br/api/consulta/v1/contratos/atualizacao — 200, mesma estrutura de /contratos com data real de Marilia",
+      "GET https://pncp.gov.br/api/consulta/v1/atas — 200, ata real de Marilia (nro 467, usuario SMARAPD). ATENCAO: tamanhoPagina minimo=10, valores menores retornam HTTP 400 'Tamanho de pagina invalido'",
+      "GET https://pncp.gov.br/api/consulta/v1/atas/atualizacao — 200, ata real de Marilia (mesma estrutura paginada)",
+      "GET https://pncp.gov.br/api/consulta/v1/contratacoes/publicacao — 200, totalRegistros=3 (modalidade 8) e 159 (modalidade 6, Marilia IBGE correto 3529005)",
+      "GET https://pncp.gov.br/api/consulta/v1/contratacoes/proposta — 200, totalRegistros=1059. SO funciona com dataFinal >= data atual; data passada retorna HTTP 422 'Data Final deve ser maior ou igual a data atual'",
+      "GET https://pncp.gov.br/api/consulta/v1/contratacoes/atualizacao — 200, totalRegistros=5193/15317 (UF=SP). codigoModalidadeContratacao e obrigatorio; janela sem dados retorna HTTP 204",
+      "GET https://pncp.gov.br/api/pncp/v1/orgaos/44477909000100/contratos/2024/126 — 200, ficha completa do contrato de Marilia (tipoContrato, fornecedor, vigencia, datas)",
+      "GET https://pncp.gov.br/api/pncp/v1/orgaos/44477909000100/contratos/2024/{seq}/termos — 200 com arrays reais de 'Termo Aditivo' nos contratos seq 19/28/29/32/33/35/96/97 de Marilia 2024. Contratos sem aditivo retornam HTTP 204",
+      "GET https://pncp.gov.br/api/pncp/v1/orgaos/44477909000100/contratos/2024/126/arquivos — 200, doc 'TERMO DE COLABORACAO' com uri de download direto",
+      "GET https://pncp.gov.br/api/pncp/v1/orgaos/{cnpj}/compras/{ano}/{seq}/itens e .../itens/{n}/resultados — 200, descricao de itens reais + vencedor com valorUnitarioHomologado (testado compra Maua 2024/160)",
+      "GET https://pncp.gov.br/api/pncp/v1/orgaos/44477909000100/compras/2023/5/atas e .../atas/1 — 200, lista e detalhe da ata SRP 467 de Marilia",
+      "GET https://pncp.gov.br/api/consulta/v3/api-docs — 200, OpenAPI 3 (title 'API PNCP CONSULTA')",
+      "GET https://pncp.gov.br/api/pncp/v3/api-docs — 200, OpenAPI 3 (title 'API PNCP'); confirma paths de termos/arquivos/empenhos/itens/resultados/atas"
+    ],
+    "endpoints": [
+      {
+        "metodo": "GET",
+        "url": "https://pncp.gov.br/api/consulta/v1/contratos",
+        "descricao": "Lista contratos publicados num periodo, filtravel por orgao. Confirmado: Marilia retornou 4 contratos em jan/2025 com 41 campos cada.",
+        "parametros": "dataInicial (yyyyMMdd, obrig), dataFinal (obrig), cnpjOrgao (opcional, ex 44477909000100), codigoUnidadeAdministrativa (opc), pagina (>=1, obrig), tamanhoPagina (10-500)",
+        "formatoResposta": "JSON PaginaRetornoRecuperarContratoDTO com data[] + totalRegistros/totalPaginas/numeroPagina/paginasRestantes",
+        "dadosMunicipais": "Contratos do municipio: numeroControlePNCP, anoContrato, sequencialContrato, objetoContrato, niFornecedor+nomeRazaoSocialFornecedor, valorInicial/valorGlobal/valorAcumulado, dataAssinatura, dataVigenciaInicio/Fim, tipoContrato, processo, emendaParlamentar, frutoAdesao, numeroRetificacao, temRemanejamento",
+        "volumeEstimado": "Dezenas a centenas/ano para Marilia (4 em 1 mes de jan/2025)",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://pncp.gov.br/api/consulta/v1/contratos/atualizacao",
+        "descricao": "Mesma estrutura de /contratos mas filtra por DATA DE ATUALIZACAO GLOBAL - ideal para sincronizacao incremental (cron NEXO).",
+        "parametros": "dataInicial, dataFinal, cnpjOrgao (opc), codigoUnidadeAdministrativa (opc), pagina (obrig), tamanhoPagina (10-500)",
+        "formatoResposta": "JSON PaginaRetornoRecuperarContratoDTO (igual /contratos)",
+        "dadosMunicipais": "Contratos novos/alterados do municipio desde a ultima sync (pega aditivos e retificacoes recentes)",
+        "volumeEstimado": "Incremental - poucos registros por dia",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://pncp.gov.br/api/consulta/v1/atas",
+        "descricao": "Lista atas de registro de preco vigentes num periodo, filtravel por CNPJ do orgao. Confirmado: Marilia retornou atas reais (usuario=SMARAPD INFORMATICA LTDA).",
+        "parametros": "dataInicial (yyyyMMdd, obrig), dataFinal (obrig), cnpj (opc, ex 44477909000100), idUsuario (opc), codigoUnidadeAdministrativa (opc 1-30), pagina (obrig), tamanhoPagina (10-500)",
+        "formatoResposta": "JSON PaginaRetornoAtaRegistroPrecoPeriodoDTO com data[] paginado",
+        "dadosMunicipais": "Atas SRP: numeroControlePNCPAta, numeroAtaRegistroPreco, anoAta, numeroControlePNCPCompra, objetoContratacao, vigenciaInicio/Fim, cancelado+dataCancelamento, dataAssinatura, cnpjOrgao, nomeOrgao, codigoUnidadeOrgao",
+        "volumeEstimado": "Dezenas/ano",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://pncp.gov.br/api/consulta/v1/atas/atualizacao",
+        "descricao": "Atas filtradas por data de atualizacao global (sync incremental).",
+        "parametros": "dataInicial, dataFinal, cnpj (opc), idUsuario (opc), codigoUnidadeAdministrativa (opc), pagina (obrig), tamanhoPagina (10-500)",
+        "formatoResposta": "JSON PaginaRetornoAtaRegistroPrecoPeriodoDTO",
+        "dadosMunicipais": "Atas novas/alteradas do municipio para sync incremental",
+        "volumeEstimado": "Incremental",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://pncp.gov.br/api/consulta/v1/contratacoes/publicacao",
+        "descricao": "Lista contratacoes (editais/licitacoes) publicadas num periodo por modalidade. Confirmado: IBGE 3529005 modalidade 8 (dispensa) jan-fev/2025 retornou totalRegistros=3.",
+        "parametros": "dataInicial (obrig), dataFinal (obrig), codigoModalidadeContratacao (OBRIG, ex 6=Pregao Eletronico/8=Dispensa/7=Inexigibilidade), codigoModoDisputa (opc), uf (opc), codigoMunicipioIbge (opc, 3529005), cnpj (opc), codigoUnidadeAdministrativa (opc), pagina (obrig), tamanhoPagina (10-50)",
+        "formatoResposta": "JSON PaginaRetornoRecuperarCompraPublicacaoDTO com data[] + totalRegistros/totalPaginas",
+        "dadosMunicipais": "Editais/licitacoes: numeroControlePNCP, anoCompra, sequencialCompra, numeroCompra, processo, objetoCompra, modalidadeId/Nome, modoDisputaId/Nome, valorTotalEstimado, valorTotalHomologado, situacaoCompraId/Nome, dataAberturaProposta/dataEncerramentoProposta, amparoLegal, srp (registro preco), linkSistemaOrigem, linkProcessoEletronico, fontesOrcamentarias, emendaParlamentar",
+        "volumeEstimado": "Centenas/ano (precisa varrer todas as modalidades para cobertura total)",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://pncp.gov.br/api/consulta/v1/contratacoes/proposta",
+        "descricao": "Contratacoes COM periodo de recebimento de proposta ABERTO numa data (licitacoes em andamento). Util para alertas de prazo no NEXO.",
+        "parametros": "dataFinal (obrig), codigoModalidadeContratacao (opc), uf (opc), codigoMunicipioIbge (opc), cnpj (opc), codigoUnidadeAdministrativa (opc), idUsuario (opc), pagina (obrig), tamanhoPagina (10-50)",
+        "formatoResposta": "JSON PaginaRetornoRecuperarCompraPublicacaoDTO",
+        "dadosMunicipais": "Licitacoes do municipio com proposta aberta (monitorar abertura/encerramento)",
+        "volumeEstimado": "Poucas simultaneas",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://pncp.gov.br/api/consulta/v1/contratacoes/atualizacao",
+        "descricao": "Contratacoes filtradas por data de atualizacao global (sync incremental de editais).",
+        "parametros": "dataInicial, dataFinal, codigoModalidadeContratacao (obrig), uf/codigoMunicipioIbge/cnpj (opc), pagina (obrig), tamanhoPagina (10-50)",
+        "formatoResposta": "JSON PaginaRetornoRecuperarCompraPublicacaoDTO",
+        "dadosMunicipais": "Editais novos/alterados do municipio",
+        "volumeEstimado": "Incremental",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://pncp.gov.br/api/consulta/v1/instrumentoscobranca/inclusao",
+        "descricao": "Instrumentos de cobranca (notas fiscais/faturas) incluidos num periodo, por orgao.",
+        "parametros": "dataInicial (obrig), dataFinal (obrig), tipoInstrumentoCobranca (opc), cnpjOrgao (opc), pagina (obrig), tamanhoPagina (10-100)",
+        "formatoResposta": "JSON PaginaRetornoConsultarInstrumentoCobrancaDTO",
+        "dadosMunicipais": "Faturas/cobrancas vinculadas a contratos do municipio (cruza com empenho/pagamento)",
+        "volumeEstimado": "Centenas/ano",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://pncp.gov.br/api/pncp/v1/orgaos/44477909000100/contratos/{ano}/{sequencial}",
+        "descricao": "Detalhe completo de UM contrato. Confirmado: Marilia 2024/126 retornou objeto, valorGlobal R$10.000, niFornecedor 20661830000177, vigencia, tipoContrato.",
+        "parametros": "path: cnpj, ano, sequencial (vem de sequencialContrato da consulta). Sem query/auth.",
+        "formatoResposta": "JSON objeto unico do contrato",
+        "dadosMunicipais": "Ficha completa do contrato: valorGlobal, objetoContrato, fornecedor, datas de vigencia, tipoContrato, categoriaProcesso, numeroParcelas",
+        "volumeEstimado": "1 por contrato",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://pncp.gov.br/api/pncp/v1/orgaos/44477909000100/contratos/{ano}/{sequencial}/termos",
+        "descricao": "Lista os TERMOS ADITIVOS de um contrato (aditivos de valor/prazo). Confirmado endpoint existe (2024/126 retornou array vazio = sem aditivo). Sem endpoint de consulta em massa - chamar por contrato.",
+        "parametros": "path: cnpj, ano, sequencial. Subrecurso .../termos/{sequencialTermoContrato} para detalhe do aditivo.",
+        "formatoResposta": "JSON array de termos (tipoTermoContrato, numeroTermoContrato, objetoTermoContrato, datas e valores do aditivo)",
+        "dadosMunicipais": "Aditivos contratuais do municipio - chave para detectar aditivos que inflam valor/prazo do contrato original",
+        "volumeEstimado": "0-N por contrato",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://pncp.gov.br/api/pncp/v1/orgaos/44477909000100/contratos/{ano}/{sequencial}/arquivos",
+        "descricao": "Lista documentos/PDFs do contrato com URI de download direto. Confirmado: 2024/126 retornou TERMO DE COLABORACAO (tipo Contrato) com uri de arquivo.",
+        "parametros": "path: cnpj, ano, sequencial. Subrecurso .../arquivos/{seq} baixa o PDF. Tambem .../termos/{seq}/arquivos para docs do aditivo.",
+        "formatoResposta": "JSON array {uri,url,titulo,tipoDocumentoNome,sequencialDocumento,dataPublicacaoPncp}",
+        "dadosMunicipais": "PDFs originais dos contratos/termos do municipio (texto integral para auditoria/OCR)",
+        "volumeEstimado": "1-N por contrato",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://pncp.gov.br/api/pncp/v1/orgaos/44477909000100/contratos/{ano}/{sequencial}/empenhos",
+        "descricao": "Empenhos vinculados ao contrato (parcelas/execucao orcamentaria). Permite ligar contrato PNCP -> empenho contabil.",
+        "parametros": "path: cnpj, ano, sequencial",
+        "formatoResposta": "JSON array de empenhos",
+        "dadosMunicipais": "Empenhos do municipio amarrados a cada contrato (cruza com DespesaAgrupada/pagamentos do SMARAPD PAI)",
+        "volumeEstimado": "N por contrato",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://pncp.gov.br/api/pncp/v1/orgaos/44477909000100/compras/{ano}/{sequencial}/itens",
+        "descricao": "Itens de uma licitacao/compra (descricao, quantidade, valor unitario estimado/homologado). Subrecurso /itens/{numeroItem}/resultados da os vencedores.",
+        "parametros": "path: cnpj, ano, sequencial (vem de sequencialCompra da contratacoes/publicacao). /itens/{numeroItem}, /itens/{numeroItem}/resultados/{seq}",
+        "formatoResposta": "JSON array de itens; resultados trazem fornecedor vencedor e valor",
+        "dadosMunicipais": "Itens e vencedores de cada licitacao do municipio - permite analise de sobrepreco item a item e concentracao de fornecedores",
+        "volumeEstimado": "Dezenas-centenas de itens por compra",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://pncp.gov.br/api/pncp/v1/orgaos/44477909000100/compras/{anoCompra}/{sequencialCompra}/atas/{sequencialAta}",
+        "descricao": "Detalhe de uma ata de registro de preco especifica vinculada a compra.",
+        "parametros": "path: cnpj, anoCompra, sequencialCompra, sequencialAta",
+        "formatoResposta": "JSON objeto da ata",
+        "dadosMunicipais": "Ficha completa da ata SRP do municipio",
+        "volumeEstimado": "1 por ata",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://pncp.gov.br/api/consulta/v3/api-docs",
+        "descricao": "Especificacao OpenAPI/JSON da API de Consulta (machine-readable). Confirmado acessivel.",
+        "parametros": "nenhum",
+        "formatoResposta": "JSON OpenAPI 3",
+        "dadosMunicipais": "Documentacao - lista todos os paths/parametros/DTOs de consulta",
+        "volumeEstimado": "1 doc",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://pncp.gov.br/api/pncp/v3/api-docs",
+        "descricao": "Especificacao OpenAPI/JSON da API de Detalhe/Integracao (/orgaos/{cnpj}/...). Confirmado acessivel - lista termos, arquivos, empenhos, itens, resultados, atas.",
+        "parametros": "nenhum",
+        "formatoResposta": "JSON OpenAPI 3",
+        "dadosMunicipais": "Documentacao dos endpoints de drill-down de contrato/compra",
+        "volumeEstimado": "1 doc",
+        "confirmado": true
+      }
+    ],
+    "veredito": "A fonte e REAL e altamente integravel: 13 dos 16 endpoints foram confirmados com fetch ao vivo (2026-06-03) retornando dado municipal util de Marilia, sem auth/token. Os pilares (contratos, atas, contratacoes/publicacao, detalhe de contrato, termos/aditivos, arquivos com download, itens+resultados de licitacao, atas detail, OpenAPI specs) todos funcionam. CORRECAO CRITICA DO MAPEAMENTO: o codigo IBGE alegado para Marilia (3529005) esta ERRADO — 3529005 e MAUA-SP. O IBGE correto de Marilia-SP e 3529005 (confirmado: retorna 159 registros com municipioNome 'Marilia'). A evidencia citada 'totalRegistros=3' da contratacoes/publicacao era de Maua, nao de Marilia — usar 3529005 nas integracoes. Pegadinhas confirmadas para implementacao: (1) /atas exige tamanhoPagina>=10 (senao 400); (2) /contratacoes/proposta exige dataFinal>=hoje (senao 422); (3) /contratacoes/atualizacao exige codigoModalidadeContratacao e devolve 204 em janela vazia; (4) endpoints de detalhe devolvem 204 (termos sem aditivo) ou 404 (empenhos inexistentes) — tratar como vazio, nao como erro. FALTA CONFIRMAR: dois endpoints (instrumentoscobranca/inclusao e .../empenhos) tem rota valida e documentada mas nao consegui obter NENHUM payload com dado real em nenhum orgao — provavelmente os sistemas publicadores (SMARAPD no caso de Marilia) nao alimentam esses dados no PNCP. Nao depender deles para o NEXO ate achar um orgao que efetivamente publique; sao ganho marginal, nao bloqueante."
+  },
+  {
+    "fonte": "TCE-SP / AUDESP (tce.sp.gov.br)",
+    "baseUrl": "https://transparencia.tce.sp.gov.br",
+    "tipoAcesso": "misto",
+    "autenticacao": "nenhuma",
+    "resumoDados": "O Portal da Transparência Municipal do TCE-SP expõe uma API REST pública (JSON/XML) com despesas e receitas mensais de Marília (órgão, empenho, fornecedor com CNPJ/CPF, valor, data, evento; receitas por fonte/alínea), confirmada com dados reais de 2024 e 2025. Tambem oferece datasets bulk em ZIP/CSV (despesas, receitas, RCL mensal, licitações e contratos, dívida ativa, alertas LRF, resultado das análises AUDESP) filtráveis por município. O lado jurídico/fiscalizatório (processos de contas, contas julgadas irregulares, apenados/sancionados, pareceres) está em portais HTML do tce.sp.gov.br com exports PDF/XLSX, sem API JSON limpa. A API AUDESP (audesp.tce.sp.gov.br) é apenas de submissão (autenticada), não de leitura pública.",
+    "cruzamentos": "Cruzamento forte com o que já está no NEXO: (1) CNPJ de fornecedores (id_fornecedor) cruza com SMARAPD PAI /modulovisao fornecedor, PNCP contratos, BrasilAPI CNPJ e CEIS/CNEP sanções; (2) nr_empenho e vl_despesa cruzam com pagamentos/empenhos do SMARAPD PAI (dupla fonte = detecção de divergência entre o que a Prefeitura declara ao TCE vs ao próprio portal); (3) receitas por alínea cruzam com SICONFI RREO/RGF; (4) RCL mensal do TCE cruza com cálculos LRF do SICONFI/visor; (5) contas julgadas irregulares e relação de apenados cruzam com servidores/gestores e empresas para flag de risco; (6) licitações-contratos CSV cruza com PNCP e contratos do SMARAPD.",
+    "jaIntegrado": false,
+    "prioridade": "alta",
+    "endpointsConfirmados": [
+      "GET https://transparencia.tce.sp.gov.br/api/json/municipios — JSON array ~645 itens; entrada verbatim {\"municipio\":\"marilia\",\"municipio_extenso\":\"Marília\"} confirmada",
+      "GET https://transparencia.tce.sp.gov.br/api/json/despesas/marilia/2024/1 — JSON array ~1.100+ registros; campos orgao/mes/evento/nr_empenho/id_fornecedor/nm_fornecedor/dt_emissao_despesa/vl_despesa confirmados (1º registro: CÂMARA MUNICIPAL DE MARÍLIA, empenho 120-2024, CNPJ 52060118000109)",
+      "GET https://transparencia.tce.sp.gov.br/api/json/receitas/marilia/2024/1 — JSON array ~170 registros; campos orgao/ds_fonte_recurso/ds_alinea/vl_arrecadacao confirmados",
+      "GET https://transparencia.tce.sp.gov.br/api/xml/municipios — XML válido com <item><municipio>marilia</municipio><municipio_extenso>Marília</municipio_extenso></item>",
+      "GET https://transparencia.tce.sp.gov.br/sites/default/files/conjunto-dados/despesas-2024.zip — HTTP 200, application/zip, Content-Length 2.070.545.389 bytes (~2,07GB), confere com mapeamento",
+      "GET https://transparencia.tce.sp.gov.br/sites/default/files/conjunto-dados/receitas-2024.zip — HTTP 200, application/zip, Content-Length 34.500.713 bytes (~34,5MB)",
+      "GET https://transparencia.tce.sp.gov.br/sites/default/files/conjunto-dados/rcl_completo.zip — HTTP 200, ZIP binário 813,9KB contendo rcl_completo.csv",
+      "GET https://transparencia.tce.sp.gov.br/sites/default/files/conjunto-dados/resultado_analises_audesp.zip — HTTP 200, ZIP binário 468,9KB contendo resultado_analises_audesp.csv",
+      "GET https://www.tce.sp.gov.br/relacao-de-responsaveis-por-contas-julgadas-irregulares — página carrega; downloads PDF (905,5KB) e XLSX (83,99KB) de contas irregulares confirmados; atualizado 01/06/2026 (sem API/filtro por município, baixar XLSX e filtrar)",
+      "GET https://painel.tce.sp.gov.br/pentaho/api/repos/...iegm.wcdf/generatedContent?userid=anony&password=zero — dashboard IEG-M renderiza publicamente sem login (8 índices, 644 municípios); apenas visual, sem dados brutos via CDA"
+    ],
+    "endpoints": [
+      {
+        "metodo": "GET",
+        "url": "https://transparencia.tce.sp.gov.br/api/json/municipios",
+        "descricao": "Lista todos os 644 municípios jurisdicionados com slug e nome. Confirma que o slug de Marília é 'marilia'. Necessário para montar URLs das outras chamadas.",
+        "parametros": "nenhum (formato {json|xml} no path)",
+        "formatoResposta": "JSON array de {municipio, municipio_extenso}",
+        "dadosMunicipais": "Slug e nome oficial de Marília (sem código IBGE)",
+        "volumeEstimado": "644 itens (~70KB no XML)",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://transparencia.tce.sp.gov.br/api/json/despesas/marilia/{exercicio}/{mes}",
+        "descricao": "Despesas mensais de Marília reportadas ao AUDESP. Núcleo da fiscalização: empenhos, fornecedores e valores. Exemplo confirmado: /api/json/despesas/marilia/2024/1 e /2025/1.",
+        "parametros": "exercicio (2014-2025), mes (1-12); formato json ou xml no path",
+        "formatoResposta": "JSON array de {orgao, mes, evento, nr_empenho, id_fornecedor (ex 'CNPJ - PESSOA JURIDICA - 52060118000109' ou 'PESSOA FISICA - 605238'), nm_fornecedor, dt_emissao_despesa, vl_despesa}",
+        "dadosMunicipais": "Empenhos da Prefeitura e Câmara de Marília por mês: órgão, nº empenho, CNPJ/CPF e nome do fornecedor, data, valor. Cruza com SMARAPD/PNCP/sanções.",
+        "volumeEstimado": "~900+ registros/mês (~1.6MB JSON em jan/2025); ~10k-12k/ano",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://transparencia.tce.sp.gov.br/api/json/receitas/marilia/{exercicio}/{mes}",
+        "descricao": "Receitas mensais arrecadadas por Marília por fonte de recurso e alínea. Confirmado: /api/json/receitas/marilia/2024/1.",
+        "parametros": "exercicio (2014-2025), mes (1-12); formato json ou xml no path",
+        "formatoResposta": "JSON array de {orgao, mes, ds_fonte_recurso, ds_cd_aplicacao_fixo, ds_alinea, ds_subalinea, vl_arrecadacao}",
+        "dadosMunicipais": "Arrecadação de Marília (ex Cota-Parte do IPVA = R$30,2mi em jan/2024) por fonte/alínea. Cruza com SICONFI RREO.",
+        "volumeEstimado": "Centenas de registros/mês",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://transparencia.tce.sp.gov.br/api/xml/municipios",
+        "descricao": "Mesma lista de municípios em XML (text/xml). Confirmado HTTP 200, 69KB.",
+        "parametros": "nenhum",
+        "formatoResposta": "XML",
+        "dadosMunicipais": "Slug/nome de Marília",
+        "volumeEstimado": "~70KB",
+        "confirmado": true
+      },
+      {
+        "metodo": "POST",
+        "url": "https://transparencia.tce.sp.gov.br/despesas-fornecedor",
+        "descricao": "Busca de despesas por fornecedor (form Drupal AJAX, retorna tabela HTML — NÃO é JSON). Permite rastrear um CNPJ/CPF específico em Marília com filtro de evento. Confirmado: POST retorna tabela com colunas de empenho/fornecedor.",
+        "parametros": "municipio=marilia, exercicio (2014-2025), mes (1-12 ou vazio), evento (Emissao/Reforco/Anulacao/Liquidacao/Pagamento), cnpj (14 dígitos) ou cpf (6 dígitos do meio). Requer form_build_id do GET.",
+        "formatoResposta": "HTML (tabela) — scrape necessário",
+        "dadosMunicipais": "Histórico de empenhos/pagamentos de UM fornecedor específico em Marília, por tipo de evento (inclui Pagamento/Liquidação, que a API REST de despesas só traz como 'Empenhado')",
+        "volumeEstimado": "Variável por consulta",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://transparencia.tce.sp.gov.br/sites/default/files/conjunto-dados/despesas-{ano}.zip",
+        "descricao": "Dataset bulk ESTADUAL de despesas em CSV zipado (todos os 644 municípios). Confirmado despesas-2024.zip HTTP 200, Content-Length ~2.07GB. Cobertura 2008-2025.",
+        "parametros": "ano no nome do arquivo (2008-2025)",
+        "formatoResposta": "ZIP contendo CSV",
+        "dadosMunicipais": "Despesas de Marília (filtrar no parse) — pesado, preferir API REST por município",
+        "volumeEstimado": "~2GB/ano (estadual)",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://transparencia.tce.sp.gov.br/sites/default/files/conjunto-dados/receitas-{ano}.zip",
+        "descricao": "Dataset bulk estadual de receitas em CSV zipado. Confirmado receitas-2024.zip HTTP 200, ~34.5MB.",
+        "parametros": "ano (2008-2025)",
+        "formatoResposta": "ZIP/CSV",
+        "dadosMunicipais": "Receitas de Marília (filtrar no parse)",
+        "volumeEstimado": "~34MB/ano",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://transparencia.tce.sp.gov.br/sites/default/files/conjunto-dados/rcl_completo.zip",
+        "descricao": "Receita Corrente Líquida mensal de todos os municípios desde jan/2015 (base de cálculo LRF). Confirmado HTTP 200, ~833KB.",
+        "parametros": "nenhum (arquivo único)",
+        "formatoResposta": "ZIP/CSV",
+        "dadosMunicipais": "RCL mensal de Marília — cruza com limites LRF de pessoal/dívida",
+        "volumeEstimado": "~833KB",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://transparencia.tce.sp.gov.br/sites/default/files/conjunto-dados/resultado_analises_audesp.zip",
+        "descricao": "Resultado das análises AUDESP (LRF, gastos com Educação, Saúde, Pessoal — valores e percentuais calculados pelo TCE). Confirmado HTTP 200, ~480KB. Atualização mensal desde 2016.",
+        "parametros": "nenhum",
+        "formatoResposta": "ZIP/CSV",
+        "dadosMunicipais": "Percentuais constitucionais de Marília (mínimo 25% educação, 15% saúde, limite pessoal LRF) já calculados pelo TCE",
+        "volumeEstimado": "~480KB",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://transparencia.tce.sp.gov.br/sites/default/files/conjunto-dados/licitacoes-contratos/",
+        "descricao": "Licitações e contratos em CSV mensal (extração bruta AUDESP) de jan/2018 em diante. Listado no conjunto-de-dados (NÃO testei a URL exata de cada arquivo mensal).",
+        "parametros": "arquivos mensais por ano-mês",
+        "formatoResposta": "ZIP/CSV",
+        "dadosMunicipais": "Licitações/contratos de Marília — cruza com PNCP e SMARAPD",
+        "volumeEstimado": "mensal, não medido",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://transparencia.tce.sp.gov.br/sites/default/files/conjunto-dados/divida-ativa/",
+        "descricao": "Dívida ativa municipal em CSV, cobertura 2014-2024. Listado no conjunto-de-dados (URL de pasta, arquivo exato não testado).",
+        "parametros": "por ano",
+        "formatoResposta": "CSV",
+        "dadosMunicipais": "Dívida ativa de Marília",
+        "volumeEstimado": "não medido",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.tce.sp.gov.br/relacao-de-responsaveis-por-contas-julgadas-irregulares",
+        "descricao": "Relação de responsáveis com contas julgadas irregulares (gestores/agentes públicos). Export PDF e XLSX (NÃO há API/CSV nem filtro por município no front; baixar XLSX e filtrar Marília). Atualizado 01/06/2026.",
+        "parametros": "nenhum no front (dataset completo)",
+        "formatoResposta": "PDF / XLSX",
+        "dadosMunicipais": "Gestores de Marília com contas reprovadas — flag de risco (inelegibilidade Ficha Limpa)",
+        "volumeEstimado": "dataset estadual",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.tce.sp.gov.br/pesquisa-na-relacao-de-apenados",
+        "descricao": "Relação de apenados (pessoas/empresas sancionadas pelo TCE-SP). Página de pesquisa HTML; sem API/JSON evidente, sem download confirmado. Necessita scrape do formulário.",
+        "parametros": "form de busca (HTML)",
+        "formatoResposta": "HTML",
+        "dadosMunicipais": "Empresas/pessoas sancionadas que atuam em Marília — cruza com fornecedores",
+        "volumeEstimado": "desconhecido",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://www.tce.sp.gov.br/pesquisa-de-processos",
+        "descricao": "Pesquisa de processos de contas (e-TCESP). Interface HTML; não expõe API JSON nem parâmetros públicos claros. Possível scrape para acompanhar processos de Marília.",
+        "parametros": "form HTML (não documentado publicamente)",
+        "formatoResposta": "HTML",
+        "dadosMunicipais": "Processos de contas envolvendo órgãos/gestores de Marília",
+        "volumeEstimado": "desconhecido",
+        "confirmado": false
+      },
+      {
+        "metodo": "GET",
+        "url": "https://painel.tce.sp.gov.br/pentaho/api/repos/%3Apublic%3Aieg_m%3Aiegm.wcdf/generatedContent?userid=anony&password=zero",
+        "descricao": "Dashboard Pentaho IEG-M (Índice de Efetividade da Gestão Municipal): notas i-Educ, i-Saúde, i-Planejamento, i-Fiscal, i-Amb, i-Cidade, i-Gov TI por município. Renderiza com cookie anony, MAS a API de dados CDA (doQuery/listQueries) retorna HTTP 401 — sem JSON limpo, só visual.",
+        "parametros": "userid=anony&password=zero (render); CDA data API bloqueada",
+        "formatoResposta": "HTML/dashboard (CDA JSON inacessível)",
+        "dadosMunicipais": "Notas IEG-M de Marília (A+/A/B+/...) por dimensão de gestão — só via dashboard",
+        "volumeEstimado": "n/a (sem acesso a dados brutos)",
+        "confirmado": true
+      },
+      {
+        "metodo": "POST",
+        "url": "https://audesp.tce.sp.gov.br/login",
+        "descricao": "API AUDESP Fase IV/V (Swagger em audesp.tce.sp.gov.br/api/, spec /api/audesp.yaml). É SÓ de SUBMISSÃO de documentos pelos jurisdicionados (enviar-edital, enviar-licitacao, enviar-ata, enviar-ajuste, prestação de contas terceiro setor) + consulta de protocolo próprio. Exige JWT. NÃO serve para leitura pública de dados de Marília.",
+        "parametros": "header x-authorization (email:senha) -> JWT; depois Bearer nos GET /f4/consulta/{protocolo} e /f5/consulta/{protocolo}",
+        "formatoResposta": "JSON (token / status de protocolo)",
+        "dadosMunicipais": "Nenhum dado público de Marília legível; apenas envio/consulta do próprio órgão autenticado",
+        "volumeEstimado": "n/a para fiscalização externa",
+        "confirmado": true
+      }
+    ],
+    "veredito": "A fonte é REALMENTE integrável e de alto valor para fiscalização de Marília. Confirmei via fetch real os 4 endpoints REST/XML núcleo (municipios, despesas, receitas) retornando JSON com dados municipais verbatim e campos exatos do mapeamento, mais 4 datasets bulk com HTTP 200 e Content-Length conferindo (despesas-2024.zip exatamente 2,07GB; receitas-2024.zip 34,5MB; rcl_completo 813KB; resultado_analises_audesp 468KB). A relação de contas irregulares (XLSX/PDF) e o dashboard IEG-M público também conferem. RECOMENDAÇÃO DE INTEGRAÇÃO: usar a API REST por município (json/despesas e json/receitas), o XLSX de contas irregulares e os ZIPs rcl_completo/resultado_analises_audesp — todos confirmados e leves/diretos. O QUE FALTA CONFIRMAR: (1) as URLs exatas dos arquivos mensais de licitacoes-contratos e divida-ativa — as pastas dão 404, precisa descobrir o padrão de nome real na página /conjunto-de-dados; (2) o POST despesas-fornecedor exige captura do form_build_id e sessão Drupal antes de retornar tabela — não validei o retorno útil de forma stateless, tratar como scrape de 2 etapas; (3) apenados e pesquisa-de-processos são só HTML sem API/download comprovado, exigem scrape ainda não validado. AUDESP API (audesp.tce.sp.gov.br) é confirmadamente SÓ submissão autenticada (JWT) — descartar para leitura pública. Nada que eu testei exigiu login/token surpresa exceto o que já estava sinalizado."
+  },
+  {
+    "fonte": "Fontes nacionais conexas ainda nao mapeadas",
+    "baseUrl": "https://api.queridodiario.ok.org.br (QD); https://dados.gov.br/dados/api/publico (CKAN federal); https://servicodados.ibge.gov.br/api (IBGE); https://dadosabertos.compras.gov.br (Compras); https://minhareceita.org (CNPJ); https://dadosabertos.sp.gov.br/api/3 (CKAN SP/JUCESP); https://api.portaldatransparencia.gov.br/api-de-dados (Transparencia Federal)",
+    "tipoAcesso": "misto",
+    "autenticacao": "token",
+    "resumoDados": "Conjunto de fontes nacionais com dado direto de Marilia ou util para cruzamento. ACHADO CRITICO: o IBGE de Marilia/SP e 3529005 (NAO 3529005, que e Maua) - corrigir no NEXO. Querido Diario indexa o Diario Oficial de Marilia com 4.201 edicoes full-text pesquisaveis (PDF + TXT), permitindo busca por termo tipo \"dispensa de licitacao\" (1.351 hits) - fonte de indicios primaria e ainda nao integrada. Compras.gov.br Dados Abertos (77 endpoints, sem auth) entrega modulo pesquisa-preco (preco unitario de referencia federal por item de catalogo) e contratos/ARP - benchmark de sobrepreco. minhareceita.org e QD/company entregam CNPJ+QSA (socios) sem auth para cruzar fornecedores de Marilia. JUCESP publica registro de novas empresas em CSV mensal via CKAN-SP. Portal da Transparencia Federal tem dezenas de endpoints por codigoIbge (Bolsa Familia, transferencias, recursos recebidos) com token gratuito. SINAPI nao tem API REST, so download ZIP/XLSX mensal da Caixa.",
+    "cruzamentos": "CNPJ/socios (minhareceita + QD/company/partners + BrasilAPI) cruzam com fornecedores do SMARAPD PAI e contratos PNCP/TCE-SP, permitindo detectar socios em comum entre empresas vencedoras (cartel/laranja). Pesquisa-preco Compras.gov.br cruza preco de itens/servicos contra empenhos e contratos de Marilia (sobrepreco). Querido Diario (full-text do DOM) cruza com empenhos/contratos: localizar dispensas, contratacoes emergenciais e aditivos por palavra-chave e data. IBGE 3529005 ancora populacao/PIB para indicadores per-capita. Transparencia Federal cruza repasses federais (recursos-recebidos por codigoIbge) com a execucao municipal. JUCESP cruza data de abertura de empresa fornecedora vs data de contrato (empresa recem-criada que ja vence licitacao).",
+    "jaIntegrado": false,
+    "prioridade": "alta",
+    "endpointsConfirmados": [
+      "https://api.queridodiario.ok.org.br/cities/3529005 (Marilia/SP, level 3 full-text, availability_date 2022-10-10, publication_url da prefeitura) - CONFIRMADO",
+      "https://api.queridodiario.ok.org.br/gazettes?territory_ids=3529005&querystring=dispensa&published_since=2025-01-01&published_until=2025-04-01 (total_gazettes=43; cada gazette tem date, edition, url(pdf), txt_url e excerpts) - CONFIRMADO, full-text real",
+      "https://api.queridodiario.ok.org.br/openapi.json (todos os paths alegados existem: /gazettes, /cities, /cities/{id}, /company/info/{cnpj}, /company/partners/{cnpj}, /suggestions, /aggregates/{state_code}, /gazettes/by_theme/*) - CONFIRMADO",
+      "https://api.queridodiario.ok.org.br/company/info/{cnpj} (CNPJ 00000000000191 -> razao_social, situacao_cadastral, cnae, endereco completos) - CONFIRMADO",
+      "https://api.queridodiario.ok.org.br/company/partners/{cnpj} (CNPJ 00000000000191 -> total_partners=38 com razao_social, qualificacao_socio, data_entrada_sociedade) - CONFIRMADO",
+      "https://minhareceita.org/{cnpj} (00000000000191 -> cadastro completo + qsa com 46 socios; nome, qualificacao, data_entrada) - CONFIRMADO, sem auth",
+      "https://servicodados.ibge.gov.br/api/v1/localidades/municipios/3529005 (id=3529005, nome=Marilia, UF SP, microrregiao 35038) - CONFIRMADO, valida o codigo IBGE",
+      "https://servicodados.ibge.gov.br/api/v3/agregados/5938/periodos/{ano}/variaveis/{var}?localidades=N6[3529005] (serie real: PIB Marilia 2021 = 9.756.006 mil reais) - CONFIRMADO",
+      "https://servicodados.ibge.gov.br/api/v3/agregados/5938/metadados (PIB dos Municipios, niveis N1-N9, 2002-2023) - CONFIRMADO",
+      "https://dadosabertos.compras.gov.br/modulo-pesquisa-preco/1_consultarMaterial?codigoItemCatalogo=150912 (resultado com precoUnitario=99.08, niFornecedor=29606061000189, nomeFornecedor, descricaoItem; 71 registros) - CONFIRMADO, sem auth",
+      "https://dadosabertos.compras.gov.br/v3/api-docs (OpenAPI 3.1, 80+ endpoints; modulo-pesquisa-preco, modulo-contratacoes, modulo-fornecedor, modulo-arp presentes) - CONFIRMADO, sem auth para consulta",
+      "https://dadosabertos.sp.gov.br/api/3/action/package_search?q=marilia (success=true, count=1: dataset 'Convenios' HCFAMEMA Marilia) e ?q=jucesp (count=2: Registro de Empresas 2025/2026) - CONFIRMADO, CKAN classico funcional",
+      "https://www.institucional.jucesp.sp.gov.br/downloads/dados_abertos/REL_2026-01_PDA-CONSTITUICAO.csv (CSV real 7.1MB, header 'PERIODO;NATUREZA JURIDICA;PORTE;MUNICIPIO;BAIRRO;OPERACAO;CNAE;DESC CNAE;EMPRESAS', delimitado por ;) - CONFIRMADO, download direto sem auth"
+    ],
+    "endpoints": [
+      {
+        "metodo": "GET",
+        "url": "https://api.queridodiario.ok.org.br/gazettes?territory_ids=3529005&querystring={termo}&published_since={YYYY-MM-DD}&published_until={YYYY-MM-DD}&number_of_excerpts={n}&excerpt_size={n}&size={n}&offset={n}&sort_by={relevance|descending_date|ascending_date}",
+        "descricao": "Busca full-text no Diario Oficial de Marilia. Retorna total, excerpts com o termo destacado, data, edicao, url do PDF e url do TXT (texto completo). querystring suporta frases entre aspas. Indicios via palavra-chave (dispensa, emergencial, aditivo, ratificacao, nome de fornecedor).",
+        "parametros": "territory_ids=3529005 (Marilia), querystring, published_since/until, scraped_since/until, number_of_excerpts, excerpt_size, pre_tags/post_tags, size, offset, sort_by",
+        "formatoResposta": "JSON {total_gazettes, gazettes:[{date, edition, url(pdf), txt_url, excerpts[], is_extra_edition}]}",
+        "dadosMunicipais": "Diario Oficial do Municipio de Marilia: 4.201 edicoes indexadas (desde ~2017), full-text pesquisavel, com PDF + TXT baixaveis. Ex: 1.351 edicoes contem 'dispensa de licitacao'.",
+        "volumeEstimado": "4.201 edicoes (level 3 full-text), availability_date 2022-10-10, atualizado diariamente (ultima vista 2025-04-23)",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://api.queridodiario.ok.org.br/cities/3529005",
+        "descricao": "Metadados de cobertura de Marilia no Querido Diario: nome, UF, level de cobertura (3=full-text), publication_urls (fonte oficial), availability_date.",
+        "parametros": "territory_id no path (3529005)",
+        "formatoResposta": "JSON {city:{territory_id, territory_name:'Marilia', state_code:'SP', publication_urls:['https://www.marilia.sp.gov.br/portal/diario-oficial'], level:'3', availability_date:'2022-10-10'}}",
+        "dadosMunicipais": "Confirma Marilia=3529005 com cobertura full-text; tambem usado para descobrir codigo via /cities?city_name=",
+        "volumeEstimado": "1 registro",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://api.queridodiario.ok.org.br/company/info/{cnpj} e /company/partners/{cnpj}",
+        "descricao": "Base CNPJ da Receita servida pelo Querido Diario: info cadastral completa (situacao, CNAE, endereco) e lista de socios/QSA com qualificacao, faixa etaria, data de entrada. CNPJ apenas numeros.",
+        "parametros": "cnpj (14 digitos) no path",
+        "formatoResposta": "JSON {cnpj_info:{...}} / {total_partners, partners:[{razao_social, qualificacao_socio, cnpj_cpf_socio(mascarado), data_entrada_sociedade, faixa_etaria}]}",
+        "dadosMunicipais": "Nao e dado de Marilia diretamente, mas permite resolver socios de qualquer fornecedor da prefeitura para deteccao de socios em comum / laranjas. Ex: CNPJ 00000000000191 retornou 38 partners.",
+        "volumeEstimado": "base nacional de CNPJ; 1 empresa por chamada",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://api.queridodiario.ok.org.br/openapi.json",
+        "descricao": "OpenAPI completo do QD. Paths: /health, /gazettes, /gazettes/by_theme/{theme}, /gazettes/by_theme/themes/, /cities, /cities/{id}, /suggestions, /company/info/{cnpj}, /company/partners/{cnpj}, /aggregates/{state_code}. Temas disponiveis: 'Politicas Ambientais','Tecnologias na Educacao'.",
+        "parametros": "nenhum",
+        "formatoResposta": "JSON OpenAPI 3",
+        "dadosMunicipais": "Descoberta de todos os recursos do QD",
+        "volumeEstimado": "11 paths",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://servicodados.ibge.gov.br/api/v1/localidades/municipios/3529005",
+        "descricao": "Dados administrativos de Marilia (nome, microrregiao, mesorregiao, regiao imediata/intermediaria, UF). Usado para validar o codigo IBGE correto.",
+        "parametros": "id do municipio no path",
+        "formatoResposta": "JSON {id:3529005, nome:'Marilia', microrregiao{}, ...}",
+        "dadosMunicipais": "Identidade geografica oficial de Marilia/SP. CONFIRMA 3529005 (e nao 3529005=Maua).",
+        "volumeEstimado": "1 registro; servico cobre 5570 municipios",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://servicodados.ibge.gov.br/api/v3/agregados/{agregado}/periodos/{ano}/variaveis/{var}?localidades=N6[3529005]",
+        "descricao": "SIDRA via API agregados: PIB municipal (agregado 5938), populacao, censo etc., filtrando por N6[3529005]. Servico /agregados e /agregados/{id}/metadados confirmados 200.",
+        "parametros": "agregado, periodos, variaveis, classificacao/categoria, localidades=N6[codigoIBGE]",
+        "formatoResposta": "JSON serie temporal por localidade",
+        "dadosMunicipais": "Indicadores socioeconomicos de Marilia (PIB, populacao) para normalizacao per-capita de gastos. Servico reachable; metadados do agregado 5938 (PIB municipal) confirmados.",
+        "volumeEstimado": "centenas de agregados/variaveis",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://dadosabertos.compras.gov.br/modulo-pesquisa-preco/1_consultarMaterial?pagina=1&tamanhoPagina=10&codigoItemCatalogo={cod}",
+        "descricao": "Preco de referencia federal de materiais (precoUnitario, fornecedor/CNPJ, marca, UASG, quantidade). Tambem 3_consultarServico para servicos e variantes _CSV. Sem autenticacao. Validacao de paginacao 10-500.",
+        "parametros": "pagina, tamanhoPagina(10-500), codigoItemCatalogo, e filtros por data/UASG",
+        "formatoResposta": "JSON {resultado:[{descricaoItem, codigoItemCatalogo, precoUnitario, niFornecedor, nomeFornecedor, marca, codigoUasg, nomeUasg}]}",
+        "dadosMunicipais": "Nao especifico de Marilia, mas benchmark nacional de preco para detectar sobrepreco em compras/empenhos da prefeitura. Ex retornou item 150912 precoUnitario 99.08 fornecedor 29606061000189.",
+        "volumeEstimado": "milhoes de itens de compra federal",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://dadosabertos.compras.gov.br/v3/api-docs (swagger-ui em /swagger-ui/index.html)",
+        "descricao": "OpenAPI com 77 endpoints (sem auth para consulta): modulo-arp (atas de registro de preco), modulo-contratacoes (PNCP 14.133), modulo-contratos, modulo-fornecedor, modulo-pesquisa-preco, modulo-material, modulo-servico, modulo-uasg, modulo-ocds (OCDS releases), modulo-indicadores, modulo-legado (licitacoes/pregoes antigos).",
+        "parametros": "varia por modulo",
+        "formatoResposta": "JSON / CSV (variantes .x.1_..._CSV)",
+        "dadosMunicipais": "Referencia de preco, fornecedores e atas federais para cruzar com contratacoes de Marilia. Modulo-fornecedor permite consultar fornecedor por CNPJ.",
+        "volumeEstimado": "77 endpoints",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://minhareceita.org/{cnpj}",
+        "descricao": "CNPJ completo da Receita Federal (open source, base CNPJ oficial): cadastro + QSA (socios) com nome, qualificacao, faixa etaria, data de entrada. Sem auth, HTTP 200.",
+        "parametros": "cnpj (14 digitos) no path",
+        "formatoResposta": "JSON {uf, cep, cnae, razao_social, qsa:[{nome_socio, qualificacao_socio, data_entrada_sociedade}]}",
+        "dadosMunicipais": "Resolucao de socios de fornecedores de Marilia (deteccao de vinculo societario entre empresas concorrentes/contratadas).",
+        "volumeEstimado": "base nacional 60M+ CNPJs; 1 por chamada",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://dadosabertos.sp.gov.br/api/3/action/package_search?q=marilia&rows=10 (CKAN classico, sem auth)",
+        "descricao": "Portal de Dados Abertos do Estado de SP (CKAN classico funcional). package_search, organization_show, package_show. Contem dados com recorte de Marilia (ex: convenios HCFAMEMA) e a organizacao JUCESP.",
+        "parametros": "q, rows, fq, start (CKAN padrao)",
+        "formatoResposta": "JSON CKAN {success, result:{count, results[]}}",
+        "dadosMunicipais": "Datasets estaduais com recorte Marilia (HCFAMEMA convenios) + JUCESP registro de empresas. Ponte estadual conexa.",
+        "volumeEstimado": "milhares de datasets estaduais",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://dadosabertos.sp.gov.br/api/3/action/package_show?id=registro-de-empresas-2026 -> CSVs em https://www.institucional.jucesp.sp.gov.br/downloads/dados_abertos/REL_2026-MM_PDA-CONSTITUICAO.csv",
+        "descricao": "JUCESP - registro mensal de constituicao de empresas no Estado de SP em CSV (open data via CKAN-SP). Inclui empresas de Marilia. Alternativa gratuita aos wrappers pagos.",
+        "parametros": "id do dataset; CSV mensal por arquivo",
+        "formatoResposta": "CSV (download direto)",
+        "dadosMunicipais": "Novas empresas registradas em SP/Marilia por mes -> cruzar data de abertura vs data de contrato (empresa recem-aberta que vence licitacao).",
+        "volumeEstimado": "1 CSV por mes (2026-01, 02, 03 disponiveis)",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://api.portaldatransparencia.gov.br/api-de-dados/{recurso}-por-municipio?codigoIbge=3529005&mesAno=YYYYMM (header chave-api-dados obrigatorio)",
+        "descricao": "Portal da Transparencia Federal: dezenas de endpoints por municipio (novo-bolsa-familia-por-municipio, safra-por-municipio, peti-por-municipio, seguro-defeso-por-municipio) e /despesas/recursos-recebidos (codigoIBGE). Token gratuito por cadastro de email.",
+        "parametros": "codigoIbge=3529005, mesAno, pagina; header chave-api-dados",
+        "formatoResposta": "JSON (401 com {Erro na API: Chave de API nao informada} sem token)",
+        "dadosMunicipais": "Repasses e beneficios federais que chegam a Marilia (Bolsa Familia, recursos recebidos), para cruzar com a execucao orcamentaria municipal.",
+        "volumeEstimado": "dezenas de endpoints por-municipio; serie historica mensal",
+        "confirmado": true
+      },
+      {
+        "metodo": "GET",
+        "url": "https://dados.gov.br/dados/api/publico/conjuntos-dados (OpenAPI em https://dados.gov.br/v3/api-docs; swagger-ui 200) - header Authorization (chave gov.br) obrigatorio",
+        "descricao": "API CGU do portal federal dados.gov.br (substituiu o CKAN classico): 20 paths (conjuntos-dados, organizacao, reusos, tags, temas, solicitacoes). Todos sob securityScheme 'Authorization' - 401 sem chave gov.br mesmo para leitura.",
+        "parametros": "nomeConjuntoDados, isPrivado, idOrganizacao, pagina; header Authorization=chave",
+        "formatoResposta": "JSON",
+        "dadosMunicipais": "Catalogo federal de conjuntos de dados (pode listar datasets que mencionam Marilia); requer token para qualquer chamada.",
+        "volumeEstimado": "20 endpoints; catalogo nacional",
+        "confirmado": true
+      },
+      {
+        "metodo": "DOWNLOAD",
+        "url": "https://www.caixa.gov.br/poder-publico/modernizacao-gestao/sinapi (ZIP/XLSX/PDF mensal por UF) - sem API REST",
+        "descricao": "SINAPI (IBGE+Caixa): precos de insumos e custos de composicoes da construcao civil por UF/mes. NAO ha API JSON; ingestao via arquivos ZIP/XLSX mensais (relatorios de Insumos e Composicoes), exigidos pelo Decreto 7.983/2013.",
+        "parametros": "UF (SP) e mes/ano via nome do arquivo",
+        "formatoResposta": "ZIP -> XLSX/PDF (sem JSON)",
+        "dadosMunicipais": "Preco de referencia de obra para detectar sobrepreco em contratos de engenharia de Marilia (base SP). Sem recorte municipal, e estadual.",
+        "volumeEstimado": "2 ZIPs/mes por UF",
+        "confirmado": false
+      }
+    ],
+    "veredito": "A fonte e REALMENTE integravel e majoritariamente solida. 13 endpoints foram confirmados via fetch real retornando dado util e sem autenticacao: todo o Querido Diario (full-text do Diario de Marilia com PDF+TXT, base CNPJ + socios), IBGE localidades, IBGE SIDRA/PIB municipal, compras.gov.br (pesquisa de preco federal + swagger 80+ endpoints), minhareceita.org (CNPJ+QSA), CKAN-SP (datasets com recorte Marilia + JUCESP) e o CSV mensal da JUCESP (7.1MB real). Esses formam um nucleo forte para deteccao de sobrepreco (compras.gov + SINAPI), vinculo societario (QD company + minhareceita) e indicios em diario oficial (QD gazettes full-text). FALTA CONFIRMAR/RESSALVAS: (a) Portal da Transparencia e dados.gov.br retornam 401 - sao integraveis mas EXIGEM token gratuito que precisa ser cadastrado/testado antes de assumir formato e volume; trate-os como pendentes, nao como prontos. (b) SINAPI nao tem API, so arquivos mensais - exige pipeline de download/parse XLSX, nao plug-and-play. (c) Correcoes factuais: o CNPJ de exemplo e o Banco do Brasil; o id do dataset JUCESP e UUID; e principalmente o CSV da JUCESP e AGREGADO por municipio/CNAE/natureza (contagem de empresas), NAO uma lista de empresas individuais com CNPJ - logo o caso de uso 'empresa recem-aberta que venceu licitacao' NAO sai direto desse CSV (precisaria de outra fonte com CNPJ por empresa). Prioridade alta pelo nucleo do Querido Diario + compras.gov, que entregam valor imediato e sem auth."
+  }
+]

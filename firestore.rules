@@ -1,0 +1,426 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      // Privilégio de admin vive no custom claim do token (setado pelo callable
+      // setUserRole). O UID do admin-semente (dono) é uma escotilha fixa para
+      // nunca haver lockout — mesmo valor de NEXT_PUBLIC_BOOTSTRAP_ADMIN_UID.
+      // `.get('role','')` evita "Property role is undefined" quando o token do
+      // emulador não tem a claim (usuário dev criado por e-mail/senha).
+      return request.auth != null && (
+        request.auth.token.get('role', '') == 'admin' ||
+        request.auth.uid == 'sv2DRdmAkGO3AIH7K6YYIx8ydgi1'
+      );
+    }
+
+    // Usuário autenticado E com perfil ativo — usado pelas coleções do NEXO.
+    // Admin é sempre considerado ativo.
+    function isActiveUser() {
+      return request.auth != null && (
+        isAdmin() ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('isActive', false) == true)
+      );
+    }
+
+    // --- Users ---
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      // Admin (claim/semente) pode tudo.
+      allow write: if isAdmin();
+      // Usuário cria APENAS o próprio doc, com defaults seguros (ou é o semente).
+      allow create: if request.auth != null && request.auth.uid == userId && (
+        (request.resource.data.get('role', '') == 'user' && request.resource.data.get('isActive', false) == false) ||
+        request.auth.uid == 'sv2DRdmAkGO3AIH7K6YYIx8ydgi1'
+      );
+      // Usuário atualiza o próprio doc SEM alterar role nem isActive
+      // (impede auto-promoção a admin e auto-ativação).
+      allow update: if request.auth != null && request.auth.uid == userId
+                    && request.resource.data.get('role', '') == resource.data.get('role', '')
+                    && request.resource.data.get('isActive', false) == resource.data.get('isActive', false);
+    }
+    match /users {
+      allow list: if request.auth != null;
+    }
+    
+    // --- Publicly Readable Collections ---
+
+    match /requerimentos/{reqId} {
+      // Anyone can read a doc if it has a public status. Authenticated users can read any doc.
+      // 'Revisado' é público por decisão do dono: a página /requerimentos/revisao
+      // ("Requerimentos para Pauta") é acessível ao público.
+      allow read: if resource.data.status in ['Pautado', 'Aprovado', 'Finalizado', 'Revisado'] || request.auth != null;
+      // Only authenticated users can write.
+      allow write: if request.auth != null;
+      
+      match /comments/{commentId} {
+        allow read, write: if request.auth != null;
+      }
+    }
+    match /requerimentos {
+      allow list: if request.auth != null;
+    }
+    
+    match /recortes/{folderId} {
+      // Anyone can read a folder doc if it's public. Authenticated users can read any.
+      allow read: if resource.data.isPublic == true || request.auth != null;
+      // Only authenticated users can write.
+      allow write: if request.auth != null;
+      
+      match /videos/{videoId} {
+        // Videos are readable if the parent folder is public, or if user is authenticated.
+        allow read: if get(/databases/$(database)/documents/recortes/$(folderId)).data.isPublic == true || request.auth != null;
+        allow write: if request.auth != null;
+      }
+    }
+     match /recortes {
+      allow list: if request.auth != null;
+    }
+
+    // --- Other Authenticated-Only Collections ---
+    match /oficios/{oficioId} {
+      allow read, write: if request.auth != null;
+      
+      match /comments/{commentId} {
+        allow read, write: if request.auth != null;
+      }
+    }
+     match /oficios {
+      allow list: if request.auth != null;
+    }
+    
+    match /oficio-import-logs/{logId} {
+      allow read, write: if request.auth != null;
+    }
+    match /oficio-import-logs {
+      allow list: if request.auth != null;
+    }
+
+    // "Seguir" entidades do Diário Oficial — 1 doc por (usuário × entidade),
+    // id `${uid}__${entityId}`. Cada um só lê/cria/apaga os PRÓPRIOS follows.
+    // `get`: precisa permitir quando o doc AINDA NÃO existe (resource == null) —
+    // a UI faz um get pra saber se já segue; senão dá "insufficient permissions".
+    match /entity_follows/{followId} {
+      allow get: if request.auth != null
+        && (resource == null || resource.data.uid == request.auth.uid);
+      allow create, update: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
+    }
+    match /entity_follows {
+      allow list: if request.auth != null;
+    }
+
+    match /importBatches/{batchId} {
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      // Allow owner to do anything
+      allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      // Also allow admins to do anything
+      allow read, update, delete: if request.auth != null && isAdmin();
+    }
+
+    match /indicacoes/{indicacaoId} {
+      allow read: if resource.data.status in ['Pautado', 'Aprovado', 'Finalizado'] || request.auth != null;
+      allow write: if request.auth != null;
+    }
+    match /indicacoes {
+      allow list: if request.auth != null;
+    }
+
+    match /projetos-de-lei/{projetoId} {
+      allow read, write: if request.auth != null;
+    }
+     match /projetos-de-lei {
+      allow list: if request.auth != null;
+    }
+
+    match /sapl_materias/{materiaId} {
+      allow read, write: if request.auth != null;
+    }
+     match /sapl_materias {
+      allow list: if request.auth != null;
+    }
+
+    match /compromissos/{compromissoId} {
+      allow read, write: if request.auth != null;
+    }
+    match /compromissos {
+      allow list: if request.auth != null;
+    }
+
+    match /transcriptionGroups/{groupId} {
+      allow read, write: if request.auth != null;
+    }
+    match /transcriptionGroups {
+      allow list: if request.auth != null;
+    }
+
+    match /transcriptions/{transcriptionId} {
+      allow read, write: if request.auth != null;
+    }
+    match /transcriptions {
+      allow list: if request.auth != null;
+    }
+
+    match /templates/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+    match /numbering/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+    match /audit-logs/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+    match /configs/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+    // SECURITY FIX: regras anteriores eram `if request.auth != null` (qualquer
+    // auth user CRUD em qualquer job) — permitia cross-tenant via cloud
+    // function que processa videoFilePath sem checar ownership. Agora cada
+    // user só CRUDa seus próprios jobs (campo requestedByUid).
+    match /compressionJobs/{jobId} {
+      // Mantém leitura ampla pra autenticados (admin/owner views podem ver
+      // status de qualquer compress); mas escrita só pelo dono OU sem o campo
+      // (retrocompat com docs antigos que não tinham requestedByUid).
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+                    && (request.resource.data.requestedByUid == request.auth.uid
+                        || !("requestedByUid" in request.resource.data));
+      allow update, delete: if request.auth != null
+                            && (resource.data.requestedByUid == request.auth.uid
+                                || !("requestedByUid" in resource.data));
+    }
+    match /compressionJobs {
+      allow list: if request.auth != null;
+    }
+    match /quickEditJobs/{jobId} {
+      // Leitura ampla para autenticados — igual a compressionJobs. A página de
+      // Recortes lê o status do job de edição de QUALQUER vídeo da pasta
+      // (que é compartilhada), e o job pode ter sido criado por outro usuário.
+      // A segurança real (anti cross-tenant) está nas regras de escrita abaixo
+      // — só o dono cria/atualiza/deleta o próprio job.
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+                    && request.resource.data.requestedByUid == request.auth.uid;
+      allow update, delete: if request.auth != null
+                            && (resource.data.requestedByUid == request.auth.uid
+                                || !("requestedByUid" in resource.data));
+    }
+    match /quickEditJobs {
+      allow list: if request.auth != null;
+    }
+    match /captionJobs/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+
+    // --- Media Player Diagnostic Reports ---
+    // Snapshots gerados pelo MediaDiagnosticPanel ("Reportar problema").
+    // Cada user so cria/le os proprios reports.
+    match /mediaPlayerReports/{reportId} {
+      allow read, delete: if request.auth != null
+                          && resource.data.ownerUid == request.auth.uid;
+      allow create: if request.auth != null
+                    && request.resource.data.ownerUid == request.auth.uid;
+      allow update: if false;
+    }
+    match /mediaPlayerReports {
+      allow list: if request.auth != null;
+    }
+
+    // --- Uniqueness enforcement collections ---
+    match /unique_oficios/{docId} {
+      allow read, create: if request.auth != null;
+      allow update, delete: if false;
+    }
+    match /unique_requerimentos/{docId} {
+      allow read, create: if request.auth != null;
+      allow update, delete: if false;
+    }
+    match /unique_indicacoes/{docId} {
+      allow read, create: if request.auth != null;
+      allow update, delete: if false;
+    }
+    
+    // --- Upload Tokens (Special Case) ---
+    match /uploadTokens/{tokenId} {
+      // Readable only by authenticated users to check status
+      allow read: if request.auth != null;
+      // Writable only by logged-in users
+      allow write: if request.auth != null;
+    }
+
+    // --- Suite Editor de Vídeos: projetos ---
+    match /videoProjects/{projectId} {
+      // Owner pode ler/atualizar/deletar.
+      allow read, update, delete: if request.auth != null
+                                  && resource.data.ownerUid == request.auth.uid;
+      // Criação: o doc precisa carregar o ownerUid do próprio request.
+      allow create: if request.auth != null
+                    && request.resource.data.ownerUid == request.auth.uid;
+
+      // Subcoleção de render jobs aninhados (opcional).
+      match /renders/{jobId} {
+        allow read, write: if request.auth != null
+                           && get(/databases/$(database)/documents/videoProjects/$(projectId)).data.ownerUid == request.auth.uid;
+      }
+    }
+    match /videoProjects {
+      allow list: if request.auth != null;
+    }
+
+    // --- Suite Editor de Vídeos: render jobs (top-level, opcional) ---
+    match /renderJobs/{jobId} {
+      allow read, update, delete: if request.auth != null
+                                  && resource.data.ownerUid == request.auth.uid;
+      allow create: if request.auth != null
+                    && request.resource.data.ownerUid == request.auth.uid;
+    }
+    match /renderJobs {
+      allow list: if request.auth != null;
+    }
+
+    // --- Diário Oficial · Marília-SP ---
+    // Escrita apenas via Cloud Functions (admin SDK ignora rules).
+    match /diarios/{diarioId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+
+      match /matters/{matterId} {
+        allow read: if request.auth != null;
+        allow write: if false;
+      }
+    }
+    match /diarios {
+      allow list: if request.auth != null;
+    }
+
+    // Entidades (pessoas, empresas, órgãos) extraídas dos diários.
+    // Acesso completo aos dados (CPF/CNPJ/RG/endereços) para usuários
+    // autenticados. Conteúdo é público por força da Lei 12.527/2011 (LAI),
+    // sendo extraído de publicações oficiais do Diário Oficial.
+    match /entities/{entityId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+    match /entities {
+      allow list: if request.auth != null;
+    }
+
+    // Códigos orçamentários (LOA, etc.).
+    match /budget_codes/{codeId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+    match /budget_codes {
+      allow list: if request.auth != null;
+    }
+
+    // Backfill histórico do Diário Oficial via Querido Diário.
+    // Apenas admins criam/atualizam jobs (start/pause/resume/cancel).
+    // Cloud Functions (admin SDK) reescrevem o doc com progresso.
+    match /diarioBackfillJobs/{jobId} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null && isAdmin();
+      allow delete: if false;
+    }
+    match /diarioBackfillJobs {
+      allow list: if request.auth != null;
+    }
+
+    // --- NEXO · Núcleo de Enfrentamento e Inteligência Pública ---
+    // Coleções nexo_*: leitura por usuários autenticados; escrita apenas via
+    // Cloud Functions (admin SDK ignora estas regras). O conteúdo deriva de
+    // dados públicos (Lei 12.527/2011 — LAI). Papéis de acesso refinados
+    // (Leitor/Analista/Chefe) entram na Fase 1 — ver docs/nexo-plano-mestre.md §13.
+    // O `allow read` cobre get e list; o casamento por regex restringe a
+    // regra exclusivamente às coleções com prefixo `nexo_`.
+    //
+    // OVERRIDE create-only do dono para a FILA de jobs (Frente E, plano §2.2),
+    // ANTES do catch-all nexo_* — espelha quickEditJobs. O catch-all concede só
+    // leitura (write:false); esta regra acrescenta o CREATE do próprio usuário
+    // (a união das rules é permissiva). update/delete ficam exclusivos do worker
+    // (Admin SDK, que ignora rules) — o cliente nunca avança o status à mão.
+    match /nexo_tarefas/{id} {
+      allow read: if isActiveUser();
+      allow create: if isActiveUser()
+                    && request.resource.data.solicitadoPor == request.auth.uid
+                    && request.resource.data.status == 'pendente';
+      allow update, delete: if false;
+    }
+    // Catch-all nexo_*: read isActiveUser, write:false. Cobre nexo_snapshots e
+    // TODAS as coleções escritas SÓ por cron/Admin SDK (que ignora estas rules),
+    // incluindo as da Onda 4 — nexo_cruzamentos / nexo_ranking_vinculo /
+    // nexo_nomeacoes (materializadas pelo onNexoCruzamentos e onNexoColetaDom).
+    // O cliente nunca escreve nelas; o read autenticado é suficiente (LAI).
+    match /{nexoCollection}/{docId} {
+      allow read: if nexoCollection.matches('nexo_.*') && isActiveUser();
+      allow write: if false;
+    }
+
+    // --- ACERVO INTERNO DE LEIS (compilador-leis) ---
+    // Leis municipais compiladas/consolidadas — leitura por usuário autenticado;
+    // escrita SOMENTE via Admin SDK (script de ingestão ignora estas regras).
+    match /acervo_leis/{cod} {
+      allow read: if request.auth != null;
+      allow write: if false;
+      match /artigos/{ordem} {
+        allow read: if request.auth != null;
+        allow write: if false;
+      }
+    }
+    match /acervo_meta/{doc} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+    // Interações do usuário no acervo (selecionar / like / dislike). Um doc por
+    // usuário (acervo_interacoes/{uid}), maps selecionadas{} e votos{}. Cada um
+    // só lê/escreve o PRÓPRIO doc — dados pessoais de curadoria, não compartilhados.
+    match /acervo_interacoes/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+    // VIGILÂNCIA do NEXO (watchlist do usuário): um doc por usuário
+    // (nexo_watchlist/{uid}), map itens{} de alvos acompanhados — dado pessoal de
+    // curadoria, não compartilhado. Cada um só lê/escreve o PRÓPRIO doc, e precisa
+    // ser usuário ativo. O catch-all nexo_* concede só leitura; esta regra concede
+    // a escrita do dono (a união das rules é permissiva).
+    match /nexo_watchlist/{uid} {
+      allow read, write: if isActiveUser() && request.auth.uid == uid;
+    }
+
+    // --- CAMADA DE IA: config dirigida por dados + uso agregado ---
+    // config/ia: doc unico de configuracao do multi-provider (modo global +
+    // habilitado/ordem/modelo por provedor). NAO contem chaves de API (so
+    // rotulos/modelos/flags). Leitura/escrita exclusivas do admin (o painel
+    // /admin/ia grava via client SDK; a Cloud Function onIaConfigUso le com
+    // Admin SDK, que ignora estas rules). Outros usuarios nao precisam ver.
+    match /config/ia {
+      allow read, write: if isAdmin();
+    }
+    // ia_uso/{AAAA-MM-DD}: contadores agregados de uso (chamadas/tokens/429/
+    // erros/custo) por provedor x modelo. Escrita SOMENTE via Cloud Function
+    // (Admin SDK ignora estas rules); leitura so admin (painel /admin/ia).
+    match /ia_uso/{dia} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+    match /ia_uso {
+      allow list: if isAdmin();
+    }
+
+    // telemetria_eventos/{id}: page_view / erro_ui / acao gravados pelo
+    // TelemetriaProvider via /api/telemetria (com o idToken do usuario). Cada
+    // usuario ativo cria os SEUS eventos (uid == auth.uid); leitura/list so
+    // admin (painel /admin/telemetria). Sem update/delete (o TTL em `expiraEm`
+    // apaga). Nao guarda PII externa — uid interno + rota + erro + UA.
+    match /telemetria_eventos/{id} {
+      allow create: if isActiveUser()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.tipo in ['page_view', 'erro_ui', 'acao'];
+      allow read: if isAdmin();
+      allow update, delete: if false;
+    }
+    match /telemetria_eventos {
+      allow list: if isAdmin();
+    }
+  }
+}

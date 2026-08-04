@@ -1,0 +1,307 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 216 100% 95%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 220 60% 50%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 220 60% 96%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --success: 93 38% 69%;
+    --success-foreground: 94 44% 23%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 220 60% 50%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222.2 84% 4.9%;
+    --sidebar-primary: 220 60% 50%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 220 60% 96%;
+    --sidebar-accent-foreground: 222.2 47.4% 11.2%;
+    --sidebar-border: 214.3 31.8% 91.4%;
+    --sidebar-ring: 220 60% 50%;
+
+    --editor-bg-0: var(--background);
+    --editor-bg-1: var(--background);
+    --editor-bg-2: var(--card);
+    --editor-bg-3: var(--muted);
+    --editor-bg-4: var(--border);
+    --editor-stage: var(--card);
+
+    --editor-text-primary: var(--foreground);
+    --editor-text-secondary: var(--muted-foreground);
+    --editor-text-muted: var(--muted-foreground);
+    --editor-text-inverse: var(--primary-foreground);
+
+    --editor-accent: hsl(var(--primary));
+    --editor-accent-strong: hsl(var(--primary));
+    --editor-accent-soft: hsl(var(--primary) / 0.12);
+    --editor-accent-glow: hsl(var(--primary) / 0.2);
+
+    --editor-track-v1: hsl(var(--primary));
+    --editor-track-v2: color-mix(in srgb, hsl(var(--primary)) 80%, hsl(var(--foreground)) 20%);
+    --editor-track-v3: color-mix(in srgb, hsl(var(--primary)) 70%, hsl(var(--muted-foreground)) 30%);
+    --editor-track-a1: color-mix(in srgb, hsl(var(--primary)) 78%, hsl(var(--success)) 22%);
+    --editor-track-a2: color-mix(in srgb, hsl(var(--primary)) 55%, hsl(var(--destructive)) 45%);
+    --editor-track-a3: color-mix(in srgb, hsl(var(--primary)) 60%, hsl(var(--foreground)) 40%);
+    --editor-track-cc: color-mix(in srgb, hsl(var(--primary)) 68%, hsl(var(--foreground)) 32%);
+
+    --editor-success: hsl(var(--success));
+    --editor-warning: color-mix(in srgb, hsl(var(--primary)) 55%, hsl(var(--destructive)) 45%);
+    --editor-danger: hsl(var(--destructive));
+    --editor-info: hsl(var(--primary));
+
+    --editor-glow-selected: 0 0 0 2px hsl(var(--primary)), 0 0 0 6px hsl(var(--primary) / 0.14);
+    --editor-glow-recording: 0 0 0 2px hsl(var(--destructive)), 0 0 0 8px hsl(var(--destructive) / 0.18);
+    --editor-shadow-floating: 0 10px 28px hsl(var(--foreground) / 0.08);
+    --editor-shadow-track: inset 0 1px 0 hsl(var(--background) / 0.8);
+
+    --editor-space-0: 0px;
+    --editor-space-1: 2px;
+    --editor-space-2: 4px;
+    --editor-space-3: 8px;
+    --editor-space-4: 12px;
+    --editor-space-5: 16px;
+    --editor-space-6: 20px;
+    --editor-space-7: 24px;
+    --editor-space-8: 32px;
+
+    --editor-radius-xs: calc(var(--radius) - 0.375rem);
+    --editor-radius-sm: calc(var(--radius) - 0.25rem);
+    --editor-radius-md: calc(var(--radius) - 0.125rem);
+    --editor-radius-lg: var(--radius);
+    --editor-radius-xl: calc(var(--radius) + 0.25rem);
+
+    --editor-motion-instant: 80ms;
+    --editor-motion-fast: 140ms;
+    --editor-motion-base: 220ms;
+    --editor-motion-slow: 380ms;
+    --editor-motion-snap: 60ms;
+    --editor-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --editor-ease-in-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+    --editor-z-base: 0;
+    --editor-z-clip-selected: 5;
+    --editor-z-snap: 10;
+    --editor-z-handles: 20;
+    --editor-z-popover: 50;
+    --editor-z-drag-ghost: 80;
+    --editor-z-drawer: 90;
+    --editor-z-modal: 100;
+    --editor-z-toast: 110;
+    --editor-z-recording-hud: 120;
+  }
+
+  .dark {
+    --background: 204 10% 10%;
+    --foreground: 210 40% 98%;
+    --card: 240 5% 15%;
+    --card-foreground: 210 40% 98%;
+    --popover: 240 5% 15%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 240 4% 21%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 240 4% 21%;
+    --muted-foreground: 240 4% 65%;
+    --accent: 240 4% 25%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 40% 98%;
+    --success: 151 63% 40%;
+    --success-foreground: 210 40% 98%;
+    --border: 240 4% 21%;
+    --input: 240 4% 21%;
+    --ring: 217 91% 60%;
+    --radius: 0.5rem;
+    --sidebar-background: 240 5% 15%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 240 4% 25%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 240 4% 21%;
+    --sidebar-ring: 217 91% 60%;
+
+    --editor-bg-0: 222 12% 10%;
+    --editor-bg-1: 222 10% 13%;
+    --editor-bg-2: 222 9% 17%;
+    --editor-bg-3: 222 7% 23%;
+    --editor-bg-4: 222 8% 32%;
+    --editor-stage: 0 0% 8%;
+
+    --editor-text-primary: var(--foreground);
+    --editor-text-secondary: var(--muted-foreground);
+    --editor-text-muted: var(--muted-foreground);
+    --editor-text-inverse: var(--primary-foreground);
+
+    --editor-accent: hsl(var(--primary));
+    --editor-accent-strong: hsl(var(--primary));
+    --editor-accent-soft: hsl(var(--primary) / 0.12);
+    --editor-accent-glow: hsl(var(--primary) / 0.2);
+
+    --editor-track-v1: hsl(var(--primary));
+    --editor-track-v2: color-mix(in srgb, hsl(var(--primary)) 80%, hsl(var(--foreground)) 20%);
+    --editor-track-v3: color-mix(in srgb, hsl(var(--primary)) 70%, hsl(var(--muted-foreground)) 30%);
+    --editor-track-a1: color-mix(in srgb, hsl(var(--primary)) 78%, hsl(var(--success)) 22%);
+    --editor-track-a2: color-mix(in srgb, hsl(var(--primary)) 55%, hsl(var(--destructive)) 45%);
+    --editor-track-a3: color-mix(in srgb, hsl(var(--primary)) 60%, hsl(var(--foreground)) 40%);
+    --editor-track-cc: color-mix(in srgb, hsl(var(--primary)) 68%, hsl(var(--foreground)) 32%);
+
+    --editor-success: hsl(var(--success));
+    --editor-warning: color-mix(in srgb, hsl(var(--primary)) 55%, hsl(var(--destructive)) 45%);
+    --editor-danger: hsl(var(--destructive));
+    --editor-info: hsl(var(--primary));
+
+    --editor-glow-selected: 0 0 0 2px hsl(var(--primary)), 0 0 0 6px hsl(var(--primary) / 0.14);
+    --editor-glow-recording: 0 0 0 2px hsl(var(--destructive)), 0 0 0 8px hsl(var(--destructive) / 0.18);
+    --editor-shadow-floating: 0 10px 28px hsl(var(--foreground) / 0.08);
+    --editor-shadow-track: inset 0 1px 0 hsl(var(--background) / 0.8);
+
+    --editor-space-0: 0px;
+    --editor-space-1: 2px;
+    --editor-space-2: 4px;
+    --editor-space-3: 8px;
+    --editor-space-4: 12px;
+    --editor-space-5: 16px;
+    --editor-space-6: 20px;
+    --editor-space-7: 24px;
+    --editor-space-8: 32px;
+
+    --editor-radius-xs: calc(var(--radius) - 0.375rem);
+    --editor-radius-sm: calc(var(--radius) - 0.25rem);
+    --editor-radius-md: calc(var(--radius) - 0.125rem);
+    --editor-radius-lg: var(--radius);
+    --editor-radius-xl: calc(var(--radius) + 0.25rem);
+
+    --editor-motion-instant: 80ms;
+    --editor-motion-fast: 140ms;
+    --editor-motion-base: 220ms;
+    --editor-motion-slow: 380ms;
+    --editor-motion-snap: 60ms;
+    --editor-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --editor-ease-in-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+    --editor-z-base: 0;
+    --editor-z-clip-selected: 5;
+    --editor-z-snap: 10;
+    --editor-z-handles: 20;
+    --editor-z-popover: 50;
+    --editor-z-drag-ghost: 80;
+    --editor-z-drawer: 90;
+    --editor-z-modal: 100;
+    --editor-z-toast: 110;
+    --editor-z-recording-hud: 120;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* .editor-scroll: container do timeline. A scrollbar nativa ficava sempre
+ * visível e duplicava a TimelineScrollbar custom. Mantemos só a custom (sempre
+ * visível) e escondemos a do OS. Scroll por wheel/touchpad continua funcionando. */
+.editor-scroll {
+  scrollbar-width: none; /* Firefox */
+}
+.editor-scroll::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none; /* Chrome/Safari */
+}
+/* Scrollbar nativa SUTIL pra outros containers do editor que ainda dependem dela
+ * (ex: ScrollArea do shadcn) — usa .editor-scroll-soft em vez de .editor-scroll. */
+.editor-scroll-soft {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--editor-bg-3)) transparent;
+}
+.editor-scroll-soft::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.editor-scroll-soft::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--editor-bg-3));
+  border-radius: 4px;
+}
+.editor-scroll-soft::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--editor-bg-4));
+}
+
+/* .nexo-scroll: scrollbar fina e discreta da sala de situacao (NEXO, tema
+ * escuro/ambar). Troca a scrollbar branca padrao do OS por uma fina, com
+ * trilho transparente e polegar ambar suave (mais visivel no hover). */
+.nexo-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(245, 158, 11, 0.25) transparent;
+}
+.nexo-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.nexo-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.nexo-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(245, 158, 11, 0.22);
+  border-radius: 9999px;
+}
+.nexo-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(245, 158, 11, 0.45);
+}
+
+/* Acessibilidade: respeita quem pediu menos movimento no SO — zera animações e
+   transições (o NEXO usa framer-motion, que já honra isto via MotionConfig;
+   este bloco cobre o app geral e o CSS puro). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  body {
+    background: #fff !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .print-page-break {
+    page-break-before: always;
+  }
+
+  .break-inside-avoid {
+    break-inside: avoid;
+  }
+}

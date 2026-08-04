@@ -1,0 +1,532 @@
+[
+  {
+    "persona": "ORÁCULO — Chefe de Inteligência de Dados",
+    "diagnostico": "Li o pipeline ponta-a-ponta: normalização (src/lib/nexo/normalizar.ts), os detectores (src/lib/nexo/detectores/**), o cômputo (src/app/api/nexo/detectar/route.ts), a persistência (functions/src/nexo/deteccao.ts) e a leitura/exibição (src/app/api/nexo/alertas/route.ts, src/app/api/nexo/analise/route.ts, src/app/nexo/page.tsx, fornecedores/page.tsx).\n\nESTADO DO MEU MANDATO (ranking, ordenação, score, resolução de entidade):\n\n1) RESOLUÇÃO DE ENTIDADE / FILTRO DE LIXO — INEXISTENTE no caminho que produz os alertas e o ranking. A constante MARILIA.cnpjPrefeitura ('44477909000100', constants.ts:23) só é usada como PARÂMETRO DE CONSULTA do PNCP (sources/pncp.ts:320) — NUNCA como filtro de exclusão. Os detectores que agrupam por fornecedor (FN-01 concentracao.ts, LC-01 fracionamento.ts, FR-06 grupo-cnpj.ts, MF-10 restos.ts) e o ranking topFornecedores (analise/route.ts:262-280) iteram sobre TODO empenho com cpfCnpj, sem nenhuma lista de exclusão de órgãos públicos/autarquias (Prefeitura, IPREMM, Câmara, fundações). Por isso a própria Prefeitura aparece como \"Fornecedor\". Não há sanitização de fornecedorNome nem deduplicação razão x fantasia além da raiz de CNPJ pontual do FR-06.\n\n2) ORDENAÇÃO CRONOLÓGICA DESC — AUSENTE como padrão. Praticamente todo `.sort` do NEXO é `b.valorEnvolvido - a.valorEnvolvido` (index.ts:128, alertas/route.ts:195, analise/route.ts:340, e ~25 detectores). A rota de leitura de alertas (alertas/route.ts) ordena só por valor; os campos de tempo (ultimaDeteccaoEm/primeiraDeteccaoEm) existem mas NÃO governam a ordem. As fontes com data (diario.ts) ordenam desc, mas isso se perde ao mesclar tudo por valor.\n\n3) RANKING POR POTENCIAL (SCORE) — PARCIALMENTE IMPLEMENTADO E INCONSISTENTE. O \"score triplo\" do plano-mestre NÃO existe: o tipo AlertaDetectado.scores (detectores/tipos.ts:36-39) e o alertaSchema (schemas.ts:154-157) carregam apenas confiabilidade e probabilidadeIrregularidade — a 3ª perna (prob. enquadramento) é citada em comentários mas nunca virou campo nem entra em cálculo. Não há função de score composto/prioridade em lugar nenhum. Onde alguém tenta \"priorizar\", usa peso de severidade (page.tsx:58-63, sancoes-det.ts:176) ou valor cru — os scores numéricos por detector são gravados mas IGNORADOS na ordenação final.\n\nResumo: o sistema tem os ingredientes (scores por detector, datas, raiz de CNPJ) mas NÃO os combina nem sanitiza — ordena tudo por R$ e mistura órgão público com fornecedor real.",
+    "problemasQualidade": [
+      {
+        "problema": "A própria Prefeitura/órgãos públicos internos (IPREMM, Câmara, fundações, autarquias) aparecem como FORNECEDOR no ranking e nos alertas de concentração/fracionamento/grupo. Não existe nenhum filtro de exclusão de entidade no pipeline.",
+        "ondeNoCodigo": "src/lib/nexo/detectores/concentracao.ts:24-31 (loop sem filtro); src/lib/nexo/detectores/fracionamento.ts:94-99; src/lib/nexo/detectores/grupo-cnpj.ts:26-36; src/app/api/nexo/analise/route.ts:262-270 (mapa topFornecedores). A constante MARILIA.cnpjPrefeitura (src/lib/nexo/constants.ts:23) só é usada em sources/pncp.ts:320, nunca como exclusão.",
+        "causaRaiz": "Os normalizadores (normalizar.ts) trazem qualquer cpfCnpj presente no módulo SMARAPD, incluindo transferências intra-governamentais e estornos em que o 'fornecedor' é um órgão público. Nenhuma camada classifica a entidade (pessoa jurídica privada vs ente público) nem aplica allowlist/denylist por CNPJ ou por padrão de nome.",
+        "correcao": "Criar src/lib/nexo/entidades.ts com: (a) DENYLIST de CNPJs de entes públicos de Marília (raiz da Prefeitura 44477909, IPREMM, Câmara, fundações/autarquias — confirmar contra fonte oficial) e helper ehEntidadePublica(cpfCnpj, nome) que também casa por regex de nome (/\\b(PREFEITURA|MUNICIPIO|CAMARA|FUNDO|FUNDACAO|INSTITUTO DE PREVIDENCIA|IPREMM|AUTARQUIA|SECRETARIA)\\b/i sobre nome NORMALIZADO sem acento); (b) sanitizarNome(nome) que faz uppercase, colapsa espaços, remove sufixos de tipo societário ruidosos; (c) cnpjRaiz(cpfCnpj). Aplicar ehEntidadePublica como guarda no início de cada loop por fornecedor (concentracao, fracionamento, grupo-cnpj, restos, e demais *-cat que agregam por fornecedor) e no mapa topFornecedores de analise/route.ts. Aditivo — só adiciona `continue` guardado, sem mexer na lógica de detecção que funciona.",
+        "riscoRegressao": "baixo"
+      },
+      {
+        "problema": "Transferências intra-governamentais e estornos/anulações entram nos detectores de fornecedor (concentração, fracionamento, ranking). Os detectores do catálogo-completo filtram linhas de ANULAÇÃO via ehAnulacao(), mas os detectores núcleo FN-01/LC-01/FR-06 e o ranking topFornecedores NÃO filtram tipoEmpenho.",
+        "ondeNoCodigo": "src/lib/nexo/detectores/concentracao.ts:24 e fracionamento.ts:94 usam ctx.empenhos (EmpenhoNorm) que nem carrega tipoEmpenho; src/app/api/nexo/analise/route.ts:263 idem. Compare com emergenciais-diarias-cat.ts:101 (ehAnulacao) que já existe para DespesaNorm.",
+        "causaRaiz": "EmpenhoNorm (normalizar.ts:8-24) não expõe tipoEmpenho nem flag de anulação/estorno; só DespesaNorm (normalizar.ts:263) tem tipoEmpenho. Os detectores que rodam sobre empenhos não conseguem distinguir empenho positivo de anulação/reforço-zerado, então somam ruído contábil ao 'valor sob alerta'.",
+        "correcao": "Adicionar tipoEmpenho ao EmpenhoNorm em normalizarEmpenhosFornecedor (mapear de 'TipEmpenho'/'TipoEmpenho', já lido em normalizarDespesas) e um helper ehMovimentoExpansivo(e) = e.valorEmpenhado > 0 && !/anula|estorno|cancel/i.test(e.tipoEmpenho). Aplicar nos loops de FN-01, LC-01, FR-06 e no mapa de topFornecedores. Aditivo no schema do norm + guarda nos loops; não altera fórmulas de score.",
+        "riscoRegressao": "baixo"
+      },
+      {
+        "problema": "Ordenação NÃO é cronológica decrescente em lugar nenhum da lista principal. A rota de alertas pré-computados ordena só por valorEnvolvido desc, ignorando ultimaDeteccaoEm/primeiraDeteccaoEm. O usuário não vê o mais recente primeiro.",
+        "ondeNoCodigo": "src/app/api/nexo/alertas/route.ts:195 (`alertas.sort((a, b) => b.valorEnvolvido - a.valorEnvolvido)`); idêntico em src/app/api/nexo/analise/route.ts:340 e src/lib/nexo/detectores/index.ts:128.",
+        "causaRaiz": "A única chave de ordenação adotada historicamente foi o valor financeiro. Os campos temporais existem no AlertaPersistido (alertas/route.ts:43-45) mas nunca foram usados como chave primária; a rota nem aceita parâmetro de ordenação.",
+        "correcao": "Em alertas/route.ts, aceitar ?ordem=recente|potencial|valor (default 'potencial' conforme P0#3, com 'recente' disponível) e implementar comparadores: recente = (b.ultimaDeteccaoEm ?? '').localeCompare(a.ultimaDeteccaoEm ?? '') com desempate por prioridade; valor = atual. Manter o sort atual como fallback. Aditivo — adiciona ramo de ordenação sem remover o existente.",
+        "riscoRegressao": "baixo"
+      },
+      {
+        "problema": "Ranking por POTENCIAL de irregularidade não existe: a ordenação por valor R$ coloca um contrato grande e legítimo (ex.: energia elétrica, 80% confiabilidade mas baixa prob. irregularidade) acima de um indício pequeno em valor mas crítico (ex.: empresa inidônea recebendo recurso). Os scores por detector são gravados e ignorados.",
+        "ondeNoCodigo": "src/app/api/nexo/alertas/route.ts:195 e src/app/nexo/page.tsx:210-219 (indiciosPrioritarios ordena por PESO_CLASSE depois valor — nunca pelos scores numéricos confiabilidade/probabilidadeIrregularidade).",
+        "causaRaiz": "Falta uma função de prioridade que componha os scores. O 'score triplo' do plano-mestre nunca foi materializado: scores só tem 2 pernas (tipos.ts:36-39, schemas.ts:154-157) e não há cálculo de score composto em nenhum arquivo.",
+        "correcao": "Criar src/lib/nexo/prioridade.ts com scorePrioridade(alerta) = (confiabilidade/100) * (probabilidadeIrregularidade/100) * pesoEnquadramento * fatorRecencia, e usá-lo como chave primária default em alertas/route.ts e em page.tsx indiciosPrioritarios. Enquanto a 3ª perna não existir, pesoEnquadramento pode derivar de fundamentoLegal.length>0 ? 1 : 0.7. Aditivo: função nova + troca da chave de sort (mexe em 2 linhas de ordenação que hoje produzem resultado ruim — risco contido).",
+        "riscoRegressao": "medio"
+      },
+      {
+        "problema": "O 'score triplo' (confiabilidade x prob. irregularidade x prob. enquadramento) prometido ao dono não existe — só 2 pernas. Sem a 3ª perna, não dá para combinar 'gravidade x probabilidade de enquadrar juridicamente', que é exatamente o critério de priorização pedido (P0#3).",
+        "ondeNoCodigo": "src/lib/nexo/detectores/tipos.ts:35-39 (comentário diz 'score triplo' mas só há 2 campos); src/lib/nexo/schemas.ts:153-157; src/app/api/nexo/alertas/route.ts:113-116 (paraAlerta só lê 2).",
+        "causaRaiz": "A 3ª dimensão nunca foi adicionada ao tipo nem aos ~50 detectores que constroem o objeto scores. Adicionar exige tocar muitos detectores OU dar default.",
+        "correcao": "Tornar scores.probabilidadeEnquadramento opcional no tipo/schema/paraAlerta com default derivado (ex.: tem fundamentoLegal => base 60, ajustado por classificacao). Assim NÃO precisa editar os 50 detectores de uma vez; eles podem preencher incrementalmente. scorePrioridade usa o default quando ausente. Aditivo — campo opcional + default; detectores existentes seguem válidos.",
+        "riscoRegressao": "baixo"
+      },
+      {
+        "problema": "Duplicata de fornecedor: o mesmo grupo econômico aparece como N entidades distintas em concentração/ranking porque a chave é o CNPJ completo (14 dígitos), não a raiz. Só o FR-06 olha a raiz, e isoladamente — o ranking e a concentração tratam filiais como fornecedores separados, diluindo o valor real e poluindo a lista.",
+        "ondeNoCodigo": "src/lib/nexo/detectores/concentracao.ts:26 (chave e.cpfCnpj completo); src/app/api/nexo/analise/route.ts:265 (mapa por cpfCnpj completo). Apenas grupo-cnpj.ts:28 usa slice(0,8).",
+        "causaRaiz": "Não há uma camada de resolução de entidade que rotule cada empenho com cnpjRaiz + entidade canônica antes dos detectores. Cada detector reimplementa seu agrupamento.",
+        "correcao": "No mesmo entidades.ts, expor resolverEntidade(empenho) -> { idCanonico: cnpjRaiz||cpfCnpj, rotulo: nomeCanonico }. Oferecer modo de agregação por raiz no ranking topFornecedores (ou ao menos colapsar filiais com mesmo nome+raiz). Tratar com cuidado para CPF (11 díg) que não tem raiz. Aditivo na maior parte; a troca da chave de agregação do ranking é o ponto sensível.",
+        "riscoRegressao": "medio"
+      }
+    ],
+    "melhorias": [
+      {
+        "titulo": "Camada de resolução de entidade compartilhada (entidades.ts)",
+        "categoria": "entity-resolution",
+        "valor": "alto",
+        "esforco": "medio",
+        "riscoRegressao": "baixo",
+        "plano": "Novo módulo src/lib/nexo/entidades.ts: ehEntidadePublica(cpfCnpj,nome) (denylist de CNPJs de Marília + regex de nome normalizado), sanitizarNome(nome), cnpjRaiz(cpfCnpj), resolverEntidade(empenho). Confirmar os CNPJs reais (Prefeitura/IPREMM/Câmara/fundações) antes de fixar a denylist. Consumido pelos detectores de fornecedor e pelo ranking. É a base de quase todos os P0.",
+        "arquivos": "src/lib/nexo/entidades.ts (novo); consumido por concentracao.ts, fracionamento.ts, grupo-cnpj.ts, restos.ts, analise/route.ts",
+        "aditivo": true
+      },
+      {
+        "titulo": "Função de prioridade composta + score triplo materializado",
+        "categoria": "score-ranking",
+        "valor": "alto",
+        "esforco": "medio",
+        "riscoRegressao": "medio",
+        "plano": "Adicionar scores.probabilidadeEnquadramento opcional (tipos.ts/schemas.ts) com default derivado; criar src/lib/nexo/prioridade.ts com scorePrioridade(alerta) combinando as 3 pernas + fator de recência. Usar como chave primária default de ordenação em alertas/route.ts e em page.tsx indiciosPrioritarios. Resolve P0#3 (ranking por potencial) e o pedido do score triplo.",
+        "arquivos": "src/lib/nexo/prioridade.ts (novo); src/lib/nexo/detectores/tipos.ts; src/lib/nexo/schemas.ts; src/app/api/nexo/alertas/route.ts; src/app/nexo/page.tsx",
+        "aditivo": false
+      },
+      {
+        "titulo": "Ordenação configurável (potencial desc default, recente desc, valor desc)",
+        "categoria": "ordering",
+        "valor": "alto",
+        "esforco": "baixo",
+        "riscoRegressao": "baixo",
+        "plano": "Parametrizar ?ordem= em alertas/route.ts com comparadores recente (ultimaDeteccaoEm desc) / potencial (scorePrioridade desc) / valor (atual). Default = potencial, conforme P0#3, com botão de UI para 'mais recentes'. Atende P0#2 e P0#3 sem quebrar quem espera ordem por valor.",
+        "arquivos": "src/app/api/nexo/alertas/route.ts; (UI) src/app/nexo/investigacoes/page.tsx e src/app/nexo/page.tsx",
+        "aditivo": false
+      },
+      {
+        "titulo": "Flag de movimento expansivo no EmpenhoNorm (anti-estorno/anulação)",
+        "categoria": "data-quality",
+        "valor": "medio",
+        "esforco": "baixo",
+        "riscoRegressao": "baixo",
+        "plano": "Expor tipoEmpenho no EmpenhoNorm (já lido em DespesaNorm) e helper ehMovimentoExpansivo. Aplicar nos loops de FN-01/LC-01/FR-06 e no ranking topFornecedores para remover anulações/estornos do valor sob alerta.",
+        "arquivos": "src/lib/nexo/normalizar.ts; concentracao.ts; fracionamento.ts; grupo-cnpj.ts; analise/route.ts",
+        "aditivo": true
+      },
+      {
+        "titulo": "Agregação por entidade canônica no ranking de fornecedores",
+        "categoria": "collection",
+        "valor": "medio",
+        "esforco": "medio",
+        "riscoRegressao": "medio",
+        "plano": "No topFornecedores (analise/route.ts) e no FN-01, agregar por entidade canônica (raiz para PJ, doc para PF) usando resolverEntidade, colapsando filiais do mesmo grupo e removendo duplicata razão x fantasia. Exibir nº de estabelecimentos somados.",
+        "arquivos": "src/app/api/nexo/analise/route.ts; src/lib/nexo/detectores/concentracao.ts; src/lib/nexo/entidades.ts",
+        "aditivo": false
+      },
+      {
+        "titulo": "Persistir prioridade computada e indexar para ordenar no servidor",
+        "categoria": "persistence",
+        "valor": "medio",
+        "esforco": "medio",
+        "riscoRegressao": "baixo",
+        "plano": "Gravar scorePrioridade no doc de nexo_alertas (detectar/route.ts ao carimbar a chave, ou na Function deteccao.ts) e criar índice composto exercicio+ativo+prioridade para a leitura ordenar no Firestore em vez de só em memória — relevante quando o volume de alertas crescer.",
+        "arquivos": "src/app/api/nexo/detectar/route.ts; functions/src/nexo/deteccao.ts; firestore.indexes.json",
+        "aditivo": true
+      }
+    ]
+  },
+  {
+    "persona": "VERTEX — Cientista de Dados / Detecção (detectores e catálogo do NEXO)",
+    "diagnostico": "O motor de detecção é sólido em arquitetura (registry isolado em src/lib/nexo/detectores/index.ts, dedup determinística via chaveDeteccao em src/lib/nexo/alertas.ts, degradação honesta de detectores sem fonte, persistência idempotente com reconciliação em functions/src/nexo/deteccao.ts). MAS os 3 problemas P0 do dono são reais e estão TODOS no código: (1) ENTIDADE-LIXO: nenhum detector nem a rota de análise excluem o CNPJ da própria Prefeitura (44477909000100, já em src/lib/nexo/constants.ts) nem órgãos públicos/autarquias da agregação de fornecedores. Confirmei por grep: a constante cnpjPrefeitura só é usada em coleta-pncp.ts como filtro de consulta — NUNCA como filtro de fornecedor. concentracao.ts, fracionamento.ts, grupo-cnpj.ts, setoriais.ts, liquidacao.ts, restos.ts e o ranking topFornecedores de analise/route.ts agregam por e.cpfCnpj cru, sem sanitizar; logo a Prefeitura/IPREMM/Câmara aparecem como \"fornecedor\" e dominam por valor. Não há helper de resolução de entidade nem lista de exclusão de entes públicos. (2) ESTORNOS/ANULAÇÕES contaminam valor: detectores sobre `despesas` somam Math.abs(d.valorEmpenhado) (folha-receita-cat.ts, orcamento.ts OR-07) e concentracao soma valorEmpenhado sem excluir tipoEmpenho ANUL/anulações nem transferências intra-gov — infla valorEnvolvido e cria duplicatas. (3) ORDENAÇÃO: TODO o pipeline ordena por valorEnvolvido desc (index.ts:128, analise/route.ts:340, alertas/route.ts:195) ou por classe+valor (page.tsx:213) — NUNCA cronológico decrescente e NUNCA pelo score de potencial de irregularidade. (4) RANKING/SCORE TRIPLO: o \"score triplo\" do plano-mestre NÃO existe no código — AlertaDetectado.scores só tem confiabilidade e probabilidadeIrregularidade (tipos.ts:36-39); falta a 3ª dimensão (prob. enquadramento) e não há função que combine as três num índice único de priorização. (5) DUPLICATA DE FORNECEDOR: grupo-cnpj.ts agrupa por raiz, mas os demais detectores e o topFornecedores agrupam por CNPJ completo (14 díg.) — mesma empresa em 3 filiais vira 3 linhas; razão x fantasia não é normalizada. (6) Catálogo: 172 planejados, ~17-38 ativos; muitos catálogo-cat retornam [] honestamente por falta de fonte (bom), mas os ativos têm thresholds fixos sem teste de regressão.",
+    "problemasQualidade": [
+      {
+        "problema": "A própria Prefeitura de Marília, IPREMM, Câmara, fundações e autarquias aparecem como FORNECEDOR nas listas e dominam o ranking por valor. Transferências intra-governamentais (repasses ao RPPS, duodécimo da Câmara, FPM repassado) são tratadas como contratação a fornecedor.",
+        "ondeNoCodigo": "src/lib/nexo/detectores/concentracao.ts:24-31 (loop por e.cpfCnpj); src/app/api/nexo/analise/route.ts:262-280 (topFornecedores); src/lib/nexo/detectores/fracionamento.ts:94-99; grupo-cnpj.ts:26-36; setoriais.ts; liquidacao.ts:38-45; restos.ts:36-48 — nenhum filtra o CNPJ da Prefeitura nem entes públicos",
+        "causaRaiz": "Não existe nenhuma camada de resolução/sanitização de entidade. O CNPJ da Prefeitura (44477909000100) está em constants.ts mas só é usado em functions/src/nexo/coleta-pncp.ts como cnpjOrgao da consulta — jamais como filtro de exclusão de fornecedor. Não há lista de CNPJs de órgãos públicos do município nem heurística por nome (PREFEITURA/MUNICIPIO/CAMARA/INSTITUTO DE PREVIDENCIA/FUNDACAO/AUTARQUIA).",
+        "correcao": "Criar src/lib/nexo/entidades.ts com: (a) Set de CNPJs de entes públicos de Marília (Prefeitura 44477909000100 + raiz 44477909, IPREMM, Câmara, fundações — popular incrementalmente); (b) regex de nome RE_ORGAO_PUBLICO = /\\b(prefeitura|munic[ií]pio de|c[âa]mara municipal|instituto de previd[êe]ncia|ipremm|fundo municipal|fundacao|autarquia|secretaria municipal)\\b/i; (c) função ehEntePublico(cpfCnpj, nome) e sanitizarFornecedor(). Aplicar um filtro ÚNICO na normalização (normalizar.ts) marcando cada EmpenhoNorm/DespesaNorm com flag `intraGov` e nos detectores/ranking pular registros intraGov. Centralizar para não repetir em 13 detectores. Aditivo: criar arquivo novo + 1 guard por loop; não reescreve lógica existente.",
+        "riscoRegressao": "baixo"
+      },
+      {
+        "problema": "Estornos/anulações e reforços contam como valor positivo, inflando valorEnvolvido e gerando alertas onde o líquido é ~zero. concentracao.ts soma valorEmpenhado sem excluir tipoEmpenho ANUL; detectores de despesa usam Math.abs() que transforma anulação negativa em valor positivo somado.",
+        "ondeNoCodigo": "src/lib/nexo/detectores/concentracao.ts:26-30 (não olha tipoEmpenho — empenhos não têm o campo, mas despesas sim); folha-receita-cat.ts:57-59 somaAbs(); orcamento.ts:27 (OR-07 soma Math.abs de anulações como 'valor envolvido'); o normalizador normalizarDespesas captura tipoEmpenho mas concentracao roda sobre ctx.empenhos que NÃO traz tipoEmpenho",
+        "causaRaiz": "EmpenhoNorm não carrega tipoEmpenho (normalizar.ts:8-24), então a concentração e o ranking não conseguem distinguir empenho de anulação/reforço. Onde o tipo existe (DespesaNorm), o uso de Math.abs() inverte o sinal do estorno em vez de subtrair. Não há conceito de 'valor líquido' (empenhado − anulado) por sujeito.",
+        "correcao": "1) Adicionar tipoEmpenho ao EmpenhoNorm (já existe no bruto) e, na agregação de concentracao/ranking, computar valor líquido: somar empenhos, subtrair anulações (não Math.abs). 2) Em detectores de despesa, ao reportar valorEnvolvido usar o líquido do grupo, não a soma de absolutos. 3) Excluir explicitamente tipoEmpenho ~ /ESTORNO|ANUL/ dos detectores de fracionamento/concentração (anulação não é contratação). Risco médio porque mexe na agregação que funciona — proteger com teste de regressão de snapshot.",
+        "riscoRegressao": "medio"
+      },
+      {
+        "problema": "Ordenação nunca é cronológica decrescente nem por potencial de irregularidade. Tudo sai ordenado por valor (R$) desc — um RAP antigo de R$5M aparece antes de um fracionamento recente com 90% de prob. de irregularidade.",
+        "ondeNoCodigo": "src/lib/nexo/detectores/index.ts:128 (sort b.valorEnvolvido-a.valorEnvolvido); src/app/api/nexo/analise/route.ts:340; src/app/api/nexo/alertas/route.ts:195; src/app/nexo/page.tsx:213-217 (classe depois valor). Nenhum ordena por ultimaDeteccaoEm/primeiraDeteccaoEm nem por score.",
+        "causaRaiz": "Decisão de ordenação espalhada por 4 pontos, todos com a mesma chave única (valorEnvolvido). Os alertas persistidos JÁ têm primeiraDeteccaoEm/ultimaDeteccaoEm (alertas/route.ts:42-44) e evidências com data, mas nada disso entra na ordenação. Não há campo de data canônica do episódio no AlertaDetectado.",
+        "correcao": "1) Default cronológico decrescente: em alertas/route.ts ordenar por ultimaDeteccaoEm desc (fallback primeiraDeteccaoEm) e expor querystring ?ordenar=recente|potencial|valor. 2) Para os detectores que produzem episódios datados (fracionamento, diárias, anulação), adicionar campo dataEpisodio (= última data da janela) ao AlertaDetectado para ordenar cronologicamente também na rota ao-vivo. Aditivo: adiciona campo + opção de sort; mantém valor como modo alternativo.",
+        "riscoRegressao": "baixo"
+      },
+      {
+        "problema": "Não existe ranking por potencial combinando o score triplo. O AlertaDetectado só tem 2 das 3 dimensões prometidas (falta prob. de enquadramento) e nada combina confiabilidade × prob. irregularidade × enquadramento num índice único de priorização.",
+        "ondeNoCodigo": "src/lib/nexo/detectores/tipos.ts:36-39 (scores = {confiabilidade, probabilidadeIrregularidade} — só 2 campos); não há função scoreCombinado em lib/nexo/*. O plano-mestre §7 fala em score triplo mas o código nunca o materializou.",
+        "causaRaiz": "A 3ª dimensão (probabilidadeEnquadramento — quão bem o indício se encaixa num tipo legal apurável) nunca foi adicionada ao tipo nem preenchida pelos detectores; e não há agregador. Como consequência, o sistema cai no proxy 'valor' para priorizar.",
+        "correcao": "1) Adicionar scores.probabilidadeEnquadramento?: number (opcional, default derivado do fundamentoLegal não-vazio + classificacao) para não quebrar os detectores existentes. 2) Criar scoreCombinado(a) = (confiabilidade/100)*(probIrreg/100)*(probEnq/100)*100 em lib/nexo/score.ts. 3) Oferecer ordenar=potencial usando scoreCombinado desc, combinado com data como desempate. Aditivo: novo campo opcional + nova função + novo modo de sort.",
+        "riscoRegressao": "baixo"
+      },
+      {
+        "problema": "Mesma empresa aparece duplicada: agrupamento inconsistente entre detectores. grupo-cnpj usa raiz (8 díg.), todos os outros usam CNPJ completo (14 díg.); razão social x nome fantasia não é normalizada, então a mesma empresa em 2 grafias vira 2 linhas.",
+        "ondeNoCodigo": "src/lib/nexo/detectores/grupo-cnpj.ts:28 (raiz 8 díg) vs concentracao.ts:26 (cnpj completo) vs analise/route.ts:265 (topFornecedores por cnpj completo). Nome do fornecedor pego cru (normalizar.ts:78 fornecedorNome) sem normalização de caixa/acento.",
+        "causaRaiz": "Falta de uma chave canônica de entidade. O sistema mistura raiz e CNPJ completo conforme o detector, e nunca normaliza a razão social (uppercase/sem acento/sem sufixo LTDA-ME-EPP) para reconciliar grafias.",
+        "correcao": "Em entidades.ts (novo), definir chaveEntidade(cpfCnpj, nome): para PJ usar raiz CNPJ como chave canônica de grupo + manter estabelecimento; normalizar nome com normalizarRazao(nome) (uppercase, strip acentos, remove LTDA/ME/EPP/EIRELI/SA). Usar a MESMA chave no ranking e nos detectores de fornecedor. Risco baixo-médio: muda granularidade de agregação de alguns detectores — validar com snapshot.",
+        "riscoRegressao": "medio"
+      }
+    ],
+    "melhorias": [
+      {
+        "titulo": "Camada única de resolução de entidade e exclusão intra-governamental",
+        "categoria": "entity-resolution",
+        "valor": "alto",
+        "esforco": "medio",
+        "riscoRegressao": "baixo",
+        "aditivo": true,
+        "arquivos": "novo src/lib/nexo/entidades.ts; pontos de uso: src/lib/nexo/normalizar.ts (marcar intraGov), detectores/concentracao.ts, fracionamento.ts, grupo-cnpj.ts, setoriais.ts, liquidacao.ts, restos.ts, orcamento.ts; src/app/api/nexo/analise/route.ts (topFornecedores)",
+        "plano": "entidades.ts exporta: ENTES_PUBLICOS_MARILIA (Set de CNPJs/raízes — Prefeitura 44477909, IPREMM, Câmara, fundações), RE_ORGAO_PUBLICO (regex de nome), ehEntePublico(doc, nome), chaveEntidade(doc, nome), normalizarRazao(nome). Normalizadores setam flag intraGov nos *Norm. Cada loop de detector ganha 1 linha de guard `if (ehEntePublico(e.cpfCnpj, e.fornecedorNome)) continue;`. Centraliza a regra para não duplicar em 13 lugares."
+      },
+      {
+        "titulo": "Valor líquido (empenho − anulação) e exclusão de estornos da agregação",
+        "categoria": "data-quality",
+        "valor": "alto",
+        "esforco": "medio",
+        "riscoRegressao": "medio",
+        "aditivo": false,
+        "arquivos": "src/lib/nexo/normalizar.ts (EmpenhoNorm + tipoEmpenho); src/lib/nexo/detectores/concentracao.ts; fracionamento.ts; folha-receita-cat.ts (somaAbs); orcamento.ts (OR-07)",
+        "plano": "Adicionar tipoEmpenho ao EmpenhoNorm. Em concentracao/ranking, calcular líquido = Σempenho − Σanulação por sujeito (não Math.abs). Excluir registros /ESTORNO|ANUL/ dos detectores de fracionamento/concentração. Onde Math.abs é usado para 'valor envolvido', trocar por líquido. Proteger com teste de snapshot antes/depois."
+      },
+      {
+        "titulo": "Ordenação canônica: cronológica decrescente por padrão + modos valor/potencial",
+        "categoria": "ordering",
+        "valor": "alto",
+        "esforco": "baixo",
+        "riscoRegressao": "baixo",
+        "aditivo": true,
+        "arquivos": "src/app/api/nexo/alertas/route.ts:195; src/app/api/nexo/analise/route.ts:340; src/lib/nexo/detectores/index.ts:128; src/app/nexo/page.tsx:213; novo campo dataEpisodio em tipos.ts",
+        "plano": "Centralizar comparadores em lib/nexo/ordenar.ts: porRecencia (ultimaDeteccaoEm/dataEpisodio desc), porPotencial (scoreCombinado desc), porValor (atual). Default na rota = porRecencia. Querystring ?ordenar=recente|potencial|valor. Detectores datados preenchem dataEpisodio. UI lê o default cronológico."
+      },
+      {
+        "titulo": "Score triplo real + índice combinado de priorização",
+        "categoria": "score-ranking",
+        "valor": "alto",
+        "esforco": "medio",
+        "riscoRegressao": "baixo",
+        "aditivo": true,
+        "arquivos": "src/lib/nexo/detectores/tipos.ts (scores.probabilidadeEnquadramento?); novo src/lib/nexo/score.ts; usos em alertas/route.ts e page.tsx",
+        "plano": "Adicionar probabilidadeEnquadramento opcional ao tipo (default derivado de fundamentoLegal+classificacao para não tocar nos detectores existentes). score.ts exporta scoreCombinado = produto normalizado das 3 dimensões. Ordenar=potencial usa esse índice; UI mostra o número. Detectores podem preencher a 3ª dimensão incrementalmente."
+      },
+      {
+        "titulo": "Chave canônica de entidade unificando raiz CNPJ + razão normalizada (dedup de fornecedor)",
+        "categoria": "entity-resolution",
+        "valor": "alto",
+        "esforco": "medio",
+        "riscoRegressao": "medio",
+        "aditivo": false,
+        "arquivos": "src/lib/nexo/entidades.ts (chaveEntidade/normalizarRazao); src/app/api/nexo/analise/route.ts (topFornecedores por raiz); detectores de fornecedor",
+        "plano": "Padronizar a chave de agregação de fornecedor (raiz CNPJ + razão normalizada) em ranking e detectores, mantendo grupo-cnpj como o detector que evidencia a multi-filial. Elimina a mesma empresa em 3 linhas por filial/grafia. Validar com snapshot por causa da mudança de granularidade."
+      },
+      {
+        "titulo": "Suite de testes de regressão e versionamento de thresholds dos detectores ativos",
+        "categoria": "infra",
+        "valor": "medio",
+        "esforco": "medio",
+        "riscoRegressao": "nenhum",
+        "aditivo": true,
+        "arquivos": "novo src/lib/nexo/detectores/__tests__/*.test.ts; novo src/lib/nexo/detectores/thresholds.ts (constantes centralizadas hoje espalhadas: LIMIAR_PERCENTUAL=20 em concentracao, JANELA_DIAS=90 em fracionamento, LIMIAR_VALOR_MES=5000 em diarias, etc.)",
+        "plano": "Extrair todos os limiares mágicos para thresholds.ts versionado (com comentário de justificativa por threshold). Fixtures sintéticas + snapshot de alertas por detector, garantindo que calibrações futuras (ex.: subir concentração de 20%→30%) sejam mudanças rastreáveis e que a redução de falso-positivo não regrida silenciosamente."
+      },
+      {
+        "titulo": "Endurecer detectores de alto ruído (concentração de energia/folha-base; combustível/saúde por baixa amostra)",
+        "categoria": "detector",
+        "valor": "medio",
+        "esforco": "baixo",
+        "riscoRegressao": "baixo",
+        "aditivo": false,
+        "arquivos": "src/lib/nexo/detectores/concentracao.ts (limiar 20%); setoriais.ts FC-02 (porMes.size<6 já existe — ok) e FC-01/SA-08 (pisos 50k/100k); diarias.ts",
+        "plano": "Concentração: isentar/abaixar severidade para fornecedores de monopólio natural legítimo (energia, água, combustível com 1 distribuidor) via lista de CNAEs/objetos esperados, OU exigir competitividade ausente como gatilho — reduz o falso-positivo clássico citado no próprio comentário do detector. Adicionar mínimo de empenhos (n>=3) para concentração não disparar com 1 contrato grande único."
+      },
+      {
+        "titulo": "Novos detectores computáveis de baixo falso-positivo a partir das fontes já coletadas",
+        "categoria": "detector",
+        "valor": "medio",
+        "esforco": "alto",
+        "riscoRegressao": "nenhum",
+        "aditivo": true,
+        "arquivos": "novos em src/lib/nexo/detectores/ ligados a despesas/PNCP/sanções já coletadas (coleta-pncp.ts, coleta-sancoes.ts)",
+        "plano": "Cruzar fornecedor empenhado x CEIS/CNEP (sanção ativa recebendo recurso) — fonte já em sources/sancoes-federais.ts; e contrato PNCP x empenho SMARAPD divergente (valor/objeto). São de alta confiabilidade e baixo ruído porque exigem coincidência cross-source. Registrar no index.ts e no catálogo."
+      }
+    ]
+  },
+  {
+    "persona": "PRISMA — Cientista de Dados / Correlação & Modelos (Resolução de Entidades + Calibração de Scores)",
+    "diagnostico": "Li o pipeline real de fornecedores/empenhos do NEXO. O lixo de entidades tem causa-raiz clara e única: NÃO EXISTE NENHUMA camada de resolução/sanitização de entidades em todo o fluxo. O normalizador (src/lib/nexo/normalizar.ts) só limpa formato (parseValorBR, soDigitos) e NUNCA filtra quem é o sujeito. O ranking de fornecedores (src/app/api/nexo/analise/route.ts:262-280) e TODOS os detectores baseados em fornecedor (concentracao.ts, grupo-cnpj.ts, fracionamento.ts, orcamento.ts, fornecedores-comp.ts) varrem ctx.empenhos/ctx.despesas agrupando por CPF/CNPJ cru, SEM excluir o CNPJ da própria Prefeitura (44477909000100, definido em constants.ts mas usado só como query-param do PNCP), nem IPREMM/Câmara/fundações/autarquias, nem natureza jurídica pública. Resultado: \"Fornecedora: Prefeitura de Marília\" aparece como fornecedor (são transferências intra-governamentais e movimentos internos que entram como empenho com o CNPJ do próprio ente/órgão). Segundo problema: ORDENAÇÃO. Todo o sistema ordena por valorEnvolvido desc (analise/route.ts:340, alertas/route.ts:195, detectores/index.ts:128) — nunca cronológico-decrescente e nunca por score/potencial de irregularidade. Terceiro: o SCORE TRIPLO do plano-mestre é só DUPLO no runtime — a interface scores em detectores/tipos.ts:36-39 e o schema (schemas.ts:154-157) só têm confiabilidade + probabilidadeIrregularidade; falta probabilidadeEnquadramento, então não há como \"combinar o score triplo\" para rankear. Quarto: estornos/anulações e valores negativos NÃO são filtrados na normalização — só somados como sinal em OR-07; entram inflando concentração/ranking. Quinto: não há dedupe razão-social x nome-fantasia (grupo-cnpj.ts agrupa por raiz só para o detector FR-06, não sanitiza o resto do pipeline). É um pipeline estatisticamente correto mas alimentado com população suja — qualquer modelo de anomalia em cima disso produz falso positivo de cara.",
+    "problemasQualidade": [
+      {
+        "problema": "A PRÓPRIA Prefeitura/órgãos públicos internos aparecem como FORNECEDOR ('Fornecedora: Prefeitura de Marília'). Não há nenhum filtro que exclua o CNPJ do ente, autarquias (IPREMM), Câmara e fundações da lista/ranking de fornecedores nem dos detectores. Transferências intra-governamentais e movimentos internos entram como empenho normal.",
+        "ondeNoCodigo": "src/app/api/nexo/analise/route.ts:262-280 (montagem do topFornecedores) e src/app/api/nexo/detectar/route.ts:105-124 (normaliza e roda detectores sem sanitizar); a raiz é a ausência de filtro em src/lib/nexo/normalizar.ts (normalizarEmpenhosFornecedor/normalizarDespesas) — nada exclui sujeito. MARILIA.cnpjPrefeitura existe em src/lib/nexo/constants.ts:23 mas só é usado como cnpjOrgao no PNCP, nunca como exclusão.",
+        "correcao": "Criar src/lib/nexo/entidades.ts com (a) SET de CNPJs de órgãos públicos de Marília a excluir como fornecedor — começando por MARILIA.cnpjPrefeitura (44477909000100) + IPREMM + Câmara + fundações (raiz 8 dígitos + lista de exceção), (b) heurística isOrgaoPublicoNome(nome) por regex (PREFEITURA|MUNICIP[IÍ]O DE|C[ÂA]MARA MUNICIPAL|FUNDO MUNICIPAL|INSTITUTO DE PREVID|IPREMM|AUTARQUIA|FUNDA[ÇC][ÃA]O P[ÚU]BLICA), (c) isEntePublico(cpfCnpj,nome) combinando os dois, e (d) opcionalmente cruzar com natureza jurídica via getCnpj (cnpj.ts já busca BrasilAPI — adicionar natureza_juridica ao CnpjInfo; códigos 1xxx = administração pública). Aplicar um único helper sanitizarFornecedores() logo após a normalização, no analise/route.ts e detectar/route.ts, ANTES de rodarDetectores e antes de montar topFornecedores — assim todos os detectores e o ranking herdam a limpeza de um ponto só.",
+        "riscoRegressao": "baixo"
+      },
+      {
+        "problema": "Sem dedupe por raiz de CNPJ nem casamento razão-social x nome-fantasia no ranking/detectores: o mesmo grupo econômico aparece N vezes (filiais) e o mesmo fornecedor com grafias diferentes do nome conta como entidades distintas, fragmentando valor e poluindo a curva ABC/concentração.",
+        "ondeNoCodigo": "src/app/api/nexo/analise/route.ts:262-280 agrupa por e.cpfCnpj cru (14 dígitos completos); src/lib/nexo/detectores/concentracao.ts:23-31 idem. A lógica de raiz existe só isolada em grupo-cnpj.ts:28 (raiz = slice(0,8)) e não é reaproveitada.",
+        "correcao": "Adicionar em entidades.ts: chaveEntidade(cpfCnpj) = raiz de 8 dígitos para CNPJ (preserva 14 dígitos p/ evidência) e normalizarNomeFornecedor(nome) (uppercase, sem acento, remove LTDA/ME/EPP/EIRELI/S.A., colapsa espaços) para casar razão x fantasia. Oferecer modo de ranking 'por grupo econômico' que soma por raiz e exibe nº de estabelecimentos. Não precisa quebrar os detectores existentes — basta o ranking e a curva ABC passarem a chave de grupo.",
+        "riscoRegressao": "medio"
+      },
+      {
+        "problema": "Estornos/anulações e valores negativos não são removidos da população na normalização — entram somados nos rankings e na concentração, inflando ou distorcendo o total. Só OR-07 trata anulação (e ainda assim como sinal, somando Math.abs).",
+        "ondeNoCodigo": "src/lib/nexo/normalizar.ts:269-288 (normalizarDespesas mantém tipoEmpenho mas não filtra); src/app/api/nexo/analise/route.ts:248 (totalEmpenhado = soma direta sem excluir ANUL); concentracao.ts:24-31 e o ranking não olham tipoEmpenho.",
+        "correcao": "Na normalização/sanitização, sinalizar registros com /ANUL/i em tipoEmpenho ou valorEmpenhado<0 e excluí-los da base de ranking/concentração/curva-ABC (mantendo-os disponíveis só para o detector OR-07 que precisa deles). Calcular total e participação sobre empenhos LÍQUIDOS (empenho - anulação por número de empenho).",
+        "riscoRegressao": "medio"
+      },
+      {
+        "problema": "Ordenação errada em todo lugar: tudo ordena por valorEnvolvido desc; o dono pediu (a) cronológico DECRESCENTE por padrão nas listas e (b) ranking por POTENCIAL (maior score primeiro). Nenhum dos dois existe.",
+        "ondeNoCodigo": "src/lib/nexo/detectores/index.ts:128, src/app/api/nexo/analise/route.ts:340, src/app/api/nexo/alertas/route.ts:195 — todos .sort((a,b)=>b.valorEnvolvido-a.valorEnvolvido). Não há campo de data do indício para ordenar cronologicamente, nem score composto.",
+        "correcao": "Em alertas/route.ts aceitar ?ordenar=recente|score|valor e default=recente usando ultimaDeteccaoEm/primeiraDeteccaoEm (já existem no AlertaPersistido) desc. Adicionar score composto scorePotencial = confiabilidade*probabilidadeIrregularidade*probabilidadeEnquadramento (normalizado 0-100) e permitir ordenar por ele. Para empenhos/resultados, ordenar por data desc.",
+        "riscoRegressao": "baixo"
+      },
+      {
+        "problema": "Score TRIPLO é só duplo no runtime: falta probabilidadeEnquadramento. Sem ele não dá para 'combinar o score triplo' nem rankear por potencial de enquadramento legal, e a confiabilidade não desconta a poluição de entidade.",
+        "ondeNoCodigo": "src/lib/nexo/detectores/tipos.ts:36-39 (scores só com confiabilidade e probabilidadeIrregularidade) e src/lib/nexo/schemas.ts:154-157 (mesmo). O plano-mestre §7 e docs/nexo/03-insights-e-correlacoes.md:825 definem o terceiro indicador.",
+        "correcao": "Adicionar probabilidadeEnquadramento?:number opcional ao scores em tipos.ts e schemas.ts (opcional p/ não quebrar detectores existentes; default derivado de fundamentoLegal+aderenciaNorma). Computar scorePotencial num pós-processador único (média geométrica dos 3) usado só para ranking. Quando o sujeito for ente público residual (não pegou no filtro), zerar confiabilidade para mandá-lo ao fim — defesa em profundidade.",
+        "riscoRegressao": "baixo"
+      }
+    ],
+    "melhorias": [
+      {
+        "titulo": "Módulo entidades.ts — fonte única de verdade para exclusão/dedupe de fornecedores",
+        "categoria": "entity-resolution",
+        "valor": "alto",
+        "esforco": "medio",
+        "riscoRegressao": "baixo",
+        "aditivo": true,
+        "arquivos": "NOVO src/lib/nexo/entidades.ts; consumido em src/app/api/nexo/analise/route.ts e src/app/api/nexo/detectar/route.ts",
+        "plano": "Exportar: SET CNPJS_ORGAOS_PUBLICOS_MARILIA (seed: 44477909000100 + IPREMM/Câmara/fundações), RE_ORGAO_PUBLICO, isEntePublico(doc,nome), chaveEntidade(cnpj)=raiz8, normalizarNomeFornecedor(nome), e sanitizarBase({empenhos,despesas,restos}) que retorna a base limpa + um relatório de quantos/quais foram excluídos (auditabilidade LAI). Chamar 1x após normalizar, antes de rodarDetectores/ranking."
+      },
+      {
+        "titulo": "Enriquecer CnpjInfo com natureza jurídica e usar para classificar ente público",
+        "categoria": "data-quality",
+        "valor": "medio",
+        "esforco": "baixo",
+        "riscoRegressao": "baixo",
+        "aditivo": false,
+        "arquivos": "src/lib/nexo/sources/cnpj.ts (CnpjInfo + getCnpj), src/lib/nexo/fornecedor-flags.ts",
+        "plano": "Adicionar naturezaJuridica (d.codigo_natureza_juridica / natureza_juridica da BrasilAPI) ao CnpjInfo. Código iniciando em 1 = Administração Pública -> isEntePublico=true. Serve de confirmação cadastral do filtro por nome/CNPJ e evita falso positivo de 'empresa recém-criada' sobre órgão público."
+      },
+      {
+        "titulo": "Curva ABC e índice de sobrepreço/concentração por GRUPO econômico (não por CNPJ isolado)",
+        "categoria": "detector",
+        "valor": "alto",
+        "esforco": "medio",
+        "riscoRegressao": "medio",
+        "aditivo": true,
+        "arquivos": "src/lib/nexo/detectores/concentracao.ts (FN-01) + novo agregador em entidades.ts; ranking em analise/route.ts",
+        "plano": "Mudar a chave de agregação de cpfCnpj cru para chaveEntidade(raiz8) na concentração e no ranking, somando filiais. Classificar cada grupo em faixa ABC (A=80% acumulado). Concentração calculada sobre base líquida (sem anulações/entes públicos). Mantém grupo-cnpj.ts (FR-06) como detector dedicado de multiplicidade."
+      },
+      {
+        "titulo": "Score composto de potencial + terceiro indicador (enquadramento) e novos modos de ordenação",
+        "categoria": "score-ranking",
+        "valor": "alto",
+        "esforco": "medio",
+        "riscoRegressao": "baixo",
+        "aditivo": false,
+        "arquivos": "src/lib/nexo/detectores/tipos.ts, src/lib/nexo/schemas.ts, src/app/api/nexo/alertas/route.ts, src/app/api/nexo/analise/route.ts, src/lib/nexo/detectores/index.ts",
+        "plano": "Adicionar scores.probabilidadeEnquadramento opcional. Pós-processador calcula scorePotencial = média geométrica dos 3 (penaliza quando um é baixo, reduz falso positivo). alertas/route.ts ganha ?ordenar=recente|score|valor com default cronológico-decrescente. Documentar que score só rankeia, nunca acusa (trilho jurídico)."
+      },
+      {
+        "titulo": "Filtro de transferências intra-governamentais e estornos na base de ranking",
+        "categoria": "data-quality",
+        "valor": "alto",
+        "esforco": "baixo",
+        "riscoRegressao": "medio",
+        "aditivo": false,
+        "arquivos": "src/lib/nexo/normalizar.ts (normalizarDespesas/normalizarEmpenhosFornecedor) ou entidades.ts; src/app/api/nexo/analise/route.ts:248",
+        "plano": "Marcar tipoEmpenho ~ /ANUL/i ou valorEmpenhado<0 e excluir da base de ranking/concentração; total e percentuais sobre empenho líquido (empenho - anulação por NroEmpenho). Excluir destinatários que sejam ente público (transferência interna). Reaproveita o report de sanitização para o usuário ver o que foi tirado."
+      },
+      {
+        "titulo": "Relatório de sanitização auditável (rastro probatório do que foi excluído)",
+        "categoria": "ux",
+        "valor": "medio",
+        "esforco": "baixo",
+        "riscoRegressao": "nenhum",
+        "aditivo": true,
+        "arquivos": "src/app/api/nexo/analise/route.ts (AnaliseResponse), src/app/api/nexo/detectar/route.ts",
+        "plano": "sanitizarBase devolve {excluidosOrgaoPublico:[{cnpj,nome,total}], excluidosAnulacao, dedupGrupos}. Anexar ao AnaliseResponse um bloco 'higienizacao' para o operador ver POR QUE 'Prefeitura de Marília' sumiu da lista — transparência e confiança, e ajuda a calibrar o SET de exclusão sem esconder dado (LAI)."
+      }
+    ]
+  },
+  {
+    "persona": "LASTRO — Analista de Dados / Inteligência de Marília",
+    "diagnostico": "Li o pipeline real (normalizar.ts, detectores/*, api/nexo/analise, api/nexo/detectar, api/nexo/alertas, deteccao.ts da function, fornecedor-flags.ts). O motor é honesto em linguagem (indício != acusação, disclaimer, score triplo declarado) mas tem TRÊS buracos de qualidade de dado que produzem exatamente o lixo que o dono viu:\n\n1) NÃO HÁ EXCLUSÃO DA PRÓPRIA PREFEITURA / ÓRGÃOS PÚBLICOS. `MARILIA.cnpjPrefeitura` (44477909000100, em src/lib/nexo/constants.ts:23) é usado SÓ como `cnpjOrgao` nas consultas PNCP (contratos/route.ts:59, status/route.ts:100). Em NENHUM lugar ele entra como filtro de EXCLUSÃO. Logo, quando um empenho/despesa traz a própria prefeitura, IPREMM, Câmara, fundos ou autarquias no campo NomeFornecedor/CPFCNPJ (transferência intra-governamental, repasse a fundo, folha lançada como \"fornecedor\"), eles entram no ranking de fornecedores (analise/route.ts:262-280), no detector de concentração (concentracao.ts:24-31) e no grupo-cnpj (grupo-cnpj.ts). É a causa direta do \"Fornecedora: Prefeitura de Marília\". Grep por sanitiz/isOrgaoPublico/excludeCnpj em src/lib/nexo retornou ZERO matches.\n\n2) NÃO HÁ NEUTRALIZAÇÃO DE ESTORNOS/ANULAÇÕES NO RANKING. O tipo `EmpenhoNorm` (normalizar.ts:8-24) sequer carrega o campo `tipoEmpenho` (Empenho/Reforço/Anulação) — só o `DespesaNorm` carrega (normalizar.ts:285). Resultado: o ranking de fornecedores e o detector de concentração somam `valorEmpenhado` cru, sem abater anulações/estornos. Isso infla o total empenhado, o `percentual` e o `valorEnvolvido` de quem teve empenho anulado e reemitido. Só orcamento.ts (OR-07/08/09) olha tipoEmpenho — mas ele roda sobre despesas, não sobre o ranking.\n\n3) ORDENAÇÃO É SÓ POR VALOR, NÃO HÁ ORDEM CRONOLÓGICA NEM RANKING POR SCORE TRIPLO. Todo lugar ordena `b.valorEnvolvido - a.valorEnvolvido`: index.ts:128, analise/route.ts:340, alertas/route.ts:195. O score triplo é declarado no schema (tipos.ts:36-39: confiabilidade + probabilidadeIrregularidade) mas o terceiro eixo (\"prob. enquadramento\") NÃO EXISTE no tipo, e NENHUMA ordenação usa os scores. Não há opção de ordenar do mais recente (ultimaDeteccaoEm/data) para o mais antigo. O dono pede as duas coisas (cronológico decrescente E ranking por potencial) e o código não entrega nenhuma.\n\n4) RESOLUÇÃO DE ENTIDADE É MÍNIMA. Só existe FR-06 (grupo-cnpj.ts) agrupando por raiz de 8 dígitos como um DETECTOR de alerta — não como deduplicação do ranking. O ranking de fornecedores (analise/route.ts:262) agrupa por CNPJ COMPLETO de 14 dígitos, então o mesmo grupo aparece N vezes (filiais) e razão social x nome fantasia divergem sem normalização. Não há normalização de nome (uppercase/acentos/sufixos LTDA/ME) em lugar nenhum.",
+    "problemasQualidade": [
+      {
+        "problema": "A própria Prefeitura de Marília, IPREMM, Câmara, fundos e autarquias aparecem como FORNECEDOR no ranking, na concentração e no grupo-cnpj. É dado falso: ente público recebendo de si mesmo é transferência intra-governamental, não compra de fornecedor.",
+        "ondeNoCodigo": "src/app/api/nexo/analise/route.ts:262-280 (ranking); src/lib/nexo/detectores/concentracao.ts:24-31; src/lib/nexo/detectores/grupo-cnpj.ts:26-36 — nenhum exclui MARILIA.cnpjPrefeitura nem CNPJs de órgãos públicos. constants.ts:23 só usa o CNPJ como filtro de consulta, nunca de exclusão.",
+        "causaRaiz": "Ausência total de uma lista de exclusão de entes públicos e de um predicado ehFornecedorPublico(cnpj, nome). O normalizador (normalizar.ts:71-89) aceita qualquer CPFCNPJ/NomeFornecedor que a API SMARAPD devolver, incluindo a própria UG.",
+        "correcao": "Criar src/lib/nexo/entidades-publicas.ts com (a) SET de CNPJs de entes públicos de Marília (prefeitura 44477909000100 + raiz 44477909 para filiais/fundos; IPREMM; Câmara; fundações — confirmar contra Receita/PNCP), (b) regex de razão social pública (^(PREFEITURA|MUNICIPIO|MUNICIPAL|CAMARA|FUNDO MUNICIPAL|INSTITUTO DE PREVID|IPREMM|FUNDACAO|AUTARQUIA|SAAE|DAEM)). Expor ehEntidadePublica({cpfCnpj,nome}). Aplicar como filtro NO PONTO DE ENTRADA: filtrar empenhos/despesas antes de rankear em analise/route.ts e no comodato dos detectores de fornecedor (concentracao, grupo-cnpj, FR-08, FC-01, setoriais). Filtrar também por raiz (slice(0,8)) para pegar fundos da mesma raiz.",
+        "riscoRegressao": "baixo"
+      },
+      {
+        "problema": "O ranking e a concentração somam valorEmpenhado sem abater anulações/estornos, inflando total empenhado, percentual e valorEnvolvido. Empenho anulado-e-reemitido conta dobrado.",
+        "ondeNoCodigo": "src/lib/nexo/normalizar.ts:8-24 (EmpenhoNorm não tem campo tipoEmpenho); src/app/api/nexo/analise/route.ts:248 (totalEmpenhado = soma crua) e :263-270 (ranking); src/lib/nexo/detectores/concentracao.ts:24-31. Compare com normalizar.ts:285 onde DespesaNorm.tipoEmpenho EXISTE e orcamento.ts:20 já sabe detectar /ANUL/.",
+        "causaRaiz": "EmpenhoNorm descarta o tipo do empenho na normalização, então o caminho de fornecedor/ranking não consegue distinguir Empenho de Anulação/Estorno. Valores negativos de anulação podem inclusive vir como positivo dependendo do campo.",
+        "correcao": "Adicionar `tipoEmpenho: string` a EmpenhoNorm e popular em normalizarEmpenhosFornecedor (pick 'TipEmpenho','TipoEmpenho'). No ranking e na concentração, tratar anulação como valor NEGATIVO (líquido = empenhado - anulado por CNPJ) e descartar fornecedores cujo líquido <= 0. Alternativa mínima sem mudar schema: em analise/route.ts já existe `despesas` normalizado com tipoEmpenho — calcular o net por CNPJ a partir de `despesas` (Empenho - Anulação) e usar esse net no ranking em vez da soma crua de empenhos.",
+        "riscoRegressao": "medio"
+      },
+      {
+        "problema": "Não existe ordenação cronológica decrescente (mais recente primeiro) em nenhuma lista — alertas, empenhos e resultados saem só por valor.",
+        "ondeNoCodigo": "src/app/api/nexo/alertas/route.ts:195 (sort por valorEnvolvido); src/lib/nexo/detectores/index.ts:128; src/app/api/nexo/analise/route.ts:340. O campo de data existe (alertas/route.ts:136 ultimaDeteccaoEm; EmpenhoNorm.data em normalizar.ts:15) mas nunca é usado para ordenar.",
+        "causaRaiz": "Ordenação hard-coded por valorEnvolvido desc, sem parâmetro de ordenação na querystring nem fallback cronológico.",
+        "correcao": "Em alertas/route.ts aceitar `?ordem=recencia|valor|score` (default recencia) e ordenar por ultimaDeteccaoEm desc quando recencia. Para empenhos/despesas exibidos, ordenar por data desc. Manter valorEnvolvido como desempate.",
+        "riscoRegressao": "baixo"
+      },
+      {
+        "problema": "Ranking por potencial de irregularidade não usa o score triplo: a ordenação ignora confiabilidade e probabilidadeIrregularidade, e o terceiro eixo (prob. enquadramento) nem existe no tipo.",
+        "ondeNoCodigo": "src/lib/nexo/detectores/tipos.ts:36-39 (scores só tem confiabilidade + probabilidadeIrregularidade — falta probabilidadeEnquadramento); ordenação por valor em alertas/route.ts:195 e index.ts:128.",
+        "causaRaiz": "O score triplo foi especificado no plano-mestre mas a implementação parou no score duplo e a ordenação nunca o consumiu — usa valor financeiro como proxy de gravidade, o que não é o mesmo que potencial de irregularidade.",
+        "correcao": "Adicionar `probabilidadeEnquadramento` (opcional, default ~50) a scores em tipos.ts. Criar helper scoreComposto(a) = confiabilidade/100 * probIrreg/100 * probEnq/100 (0..1). Oferecer ordenação `?ordem=score` que ordena por scoreComposto desc (desempate por valorEnvolvido). Isso atende o item 3 do dono (maior potencial primeiro) sem quebrar a ordem por valor existente.",
+        "riscoRegressao": "baixo"
+      },
+      {
+        "problema": "Duplicata de fornecedor: mesmo grupo econômico (filiais, mesma raiz) e razão social x nome fantasia aparecem como linhas distintas no ranking; nomes não são normalizados.",
+        "ondeNoCodigo": "src/app/api/nexo/analise/route.ts:262-270 agrupa por cpfCnpj de 14 dígitos. Não há normalização de nome em normalizar.ts. FR-06 (grupo-cnpj.ts) só EMITE alerta, não deduplica o ranking.",
+        "causaRaiz": "Agrupamento por CNPJ completo em vez de raiz, e ausência de canonicalização de nome (uppercase, sem acento, sem sufixo societário).",
+        "correcao": "No ranking, oferecer agrupamento opcional por raiz (8 díg) consolidando filiais, exibindo a razão canônica. Adicionar normalizarNomeFornecedor(nome) (uppercase, remover acentos, colapsar espaços, remover ' - ME/EPP/LTDA/EIRELI') para escolher um rótulo estável por raiz. Não fundir CPFs (pessoas) com CNPJs.",
+        "riscoRegressao": "medio"
+      }
+    ],
+    "melhorias": [
+      {
+        "titulo": "Módulo entidades-publicas.ts + predicado ehEntidadePublica aplicado em todo caminho de fornecedor",
+        "categoria": "entity-resolution",
+        "valor": "alto",
+        "esforco": "baixo",
+        "riscoRegressao": "baixo",
+        "aditivo": true,
+        "arquivos": "novo src/lib/nexo/entidades-publicas.ts; uso em src/app/api/nexo/analise/route.ts, src/lib/nexo/detectores/concentracao.ts, grupo-cnpj.ts, setoriais.ts, fornecedores-comp.ts",
+        "plano": "SET de CNPJs públicos de Marília (prefeitura 44477909*, IPREMM, Câmara, fundos, fundações — confirmar via Receita/PNCP) + regex de razão pública. Filtrar no ponto de entrada (antes de rankear/detectar) por CNPJ exato, por raiz e por nome. Cada exclusão logada/contável para auditoria (quantos registros públicos foram removidos), preservando o trilho LAI."
+      },
+      {
+        "titulo": "Net de empenho (empenhado - anulado/estornado) no ranking e concentração",
+        "categoria": "data-quality",
+        "valor": "alto",
+        "esforco": "medio",
+        "riscoRegressao": "medio",
+        "aditivo": false,
+        "arquivos": "src/lib/nexo/normalizar.ts (EmpenhoNorm.tipoEmpenho), src/app/api/nexo/analise/route.ts (ranking/total), src/lib/nexo/detectores/concentracao.ts",
+        "plano": "Carregar tipoEmpenho no EmpenhoNorm; computar líquido por CNPJ subtraindo anulações; descartar fornecedor com líquido<=0. Alternativa de menor risco: derivar o net a partir do array `despesas` (que já tem tipoEmpenho) e usá-lo como base do ranking. Recalcular percentual sobre o total líquido."
+      },
+      {
+        "titulo": "Score composto triplo + ordenação por potencial (?ordem=score)",
+        "categoria": "score-ranking",
+        "valor": "alto",
+        "esforco": "baixo",
+        "riscoRegressao": "baixo",
+        "aditivo": false,
+        "arquivos": "src/lib/nexo/detectores/tipos.ts (probabilidadeEnquadramento), novo helper de score, src/app/api/nexo/alertas/route.ts",
+        "plano": "Adicionar probabilidadeEnquadramento (default seguro) ao scores; scoreComposto = produto dos três normalizados; expor ?ordem=score|recencia|valor em alertas/route.ts com default recencia, desempate por scoreComposto e valorEnvolvido. Backfill: detectores existentes ganham probabilidadeEnquadramento default sem quebrar."
+      },
+      {
+        "titulo": "Ordenação cronológica decrescente como default das listas",
+        "categoria": "ordering",
+        "valor": "alto",
+        "esforco": "baixo",
+        "riscoRegressao": "baixo",
+        "aditivo": false,
+        "arquivos": "src/app/api/nexo/alertas/route.ts:195, src/app/api/nexo/analise/route.ts:340, src/lib/nexo/detectores/index.ts:128",
+        "plano": "Trocar default para ultimaDeteccaoEm desc (alertas) e data desc (empenhos/despesas), com valorEnvolvido como desempate. Manter ordenação por valor/score via querystring para não perder o comportamento atual."
+      },
+      {
+        "titulo": "Dedup de fornecedor por raiz + canonicalização de nome (razão x fantasia)",
+        "categoria": "entity-resolution",
+        "valor": "medio",
+        "esforco": "medio",
+        "riscoRegressao": "medio",
+        "aditivo": false,
+        "arquivos": "src/lib/nexo/normalizar.ts (normalizarNomeFornecedor), src/app/api/nexo/analise/route.ts (ranking)",
+        "plano": "Consolidar filiais por raiz de 8 díg no ranking (opção), escolher rótulo canônico (uppercase, sem acento, sem sufixo societário). Não fundir CPF com CNPJ. Exibir contagem de estabelecimentos por grupo para rastreabilidade."
+      },
+      {
+        "titulo": "Bloco de qualidade/proveniência no payload de análise (lastro probatório)",
+        "categoria": "ux",
+        "valor": "medio",
+        "esforco": "baixo",
+        "riscoRegressao": "nenhum",
+        "aditivo": true,
+        "arquivos": "src/app/api/nexo/analise/route.ts (response.coleta), src/app/nexo/fornecedores/page.tsx",
+        "plano": "Adicionar ao response: registrosPublicosExcluidos, anulacoesAbatidas, totalBruto vs totalLiquido, coletadoEm já existente. Exibir na UI como rodapé de proveniência — cada achado passa a ter rastro (de onde veio, o que foi filtrado), reforçando o trilho LAI e a revisão humana."
+      }
+    ]
+  },
+  {
+    "persona": "FANTASMA — Engenheiro de Coleta / Infra & Data Flow",
+    "diagnostico": "O pipeline está estruturalmente correto e honesto (coleta -> hash diff -> persiste/purga -> detecção pré-computada -> reconciliação), mas TODA a qualidade dos resultados é definida em memória no serving, sem nenhum filtro de entidade no caminho de dados. Confirmei lendo o código real:\n\nINGESTÃO (functions/src/nexo/coleta.ts): persiste 16 módulos crus carimbando `_cnpj`, `_fornecedor`, `_valor`, `_exercicio`, `_fonte`, `_coletadoEm`. O `_cnpj` é só `replace(/\\D/g)` — sem validação de 11/14 dígitos, sem sanitização, sem marcar se é órgão público. O `_valor` usa `parseValorBR` que NÃO trata sinal/anulação: linhas de anulação do módulo analítico entram como positivo. Não existe NENHUM filtro que exclua o CNPJ da própria Prefeitura (44477909000100), IPREMM, Câmara, fundações nem transferências intragovernamentais. Por isso \"Fornecedora: Prefeitura de Marília\" vaza.\n\nPERSISTÊNCIA: docs `nexo_*` por exercício, ID estável (chave natural + hash de conteúdo). Bom para dedup de registro, mas não há resolução de entidade (raiz CNPJ / razão x fantasia só existe DENTRO do detector FR-06, não na persistência).\n\nSERVING (src/app/api/nexo/*): o padrão universal é `lerColecaoNexo` (src/lib/nexo/firestore-read.ts) que monta um `:runQuery` SEM orderBy, SEM limit, SEM startAfter — lê a coleção inteira do exercício e ordena/corta em JS. `/api/nexo/analise` monta o ranking de fornecedores agregando por `cpfCnpj` cru (linhas 262-280) sem excluir órgão público nem netar anulação. Ordenação em todo lugar é `b.valorEnvolvido - a.valorEnvolvido` (alertas/route.ts:195, analise/route.ts:340, detectores/index.ts:128) — nunca por score triplo, nunca cronológica decrescente, apesar de `nexo_alertas` ter `ultimaDeteccaoEm`/`primeiraDeteccaoEm` e de já existirem índices compostos em firestore.indexes.json (exercicio+ativo+valorEnvolvido, exercicio+status+valorEnvolvido) que o REST nunca usa.",
+    "problemasQualidade": [
+      {
+        "problema": "A própria Prefeitura, autarquias e órgãos públicos internos (IPREMM, Câmara, fundações) aparecem como FORNECEDOR nas listas e no ranking. Não há nenhum filtro de entidade no pipeline.",
+        "ondeNoCodigo": "functions/src/nexo/coleta.ts (persistir, linhas 216-230, carimba _cnpj/_fornecedor sem classificar) + src/app/api/nexo/analise/route.ts (ranking, linhas 262-280) + src/lib/nexo/detectores/concentracao.ts (linhas 24-31) e grupo-cnpj.ts (linhas 26-36)",
+        "causaRaiz": "O `_cnpj` é gravado como dígitos crus e o ranking/detectores agregam por cpfCnpj sem nenhuma denylist. MARILIA.cnpjPrefeitura (44477909000100) existe em src/lib/nexo/constants.ts mas nunca é usado para excluir.",
+        "correcao": "Criar src/lib/nexo/orgaos-publicos.ts com (a) Set de CNPJs/raízes de órgãos públicos de Marília (raiz 44477909 da Prefeitura, IPREMM, Câmara, fundações — confirmar contra fonte oficial) e (b) heurística de razão social (/PREFEITURA|MUNICIP|CAMARA|INSTITUTO DE PREVID|FUNDO MUNIC|AUTARQUIA|FUNDACAO/i sobre _fornecedor) e (c) flag de CPF/CNPJ inválido. Aplicar no ponto mais barato: na INGESTÃO, carimbar `_orgaoPublico:boolean` e `_docValido:boolean` em cada doc (aditivo, custo zero no serving). No serving, o ranking e os detectores de concentração/grupo passam a `.filter(e => !e._orgaoPublico && e._docValido)`. Mais barato e auditável que filtrar em N páginas.",
+        "riscoRegressao": "baixo"
+      },
+      {
+        "problema": "Anulações/estornos entram como valor positivo no ranking de fornecedores e no total empenhado (módulo analítico `fornecedoranalitico` não tem tipoEmpenho, então EmpenhoNorm não sabe distinguir empenho de anulação).",
+        "ondeNoCodigo": "src/lib/nexo/normalizar.ts normalizarEmpenhosFornecedor (linhas 71-89, EmpenhoNorm não tem campo tipo) + functions/src/nexo/coleta.ts parseValorBR (linhas 153-158, sem sinal) + agregação em analise/route.ts:248 e 262-270",
+        "causaRaiz": "EmpenhoNorm não carrega `tipoEmpenho`/`bemOuServico`; só DespesaNorm (módulo DespesaAgrupada) carrega. O ranking de fornecedores roda sobre `empenhos` (analítico), que não tem como netar anulação. parseValorBR não preserva valores negativos de estorno.",
+        "correcao": "Capturar o campo de tipo de movimento do analítico se existir (TipEmpenho/TipoMovimento) em EmpenhoNorm; quando for anulação/estorno, subtrair (valor líquido) na agregação do ranking e do totalEmpenhado, em vez de somar como gasto. Onde o tipo não vier na fonte, ao menos clampar parseValorBR para tratar sinal negativo e excluir linhas com valorEmpenhado<=0 (já feito em parte, mas não há netting por par fornecedor+empenho).",
+        "riscoRegressao": "medio"
+      },
+      {
+        "problema": "Ordenação NUNCA é cronológica decrescente nem por score de potencial — é sempre por valorEnvolvido. O dono pediu (P0-2) mais recente primeiro e (P0-3) maior potencial primeiro.",
+        "ondeNoCodigo": "src/app/api/nexo/alertas/route.ts:195 (`alertas.sort((a,b)=>b.valorEnvolvido-a.valorEnvolvido)`), src/app/api/nexo/analise/route.ts:340, src/lib/nexo/detectores/index.ts:128",
+        "causaRaiz": "Não existe score composto materializado nem chave de ordenação cronológica. `ultimaDeteccaoEm` existe em nexo_alertas mas nunca vira sort key; o score triplo (confiabilidade x prob.irregularidade x prob.enquadramento) não é calculado em lugar nenhum — só há dois dos três campos em scores{}.",
+        "correcao": "Na deteccao.ts (functions), materializar em cada doc de nexo_alertas: `scoreComposto = round(confiabilidade/100 * probabilidadeIrregularidade/100 * probabilidadeEnquadramento/100 * 1000)` (adicionar probabilidadeEnquadramento ao schema, default p.ex. 60) e `ordenacaoTs` (epoch de ultimaDeteccaoEm). Na rota /api/nexo/alertas aceitar `?ordenar=recente|potencial|valor` e ordenar por `ordenacaoTs desc` (default recente) ou `scoreComposto desc` (potencial). Idem para os arrays in-memory de analise/diario-sinais.",
+        "riscoRegressao": "baixo"
+      },
+      {
+        "problema": "Fornecedor duplicado: mesma raiz de CNPJ (filiais) e razão x fantasia aparecem como linhas separadas no ranking; a resolução de entidade só existe dentro do detector FR-06, não no ranking nem na persistência.",
+        "ondeNoCodigo": "src/app/api/nexo/analise/route.ts:262-280 (agrega por cpfCnpj completo 14 dígitos) vs src/lib/nexo/detectores/grupo-cnpj.ts:26-36 (agrega por raiz 8 dígitos, isolado)",
+        "causaRaiz": "O ranking chaveia por CNPJ completo; não há colapso por raiz nem normalização de nome. Duas filiais do mesmo grupo = duas linhas; o valor real fica fragmentado.",
+        "correcao": "No ranking, oferecer agregação por raiz (8 dígitos) com rótulo canônico (nome mais frequente da raiz) e expandir filiais sob demanda. Persistir `_cnpjRaiz` e `_nomeCanonico` (nome normalizado: upper, sem acento, sem sufixo LTDA/ME/EPP/SA) na ingestão para a chave de agrupamento ser estável e indexável.",
+        "riscoRegressao": "baixo"
+      }
+    ],
+    "melhorias": [
+      {
+        "titulo": "Mover ordenação e corte para o servidor (orderBy + limit no runQuery) usando os índices que já existem",
+        "categoria": "ordering",
+        "valor": "alto",
+        "esforco": "medio",
+        "riscoRegressao": "baixo",
+        "aditivo": false,
+        "arquivos": "src/lib/nexo/firestore-read.ts (lerColecaoNexo), src/app/api/nexo/alertas/route.ts",
+        "plano": "Estender FiltroNexo com `orderBy?: {campo,dir}` e `limit?` e adicionar ao structuredQuery (`orderBy`, `limit`). Em /api/nexo/alertas, em vez de ler a coleção inteira e ordenar em JS, emitir runQuery com where(exercicio==X, ativo==true) + orderBy(valorEnvolvido|scoreComposto|ordenacaoTs desc) + limit(200). Os índices compostos exercicio+ativo+valorEnvolvido e exercicio+status+valorEnvolvido JÁ existem em firestore.indexes.json — hoje são desperdiçados. Reduz leitura de coleção inteira para top-N."
+      },
+      {
+        "titulo": "Índices Firestore para ordenação por recência e por score composto",
+        "categoria": "infra",
+        "valor": "alto",
+        "esforco": "baixo",
+        "riscoRegressao": "nenhum",
+        "aditivo": true,
+        "arquivos": "firestore.indexes.json",
+        "plano": "Adicionar índices compostos em nexo_alertas: (exercicio ASC, ativo ASC, ordenacaoTs DESC) para a ordenação cronológica desc; (exercicio ASC, ativo ASC, scoreComposto DESC) para ranking por potencial; (exercicio ASC, status ASC, ordenacaoTs DESC). Deploy separado via `firebase deploy --only firestore:indexes` (App Hosting não deploya índices). Sem esses índices o orderBy server-side dá FAILED_PRECONDITION."
+      },
+      {
+        "titulo": "Paginação real (startAfter) nas rotas que hoje devolvem coleção inteira",
+        "categoria": "infra",
+        "valor": "medio",
+        "esforco": "medio",
+        "riscoRegressao": "baixo",
+        "aditivo": true,
+        "arquivos": "src/lib/nexo/firestore-read.ts, src/app/api/nexo/analise/route.ts, receita/route.ts, folha/route.ts",
+        "plano": "Suportar cursor `startAfter` no runQuery e `?cursor=` nas rotas. Hoje analise lê todos os empenhos do exercício (pode ser dezenas de milhares de docs) para montar top-30 — toda vez. Com agregação parcial isso fica caro conforme o backfill cresce. Curto prazo: limit nas leituras de listagem; médio prazo: materializar o ranking de fornecedores numa coleção nexo_ranking_fornecedores no cron (igual nexo_alertas) e a rota só lê o pré-computado ordenado."
+      },
+      {
+        "titulo": "Materializar o ranking de fornecedores no cron (pré-computado, igual aos alertas)",
+        "categoria": "persistence",
+        "valor": "alto",
+        "esforco": "medio",
+        "riscoRegressao": "baixo",
+        "aditivo": true,
+        "arquivos": "functions/src/nexo/deteccao.ts (ou novo agregador), src/app/api/nexo/analise/route.ts",
+        "plano": "Hoje /api/nexo/analise recomputa o ranking + enriquecimento de CNPJ a cada request (allSettled de getCnpj sobre 6 fornecedores, linhas 285-339) — lento e bate em fonte externa no caminho do usuário. Mover a agregação por fornecedor (já com filtro de órgão público, netting de anulação e colapso por raiz) para o cron, gravando nexo_ranking_fornecedores/{exercicio} ordenado e com flags. A rota passa a só LER, alinhado ao padrão pré-computado de nexo_alertas."
+      },
+      {
+        "titulo": "Sanitização e classificação de entidade na ingestão (carimbar _orgaoPublico, _docValido, _cnpjRaiz, _nomeCanonico)",
+        "categoria": "entity-resolution",
+        "valor": "alto",
+        "esforco": "medio",
+        "riscoRegressao": "baixo",
+        "aditivo": true,
+        "arquivos": "functions/src/nexo/coleta.ts (persistir), nova src/lib/nexo/orgaos-publicos.ts (e cópia self-contained em functions, pois functions não importa de src/lib)",
+        "plano": "No `persistir` carimbar campos derivados de entidade uma vez na escrita (custo amortizado) em vez de recalcular em cada leitura: _orgaoPublico (denylist CNPJ/raiz + heurística de nome), _docValido (11 ou 14 dígitos), _cnpjRaiz (8 dígitos), _nomeCanonico. Habilita filtros server-side baratos e índices por _cnpjRaiz. Atenção: functions/ é self-contained (não importa src/lib), então a denylist precisa ser duplicada/sincronizada — documentar."
+      },
+      {
+        "titulo": "Plugar fontes WF1 (PNCP/TCE/SICONFI/sanções) no mesmo pipeline pré-computado",
+        "categoria": "data-flow",
+        "valor": "medio",
+        "esforco": "alto",
+        "riscoRegressao": "medio",
+        "aditivo": true,
+        "arquivos": "functions/src/nexo/coleta-pncp.ts, coleta-tce.ts, coleta-siconfi.ts, coleta-sancoes.ts, deteccao.ts",
+        "plano": "Hoje as rotas /api/nexo/contratos, /tce, /sancoes coletam AO VIVO no request (contratos/route.ts chama getContratosAllPages no GET). Há coletores em functions/ mas a detecção pré-computada (deteccao.ts COLECOES_BRUTAS) só envia empenhos/diarias/modalidades/restos/despesas ao detector. Estender o ciclo para ler nexo_contratos_pncp, nexo_tce, nexo_sancoes e cruzar com empenhos (ex.: empenho sem contrato, fornecedor sancionado recebendo empenho) gerando alertas em nexo_alertas com scoreComposto — assim WF1 entra no ranking unificado em vez de viver em páginas isoladas que batem em API externa por request."
+      }
+    ]
+  }
+]

@@ -1,0 +1,110 @@
+{
+  "geradoPor": "WF-1 (parcial 13/31; 19 externos via catálogo do repo)",
+  "subsistemas": [
+    {
+      "k": "smarapd-empenho",
+      "sistema": "SMARAPD PAI — Portal da Transparência de Marília · Subsistema Empenho/Fornecedor (módulo `fornecedor`/`fornecedoranalitico` = \"Empenho Analítico\"). É o NÚCLEO DE LINKAGE do NEXO: cada linha é um par empenho↔liquidação por fornecedor, carregando CNPJ, nº empenho, processo administrativo, processo licitatório, conta contábil e URLs de drill-down para itens/liquidações/pagamentos/documentos. SPA React \"pai-webapp\"; API REST/JSON same-domain sem autenticação (exige header User-Agent de browser).",
+      "valor": "alto",
+      "jaColetado": "SIM, parcialmente. Coletor de produção: functions/src/nexo/coleta.ts → módulo 'empenhos' (chave 'fornecedor'/'fornecedoranalitico') persiste em Firestore coleção nexo_empenhos com _cnpj, _fornecedor, _valor, _exercicio, hash de idempotência em nexo_sync_state; cron diário onNexoColetaDiaria (04h15 BRT) + backfill HTTP onNexoBackfillHttp. Cliente server-side: src/lib/nexo/sources/smarapd.ts (filterModulo / filterModuloAllPages / SMARAPD_MODULOS). Normalização: src/lib/nexo/normalizar.ts (normalizarEmpenhosFornecedor → EmpenhoNorm). Detectores que consomem: liquidacao.ts (OR-03 empenho sem liquidação), fracionamento.ts, concentracao.ts, orcamento-extra.ts. App: /nexo/fornecedores + /nexo/fornecedores/[cnpj]. GAP: (a) o DRILL-DOWN de ITENS (empenho_sintetico/itensempenho via IDDespesa) NÃO é coletado — perde-se a Descricao granular/objeto; (b) coletor NÃO captura as colunas-URL Itens/Liquidacoes/Pagamentos para deep-link; (c) maxPag=140 a 500 reg/pág é seguro hoje mas precisa de alarme se QuantidadePaginas crescer; (d) src/lib/transparencia/smarapd-client.ts é o cliente ANTIGO/quebrado (URLs erradas, sem User-Agent) — deprecado por src/lib/nexo/sources/smarapd.ts, candidato a remoção.",
+      "nEndpoints": 4,
+      "nDocTipos": 8
+    },
+    {
+      "k": "smarapd-despesa",
+      "sistema": "SMARAPD — Módulo DespesaAgrupada / Visão DespesaseInvestimentos (\"Despesas Orçamentárias\" no portal). É o módulo de EXECUÇÃO ORÇAMENTÁRIA da despesa (empenho→liquidação→pagamento agrupado por empenho), plataforma SMARAPD PAI (\"pai-webapp\"), Portal da Transparência da Prefeitura de Marília/SP. Volume ~11.036 registros em abril/2026 (~120 páginas a 100 reg/pág no coletor atual). É o coração do eixo \"seguir o dinheiro\" do NEXO: cada registro é um empenho com seus valores empenhado/liquidado/pago, fornecedor (CNPJ), elemento de despesa, modalidade licitatória (código), bem/serviço, vínculo/programa, fonte de recurso e — crucialmente — URLs de drill-down (Itens, Liquidações, Pagamentos) que permitem descer ao detalhe do empenho.",
+      "valor": "alto",
+      "jaColetado": "SIM. Coletor implementado: functions/src/nexo/coleta.ts (MODULOS[1] → nome:\\\"despesas\\\", colecao:\\\"nexo_despesas\\\", chave:\\\"DespesaAgrupada\\\", visao:\\\"DespesaseInvestimentos\\\", maxPag:120). Client: src/lib/nexo/sources/smarapd.ts (filterModulo / filterModuloAllPages, SMARAPD_MODULOS[3]). Normalizador: src/lib/nexo/normalizar.ts → normalizarDespesas() + interface DespesaNorm (mapeia ID, NroEmpenho, CNPJ, NomeFornecedor, DataMovEmp, ValorEmpenhado, ValorPago, UG, Evento→objeto, Elemento, Modalidade→modalidadeCodigo, TipEmpenho→tipoEmpenho, BemouServico). Detectores que consomem ctx.despesas: detectorEmpenhoSemItens (licitacoes-comp.ts, LC-24) e cadeia orçamento/licitações. Cliente legado src/lib/transparencia/smarapd-client.ts está OBSOLETO (sondava URLs erradas, sem User-Agent) — não usar. GAPS de coleta: (a) drill-down de Itens/Liquidações/Pagamentos por ID ainda NÃO é coletado em massa (só documentado); (b) ValorLiquidado não está sendo capturado no DespesaNorm (só empenhado e pago); (c) Vinculo/FonteRecurso/Categoria não persistidos no normalizador atual.",
+      "nEndpoints": 3,
+      "nDocTipos": 6
+    },
+    {
+      "k": "smarapd-diarias",
+      "sistema": "SMARAPD PAI — Portal da Transparência de Marília/SP — Módulo \"Despesas com Diárias\" (ChaveModulo=diarias, NomeVisao=diarias). Subsistema de indenização de viagem a servidores/conselheiros. Acesso server-side via POST modulovisao/filter; exige header User-Agent de browser (sem ele = HTTP 400).",
+      "valor": "alto",
+      "jaColetado": "PARCIAL. Client existe: src/lib/nexo/sources/smarapd.ts (filterModulo / filterModuloAllPages). Coletor cron existe: functions/src/nexo/coleta.ts -> {nome:'diarias', colecao:'nexo_diarias', chave:'diarias', visao:'diarias', maxPag:25} (cron onNexoColetaDiaria 04h15 BRT; backfill via onNexoBackfillHttp). Normalizacao: src/lib/nexo/normalizar.ts normalizarDiarias -> DiariaNorm{id,beneficiario,numeroEmpenho,exercicio,data,valor,valorPago,unidade}. Detectores: DE-02 (src/lib/nexo/detectores/diarias.ts, >15 diarias/mes OU >R$5k/mes), DE-01 (emergenciais-diarias-cat.ts, diaria sem pagamento=proxy de sem prestacao de contas), + diarias-extra.ts e diarias-comp.ts. GAPS: (a) DESTINO nao coletado — campo 'destino' inexistente no DiariaNorm; o drill-down itensempenho que carrega o destino NAO esta sendo chamado para diarias; (b) maxPag=25 pode truncar exercicios grandes; (c) so 2025+2026 sao coletados pelo cron retroativo (DadosAbertos expoe ate 2017).",
+      "nEndpoints": 4,
+      "nDocTipos": 6
+    },
+    {
+      "k": "smarapd-modalidade",
+      "sistema": "SMARAPD (Portal PAI de Marília) — Módulo \"Empenho por Modalidade\" (ChaveModulo=quadro_de_renda_local / NomeVisao=EmpenhoModalidade). Módulo #10 dos 17 do catálogo SMARAPD. Visão AGREGADA: totais de valor empenhado por modalidade licitatória no exercício. NÃO traz empenhos individuais — é um sumário/quadro de fechamento por tipoLic. Versao=44, sincronizado 2026-06-02T21:50Z.",
+      "valor": "medio",
+      "jaColetado": "SIM. Coletor: functions/src/nexo/coleta.ts -> MODULOS[] item {nome:'modalidades', colecao:'nexo_modalidades', chave:'quadro_de_renda_local', visao:'EmpenhoModalidade', maxPag:10} persiste no Firestore. Client canonico: src/lib/nexo/sources/smarapd.ts (SMARAPD_MODULOS[9] + filterModulo/filterModuloAllPages). Normalizador: src/lib/nexo/normalizar.ts -> normalizarModalidades() (interface ModalidadeTotal{modalidade,valorEmpenhado}) — NOTA: le 'tipoLic'/'TipoLic'/'Modalidade' e 'ValorEmpenhado'/'Valor' mas NAO faz .trim() no tipoLic (potencial bug de agrupamento/igualdade; o regex do LC-06 ainda casa por substring). Consumo: src/app/api/nexo/analise/route.ts (le nexo_modalidades, ctx.modalidades) -> detector LC-06 modalidade.ts. Doc: docs/transparencia-api-reference.md secao 3/4 (tabela do modulo, valores 2026 desatualizados: doc lista 7 modalidades/~811M; rede 2026-06-03 mostra 8 modalidades/~909M com nova TOMADA DE PRECOS). Cliente legado src/lib/transparencia/smarapd-client.ts esta OBSOLETO (URLs erradas, sem UA).",
+      "nEndpoints": 2,
+      "nDocTipos": 3
+    },
+    {
+      "k": "smarapd-restos",
+      "sistema": "SMARAPD PAI — módulo \"restoapagar\" (Pagamentos de Restos a Pagar) do Portal da Transparência de Marília/SP",
+      "valor": "medio",
+      "jaColetado": "SIM. Coletor existente em functions/src/nexo/coleta.ts (spec {nome:'restos', colecao:'nexo_restos', chave/visao:'restoapagar', maxPag:20}) e em src/lib/nexo/catalogo-completo.ts. Normalizacao: src/lib/nexo/normalizar.ts->normalizarRestosAPagar (RestoPagarNorm: id,cpfCnpj,fornecedorNome,exercicio,valor) — COM BUG de field-mapping (le chaves ausentes). Detector: src/lib/nexo/detectores/restos.ts (MF-10 'Restos a pagar antigos sem baixa', limiar 50k, >2 anos; agrupa por cpfCnpj que vem vazio => detector hoje quase nao dispara). Tambem usado em obras-cat.ts (obra interrompida) e folha-receita-cat.ts. Procedencia/deep-link: src/lib/nexo/procedencia.ts (chave 'resto' -> nexo_restos -> link de modulo SMARAPD). Catalogo monitoramentos: MF-09 (RAP sem cobertura de caixa, art.42 LRF, via metas-fiscais/SICONFI) e MF-10 em catalogo-completo.ts. Client canonico: src/lib/nexo/sources/smarapd.ts (o antigo src/lib/transparencia/smarapd-client.ts esta obsoleto/URLs erradas).",
+      "nEndpoints": 3,
+      "nDocTipos": 5
+    },
+    {
+      "k": "smarapd-patrimonio",
+      "sistema": "SMARAPD PAI (pai-webapp) — Portal da Transparência de Marília/SP — Subsistema PATRIMÔNIO MOBILIÁRIO (módulo patrimonio_mobiliario / visão patrimonio). Inventário de bens móveis do município: 153.211 bens num único snapshot, cada um com Fornecedor (CNPJ embutido), forma de incorporação, data de aquisição, valor, situação e — no campo Descricao — o número do empenho de origem em texto livre.",
+      "valor": "alto",
+      "jaColetado": "SIM, mas TRUNCADO E ÓRFÃO. Coletor em functions/src/nexo/coleta.ts: MODULOS[] tem {nome:'patrimonio', colecao:'nexo_patrimonio', chave:'patrimonio_mobiliario', visao:'patrimonio', maxPag:40}. filterModulo() usa QuantidadeRegistros=500 fixo. Logo a coleta pega 40*500 = ~20.000 de 153.211 bens (~13% do universo) e marca como completa SEM telemetria de teto-atingido (truncamento silencioso — falso-negativo sistêmico, já apontado em docs/nexo-conselho-pareceres.json e docs/nexo-plano-mestre-conselho.md item #43/P2). Além disso: NENHUM consumidor em src/ lê nexo_patrimonio (coletado e não usado em detector). FIX recomendado: subir QuantidadeRegistros p/ 1000 e maxPag p/ ~160 (ou paginar com checkpoint até QuantidadePaginas), gravar flag tetoAtingido=QuantidadePaginas>maxPag em nexo_sync_state, e só manter a coleta diária quando existir detector que leia (senão rarear p/ não gastar escrita/purga/hash à toa). Catálogo em docs/nexo-fontes.json (entrada patrimonio confirmada), docs/nexo-fontes-catalogo.md (tabela 'POST patrimonio_mobiliario/patrimonio'), e SMARAPD_MODULOS em src/lib/nexo/sources/smarapd.ts (módulo #15). NOTA: docs/transparencia-api-reference.md §3 lista este módulo como 'Records(2026): 0' — DESATUALIZADO/ERRADO, contradito pela rede (153.211); corrigir.",
+      "nEndpoints": 1,
+      "nDocTipos": 5
+    },
+    {
+      "k": "smarapd-publicidade",
+      "sistema": "SMARAPD PAI — Portal da Transparência de Marília — Subsistema Publicidade (gasto com mídia/propaganda) + drill-down empenho→itens→liquidação→pagamento→documentos via TipoValor",
+      "valor": "alto",
+      "jaColetado": "PARCIAL. Cabecalho ja coletado: functions/src/nexo/coleta.ts (linha 76) ingere o modulo publicidade em nexo_publicidade (chave despesas_de_pagamentos/visao publicidade, maxPag:20) e tambem nexo_publicidade_digital (seguranca/publicidadedigital, maxPag:15). Cliente generico pronto: src/lib/nexo/sources/smarapd.ts (filterModulo/filterModuloAllPages com suporte a filtroRedireciona/TipoValor). FALTA o drill-down: o coletor atual NAO percorre os 4 sub-links (Itens/Liquidacoes/Pagamentos/Documentos) por IDDespesa — a colecao nexo_publicidade_detalhe (planejada no plano-mestre-conselho P2, linha 142) ainda nao existe. Detectores DE-11/12/13 ja codados (src/lib/nexo/detectores/diarias-comp.ts e emergenciais-diarias-cat.ts) mas DE-13 espera RCL no contexto. Docs de referencia: docs/transparencia-api-reference.md, docs/nexo/01-fontes-de-dados.md, docs/nexo-fontes.json (entrada despesas_de_pagamentos, confirmado:true), docs/nexo-fontes-catalogo.md.",
+      "nEndpoints": 7,
+      "nDocTipos": 7
+    },
+    {
+      "k": "smarapd-folha",
+      "sistema": "SMARAPD — Folha/Servidores (Portal da Transparência de Marília, plataforma PAI/pai-webapp). Módulo \"Servidores\" (ChaveModulo `pagamentos` / VisaoAnalitica `pagamentoaservidores`). Folha de pagamento individualizada: servidor, cargo, lotação, vencimentos/descontos/líquido, admissão, carga horária. É a base do subsistema Folha & Terceirizados (/nexo/folha) e o insumo central dos detectores FP-01..FP-14 e dos cruzamentos de nepotismo (FP-07/08) e sócio/PJ (XS-05, XS-12, TS-05).",
+      "valor": "alto",
+      "jaColetado": "SIM, já coletado e integrado. Coletor: functions/src/nexo/coleta.ts (cron diário 04h15 BRT, módulo 'pagamentos' → coleção Firestore nexo_pagamentos, dedupe por hash em nexo_sync_state, backfill HTTP onNexoBackfillHttp). Cliente canônico: src/lib/nexo/sources/smarapd.ts (filterModulo/filterModuloAllPages + SMARAPD_MODULOS). Normalização: src/lib/nexo/normalizar.ts → normalizarFolha/ServidorNorm + mascararNome/mascararDoc (LGPD). Consumo: src/app/api/nexo/folha/route.ts + UI src/app/nexo/folha/page.tsx. Detectores: src/lib/nexo/detectores/folha.ts (FP-01/06/09 ATIVOS) e folha-receita-cat.ts (FP-02/03/04/05/07/08/10/11/12 retornam [] por FONTE AUSENTE — falta a folha no ContextoAnalise dos detectores cross + falta CPF/verba; FP-13/14 rodam sobre despesas de terceirização). Linkage: src/lib/nexo/procedencia.ts mapeia 'servidor'→pagamentos/nexo_pagamentos com deep-link de módulo. Cliente LEGADO obsoleto a ignorar/remover: src/lib/transparencia/smarapd-client.ts (URLs candidatas erradas, sem UA — não funciona).",
+      "nEndpoints": 4,
+      "nDocTipos": 5
+    },
+    {
+      "k": "smarapd-licitacoes",
+      "sistema": "SMARAPD — Licitações (Portal da Transparência de Marília + Portal Institucional de Editais). ATENÇÃO À PREMISSA: o produto SMARAPD/PAI (paiportalserver) NÃO tem um módulo \"Licitações/Editais\" próprio. Ele só expõe licitação de forma INDIRETA: (a) chaves embutidas em cada empenho/despesa (ProcessoLicitatorio + código de Modalidade), e (b) totais AGREGADOS por modalidade (quadro_de_renda_local/EmpenhoModalidade). O edital em si — nº processo, modalidade por extenso, objeto, situação, datas de sessão e o PDF/ZIP do edital — vive em OUTRO sistema, o portal institucional marilia.sp.gov.br/portal/editais/1 (HTML server-rendered, sistema diferente, mesmo grupo gestor). Os dois precisam ser catalogados juntos porque o elo empenho↔processo↔edital atravessa os dois.",
+      "valor": "alto",
+      "jaColetado": "PARCIAL. SMARAPD (lado dinheiro) JÁ tem coletor canônico em src/lib/nexo/sources/smarapd.ts (filterModulo/filterModuloAllPages, com User-Agent correto) e os detectores de licitação consomem ProcessoLicitatorio/Modalidade via src/lib/nexo/detectores/{modalidade.ts (LC-06), licitacoes-cat.ts (LC-08..LC-25), licitacoes-comp.ts, licitacoes-extra.ts}. O agregado por modalidade (EmpenhoModalidade) é usado. PORÉM o LADO DOCUMENTO — o portal de editais marilia.sp.gov.br/portal/editais e os PDFs/ZIPs de edital — NÃO está coletado: não há conector de scraping para editais, e por isso ~12 dos detectores LC (LC-08,09,10,11,12,13,15,21,22,23,25) retornam [] declarando 'fonte ausente: texto/datas/atas do edital — PNCP ou portal de licitações'. O src/lib/transparencia/smarapd-client.ts antigo está OBSOLETO (sondava URLs erradas, sem UA) e foi substituído pelo de nexo/sources. GAP PRINCIPAL A FECHAR: conector de scraping do portal de editais (cheerio) + persistência dos PDFs + casamento ProcessoLicitatorio↔Nº Processo. Esse é o elo edital↔empenho que o dono quer e que ainda não existe.",
+      "nEndpoints": 7,
+      "nDocTipos": 9
+    },
+    {
+      "k": "smarapd-contratos",
+      "sistema": "SMARAPD — Contratos (na verdade: subsistema \"Contratos / Atas de Registro de Preço / Termos de Colaboração\" do PORTAL INSTITUCIONAL da Prefeitura www.marilia.sp.gov.br, plataforma SiGoverno/SuaWeb — classes sw_*, cnt_*). NÃO confundir com o SMARAPD PAI (transparencia.marilia.sp.gov.br/paiportalserver), que só expõe EMPENHO/despesa, nunca o nome da contratada nem o contrato assinado. O par é complementar: o portal institucional tem o NOME da contratada + PDF do contrato + vigência + aditivos; o SMARAPD PAI tem o empenho/pagamento. O elo entre os dois é o numeroProcesso.",
+      "valor": "alto",
+      "jaColetado": "PARCIAL. Há cliente consumindo o feed JSON: src/lib/nexo/sources/dados-abertos.ts (getContratos(ano) → ContratoMunicipal{numeroContrato,numeroProcesso,contratada=nomeContratada,tipo,tipoLicitacao,situacao,valor,dataAssinatura,inicioVigencia,fimVigencia}). Detectores de contrato existem: src/lib/nexo/detectores/contratos.ts, contratos-pncp-det.ts, aditivo.ts (mas operam sobre PNCP, não sobre o scraping do portal). NÃO existe scraper de /portal/contrato/{id} nem captura de {id}/{token}/idLicitacao — isso é a lacuna (item 41 do plano-mestre-conselho: 'Scraper /portal/contrato/{id} (único lugar do NOME da contratada) + resolução CNPJ', prioridade P2; e Fase 5 do desenho de procedência em nexo-provas-receitas.json). Catálogo de fontes: docs/nexo-fontes.json (2 entradas) e docs/nexo-provas-receitas.json (objetos contrato/pdf-contrato/pdf-aditivo/edital, todos confirmadoViaWeb). buildProcedencia (src/lib/nexo/procedencia.ts) prevê o caso PORTAL-MARILIA mas só gera deep-link quando id/token já persistidos (coleta ainda não feita).",
+      "nEndpoints": 8,
+      "nDocTipos": 7
+    },
+    {
+      "k": "smarapd-obras",
+      "sistema": "SMARAPD — Obras (situação física/financeira, contrato, medições). Subsistema híbrido: o portal SMARAPD `paiportalserver` NÃO tem módulo dinâmico próprio de obras (não há \"obras\" entre os 17 ChaveModulo); os dados de obra são montados a partir de (a) empenhos/despesas do SMARAPD filtrados por objeto/elemento de engenharia, (b) o feed Obras de Dados Abertos do site institucional `marilia.sp.gov.br/portal/dados-abertos/obras/{ano}` (JSON) e o painel \"Andamento de Obras\" (`/portal/obras`, com situação física/financeira, responsável técnico, edital, contrato, fotos), e (c) o PNCP para contrato/vigência/aditivos. As medições físicas (boletins) e a planilha orçamentária item-a-item NÃO são expostas por nenhuma das três — é a maior lacuna do subsistema.",
+      "valor": "alto",
+      "jaColetado": "PARCIAL. Coletado/integrado: (a) contratos de obra via PNCP — src/lib/nexo/sources/pncp.ts + rota /api/nexo/contratos + página /nexo/obras (filtra obra por OBRA_REGEX, KPI de aditivo>25%); (b) empenhos/despesas SMARAPD via src/lib/nexo/sources/smarapd.ts (filterModulo/AllPages) consumidos pelos detectores OB-08/09/10/13/14 em src/lib/nexo/detectores/obras-cat.ts; catálogo dos 14 monitoramentos OB-01..14 em src/lib/nexo/catalogo-completo.ts. NÃO coletado: o feed de obras do portal institucional (/portal/dados-abertos/obras/{ano}) e o detalhe rico de /portal/obras (situação física/financeira, % físico, responsável técnico, edital/contrato/fotos) — nenhum source aponta para o portal institucional de obras. Cliente legado src/lib/transparencia/smarapd-client.ts está obsoleto (URLs erradas, sem UA).",
+      "nEndpoints": 6,
+      "nDocTipos": 7
+    },
+    {
+      "k": "smarapd-receita",
+      "sistema": "SMARAPD — Receita (receita arrecadada por fonte/rubrica). Portal da Transparência de Marília/SP, plataforma SMARAPD \"pai-webapp\" (React/CRA). Dois módulos cobrem receita: (1) balancetereceita/Arrecadacoes = receita por conta/rubrica x mês (previsão LOA + arrecadado mensal em 12 colunas); (2) folha_pagamento_detalhes/ReceitaAnalitica = razão analítico de CADA movimento de arrecadação (descrição da rubrica, FONTE DE RECURSO/Vinculo, banco, operação, data, valor unitário). Já totalmente integrado no NEXO: conector src/lib/nexo/sources/receita.ts, detectores RC-01/RC-02/RC-05 em src/lib/nexo/detectores/receita-det.ts, rota /api/nexo/receita, página /nexo/receita, e cron diário persistindo nexo_receita.",
+      "valor": "alto",
+      "jaColetado": "SIM, pipeline completo. Conector: src/lib/nexo/sources/receita.ts (coletarReceita, normalizarReceitas explode 13 ReceitaNorm/conta, classificarFamilia, coletarDescricoesReceita via ReceitaAnalitica). Client base: src/lib/nexo/sources/smarapd.ts (filterModulo/filterModuloAllPages, SMARAPD_MODULOS lista os 2 modulos de receita). Detectores: src/lib/nexo/detectores/receita-det.ts (RC-01/02/05, runner analisarReceita). Rota: src/app/api/nexo/receita/route.ts (le nexo_receita, fallback ao vivo, agrega por conta). Pagina: src/app/nexo/receita/page.tsx. Cron: functions/src/nexo/coleta.ts (entry receita -> nexo_receita, balancetereceita/Arrecadacoes, maxPag 20). Catalogo monitoramentos RC: src/lib/nexo/catalogo-completo.ts. Provas: docs/nexo-provas-receitas.json. Ref API: docs/transparencia-api-reference.md (modulos 1 e 2). GAP: ReceitaAnalitica.Vinculo (fonte de recurso) ainda NAO e extraido — so a descricao e usada.",
+      "nEndpoints": 4,
+      "nDocTipos": 5
+    },
+    {
+      "k": "dadosabertos-prefeitura",
+      "sistema": "Dados Abertos da Prefeitura de Marilia (portal institucional marilia.sp.gov.br) — feeds JSON publicos por categoria/ano + paginas HTML de detalhe de contrato/edital. Consumido no NEXO por src/lib/nexo/sources/dados-abertos.ts (getContratos/getLicitacoes/getObras/getLegislacao/getDiarioOficial) e por src/lib/diario/marilia-dados-abertos-client.ts (DOM full-text, ja integrado). Rotas: /api/nexo/contratos-municipais e /api/nexo/diario-sinais.",
+      "valor": "alto",
+      "jaColetado": "PARCIAL. DOM (diario-oficial) JA COLETADO e integrado (src/lib/diario/marilia-dados-abertos-client.ts + coletores Cloud Functions + /api/diario-oficial/*; deep-link de PDF resolvido). Contratos/licitacoes/obras/legislacao: client de leitura existe (src/lib/nexo/sources/dados-abertos.ts) e rota /api/nexo/contratos-municipais serve on-demand, mas SEM persistencia, SEM scrape de nomeContratada null e SEM materializacao da arvore de documentos (PDFs/aditivos). compra-direta/chamamento-publico/concursos: NAO mapeados no client (gap). NAO ha getEmpenhos nesta fonte — empenhos vem de SMARAPD PAI e TCE-SP, nao do dados-abertos.",
+      "nEndpoints": 9,
+      "nDocTipos": 10
+    }
+  ],
+  "consolidacaoAgente": "You've hit your session limit · resets 9:10pm (America/Sao_Paulo)"
+}

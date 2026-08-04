@@ -1,0 +1,57 @@
+# dependencies
+/node_modules
+/functions/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env*.local
+.env
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+
+# firebase
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+storage-debug.log
+auth-debug.log
+pubsub-debug.log
+.firebase/
+
+# NEXO local — snapshot de dados do Firebase Emulator Suite (dados locais)
+.nexo-emu-data/
+.emulator-data/
+
+# NEXO local — logs dos processos de arranque
+/logs/
+*.log
+
+# cloud functions build output
+/functions/lib
+
+# editor
+.vscode/
+.idea/
