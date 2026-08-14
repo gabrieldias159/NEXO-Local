@@ -1,0 +1,90 @@
+{
+ "colecoesUsadas": {
+  "doou": {
+   "colecao": "nexo_doacoes_tse",
+   "campos": [
+    "nomeDoador->doador",
+    "valor",
+    "candidato->para[].candidato",
+    "municipio(recipiente)",
+    "docMasc"
+   ],
+   "totalDocs": 155754,
+   "filtroPrecisao": "apenas doacoes cujo candidato-recipiente e de MARILIA (municipio=MARILIA); elimina pilha de homonimos cross-cidade"
+  },
+  "socio": {
+   "colecao": "nexo_socios",
+   "campos": [
+    "socios[].nome",
+    "_cnpj",
+    "razaoSocial",
+    "socios[].qualificacao",
+    "socios[].cpfMasc"
+   ],
+   "totalDocs": 529
+  },
+  "fornecedor": {
+   "colecao": "nexo_entidades (tipo=pessoa)",
+   "campos": [
+    "nome",
+    "totalEmpenhado",
+    "_entidadeId",
+    "nEmpenhos",
+    "nContratos"
+   ],
+   "totalDocs": 3182
+  },
+  "servidor": {
+   "colecoes": [
+    "nexo_diarias",
+    "nexo_passagens",
+    "nexo_nomeacoes"
+   ],
+   "campos": [
+    "NomeFornecedor(beneficiario)",
+    "UnidadeOrcamentaria->orgao",
+    "_valor",
+    "cargo",
+    "secretaria"
+   ],
+   "obs": "nao ha colecao de folha/servidores; servidor inferido de beneficiarios de diaria/passagem (=servidor municipal) + atos de nomeacao no DOM"
+  },
+  "dom": {
+   "colecoes": [
+    "nexo_nomeacoes",
+    "diarios"
+   ],
+   "campos": [
+    "nomeNorm/nome",
+    "trecho",
+    "tipo",
+    "data",
+    "domEdicaoId",
+    "rawText(full-text)",
+    "numero"
+   ],
+   "filtroPrecisao": "hit full-text so vale se um verbo de ATO (NOMEIA/EXONERA/DESIGNA/APOSENTA/CONVOCA/HOMOLOGA/VENCEDORA/MULTA...) aparece nos 95 chars ANTES do nome; tipo classificado pelo verbo",
+   "limitacao": "DOM full-text = diarios.rawText (resumos 2010-2024, alguns truncados) + nomeacoes estruturadas (22 docs, 2026). queridodiario .txt integral (25 edicoes 2026) NAO varrido; nexo_diario_dom so guarda metadados/URLs"
+  }
+ },
+ "chaveJuncao": "nome normalizado EXATO (maiusculas, sem acentos, espacos colapsados) == personId sem prefixo 'n:'",
+ "heuristicaFalsoPositivo": "match exato do nome completo normalizado com fronteira de palavra (>=2 tokens, min 9 chars). 7 nomes curtos/comuns (2 tokens & <12 chars) EXCLUIDOS do DOM full-text. doou restrito a recipiente=MARILIA (docsDistintos ~1). DOM full-text exige verbo de ato adjacente. Risco residual: homonimos exatos (mesmo nome completo, pessoa diferente) e nome-candidato como sufixo de nome maior; campos docsDistintos/trecho permitem o app julgar.",
+ "totalCandidatos": 694,
+ "nomesCurtosReforcados": [
+  "IVAN FIORINI",
+  "JAIR RUEDA",
+  "JOSE PAULINO",
+  "JURACI COSTA",
+  "LUIZ ROQUE",
+  "MILTON DIAS",
+  "NAIR VICENTE"
+ ],
+ "contagens": {
+  "doadores": 8,
+  "socios": 4,
+  "fornecedores": 34,
+  "servidores": 21,
+  "comDom": 138,
+  "totalPessoasCruzadas": 149
+ }
+}

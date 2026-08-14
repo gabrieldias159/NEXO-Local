@@ -1,0 +1,241 @@
+{
+  "validosVereador": 111722,
+  "cadeiras": 13,
+  "porPartido": {
+    "PSB": {
+      "legenda": 2564,
+      "nominais": 7006
+    },
+    "PSDB": {
+      "legenda": 2220,
+      "nominais": 7036
+    },
+    "SD": {
+      "legenda": 389,
+      "nominais": 1658
+    },
+    "PP": {
+      "legenda": 299,
+      "nominais": 1978
+    },
+    "PR": {
+      "legenda": 244,
+      "nominais": 17190
+    },
+    "PSOL": {
+      "legenda": 209,
+      "nominais": 1146
+    },
+    "PDT": {
+      "legenda": 193,
+      "nominais": 1638
+    },
+    "PT": {
+      "legenda": 143,
+      "nominais": 2298
+    },
+    "DEM": {
+      "legenda": 125,
+      "nominais": 4666
+    },
+    "PRB": {
+      "legenda": 122,
+      "nominais": 5146
+    },
+    "PHS": {
+      "legenda": 113,
+      "nominais": 8075
+    },
+    "PTB": {
+      "legenda": 110,
+      "nominais": 5617
+    },
+    "PSC": {
+      "legenda": 107,
+      "nominais": 5416
+    },
+    "PSL": {
+      "legenda": 101,
+      "nominais": 2689
+    },
+    "PRP": {
+      "legenda": 97,
+      "nominais": 689
+    },
+    "PMDB": {
+      "legenda": 95,
+      "nominais": 3191
+    },
+    "PV": {
+      "legenda": 76,
+      "nominais": 6102
+    },
+    "PPS": {
+      "legenda": 75,
+      "nominais": 1062
+    },
+    "PSD": {
+      "legenda": 74,
+      "nominais": 4498
+    },
+    "PTN": {
+      "legenda": 62,
+      "nominais": 3880
+    },
+    "PMN": {
+      "legenda": 58,
+      "nominais": 1212
+    },
+    "PC do B": {
+      "legenda": 47,
+      "nominais": 4370
+    },
+    "PT do B": {
+      "legenda": 34,
+      "nominais": 1332
+    },
+    "PEN": {
+      "legenda": 31,
+      "nominais": 1122
+    },
+    "PPL": {
+      "legenda": 31,
+      "nominais": 735
+    },
+    "PSDC": {
+      "legenda": 26,
+      "nominais": 742
+    },
+    "PRTB": {
+      "legenda": 21,
+      "nominais": 1102
+    },
+    "PROS": {
+      "legenda": 17,
+      "nominais": 404
+    },
+    "PTC": {
+      "legenda": 16,
+      "nominais": 984
+    },
+    "REDE": {
+      "legenda": 15,
+      "nominais": 398
+    },
+    "PMB": {
+      "legenda": 14,
+      "nominais": 612
+    }
+  },
+  "porColigacao": {
+    "Sim, Podemos!": {
+      "legenda": 198,
+      "nominais": 11534,
+      "partidos": [
+        "PC do B",
+        "PPS",
+        "PV"
+      ]
+    },
+    "COLIGAÇÃO PSDC/PMN": {
+      "legenda": 84,
+      "nominais": 1954,
+      "partidos": [
+        "PMN",
+        "PSDC"
+      ]
+    },
+    "DEM/PTN/PROS/PRB": {
+      "legenda": 326,
+      "nominais": 14096,
+      "partidos": [
+        "DEM",
+        "PRB",
+        "PROS",
+        "PTN"
+      ]
+    },
+    "PSDB-PMDB-PTB": {
+      "legenda": 2425,
+      "nominais": 15844,
+      "partidos": [
+        "PMDB",
+        "PSDB",
+        "PTB"
+      ]
+    },
+    "PMB/PEN/REDE": {
+      "legenda": 60,
+      "nominais": 2132,
+      "partidos": [
+        "PEN",
+        "PMB",
+        "REDE"
+      ]
+    },
+    "PSB-PSL-PSC-PP": {
+      "legenda": 3071,
+      "nominais": 17089,
+      "partidos": [
+        "PP",
+        "PSB",
+        "PSC",
+        "PSL"
+      ]
+    },
+    "PR": {
+      "legenda": 244,
+      "nominais": 17190,
+      "partidos": [
+        "PR"
+      ]
+    },
+    "PSOL": {
+      "legenda": 209,
+      "nominais": 1146,
+      "partidos": [
+        "PSOL"
+      ]
+    },
+    "HUMANISTA E DEMOCRATICA": {
+      "legenda": 187,
+      "nominais": 12573,
+      "partidos": [
+        "PHS",
+        "PSD"
+      ]
+    },
+    "PDT/PTC": {
+      "legenda": 209,
+      "nominais": 2622,
+      "partidos": [
+        "PDT",
+        "PTC"
+      ]
+    },
+    "Marília tem Jeito": {
+      "legenda": 532,
+      "nominais": 3956,
+      "partidos": [
+        "PT",
+        "SD"
+      ]
+    },
+    "COLIGAÇÃO PT do B/PRP": {
+      "legenda": 131,
+      "nominais": 2021,
+      "partidos": [
+        "PRP",
+        "PT do B"
+      ]
+    },
+    "PRTB/PPL": {
+      "legenda": 52,
+      "nominais": 1837,
+      "partidos": [
+        "PPL",
+        "PRTB"
+      ]
+    }
+  }
+}

@@ -1,0 +1,3800 @@
+{
+ "n:PAULO RICARDO NEVES BUENO": {
+  "doou": {
+   "valorTotal": 315.0,
+   "n": 1,
+   "para": [
+    {
+     "candidato": "ERADIA FERREIRA GONÇALVES",
+     "valor": 315.0
+    }
+   ],
+   "municipio": "MARILIA",
+   "docsDistintos": 1
+  },
+  "fornecedor": {
+   "total": 34573.26,
+   "entidadeId": "39618658848",
+   "nEmpenhos": 85,
+   "nContratos": 0
+  },
+  "servidor": {
+   "orgaos": [
+    "GESTÃO ADMINISTRATIVA E RECURSOS HUMANOS",
+    "SECRETARIA MUNICIPAL DA ADMINISTRAÇÃO"
+   ],
+   "cargo": null,
+   "vinculo": "beneficiario-diaria-passagem",
+   "fontes": [
+    "diaria",
+    "passagem"
+   ],
+   "nMovimentos": 78,
+   "valorDiariasPassagens": 31659.96
+  },
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2025-01-04",
+     "tipo": "nomeacao",
+     "trecho": "...O DA SECRETARIA MUNICIPAL DE SUPRIMENTOS PORTARIA NUMERO 45645 NOMEIA PAULO RICARDO NEVES BUENO PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE SIMBOLO C 2 DEVEN...",
+     "edicao": "3854",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:JOSE ACACIO FERREIRA": {
+  "doou": {
+   "valorTotal": 367.5,
+   "n": 1,
+   "para": [
+    {
+     "candidato": "FABIO ALVES CABRAL",
+     "valor": 367.5
+    }
+   ],
+   "municipio": "MARILIA",
+   "docsDistintos": 1
+  },
+  "dom": {
+   "n": 3,
+   "exemplos": [
+    {
+     "data": "2021-11-11",
+     "tipo": "licitacao",
+     "trecho": "...O PREGOEIRO ALDO LUIZ GONCALVES DIAS CONFORME SEGUE EMPRESA VENCEDORA JOSE ACACIO FERREIRA 12015536876 LOCALIZADA NA RUA MEXICO NO 495 JARDIM VISTA ALEGRE MARILIA SP CEP ...",
+     "edicao": "3070",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-04-13",
+     "tipo": "contratacao",
+     "trecho": "...O MUNICIPAL NO 13 867 2022 A CONTRATACAO DIRETA DA EMPRESA 43 698 345 JOSE ACACIO FERREIRA CNPJ NO 43 698 345 0001 73 PARA LOCACAO DE BRINQUEDOS CARRINHO DE PIPOCA E CARR...",
+     "edicao": "3672",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-08-16",
+     "tipo": "licitacao",
+     "trecho": "...O PREGOEIRO VALMIR QUINTINO DE SOUZA CONFORME SEGUE EMPRESA VENCEDORA JOSE ACACIO FERREIRA ME LOCALIZADA NA RUA MEXICO NO 495 BAIRRO VISTA ALEGRE CIDADE DE MARILIA SP CEP...",
+     "edicao": "3760",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:ALAN TEIXEIRA PINTO": {
+  "doou": {
+   "valorTotal": 10000.0,
+   "n": 1,
+   "para": [
+    {
+     "candidato": "FABIANA DE CASSIA SANCHES CAMARINHA",
+     "valor": 10000.0
+    }
+   ],
+   "municipio": "MARILIA",
+   "docsDistintos": 1
+  }
+ },
+ "n:MOACIR PEREIRA BICALHO": {
+  "doou": {
+   "valorTotal": 2900.0,
+   "n": 2,
+   "para": [
+    {
+     "candidato": "FABIANO BRAZ DA SILVA",
+     "valor": 2900.0
+    }
+   ],
+   "municipio": "MARILIA",
+   "docsDistintos": 1
+  }
+ },
+ "n:ANDRE BELIZARIO JACINTO": {
+  "doou": {
+   "valorTotal": 835.0,
+   "n": 1,
+   "para": [
+    {
+     "candidato": "CARLOS ALBERTO DOS SANTOS MATTOS",
+     "valor": 835.0
+    }
+   ],
+   "municipio": "MARILIA",
+   "docsDistintos": 1
+  },
+  "fornecedor": {
+   "total": 145680.0,
+   "entidadeId": "26379583831",
+   "nEmpenhos": 22,
+   "nContratos": 0
+  },
+  "servidor": {
+   "orgaos": [
+    "GESTÃO ADMINISTRATIVA E RECURSOS HUMANOS",
+    "SECRETARIA MUNICIPAL DA ADMINISTRAÇÃO"
+   ],
+   "cargo": null,
+   "vinculo": "beneficiario-diaria-passagem",
+   "fontes": [
+    "diaria"
+   ],
+   "nMovimentos": 9,
+   "valorDiariasPassagens": 4469.99
+  },
+  "dom": {
+   "n": 5,
+   "exemplos": [
+    {
+     "data": "2011-07-30",
+     "tipo": "exoneracao",
+     "trecho": "...PARTIR DE 01 DE AGOSTO DE 2011 PORTARIA NUMERO 24987 EXONERA A PEDIDO ANDRE BELIZARIO JACINTO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE SIMBOLO C 2 A PARTIR DE 01 DE AGOS...",
+     "edicao": "533",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2011-08-02",
+     "tipo": "nomeacao",
+     "trecho": "...O DESPORTIVO OCTAVIO BARRETTO PRADO TATA PORTARIA NUMERO 24990 NOMEIA ANDRE BELIZARIO JACINTO PA...",
+     "edicao": "534",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2013-11-15",
+     "tipo": "designacao",
+     "trecho": "...RVIDORA IZABEL CRISTINA MANOEL AUXILIAR DE ESCRITA OU NA SUA AUSENCIA ANDRE BELIZARIO JACINTO AUXILIAR DE ESCRITA LOTADOS NO GABINETE DO PREFEITO QUE FIC...",
+     "edicao": "1095",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-02-11",
+     "tipo": "designacao",
+     "trecho": "...46213 DESIGNA A PARTIR DE 11 DE FEVEREIRO DE 2025 O SERVIDOR 106402 3 ANDRE BELIZARIO JACINTO ASSISTENTE ADMINISTRATIVO PARA O DESEMPENHO DA FUNCAO DE E ENCARREGADO DE SERVI...",
+     "edicao": "3881",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-10-01",
+     "tipo": "designacao",
+     "trecho": "...E FEVEREIRO DE 2025 PORTARIA NUMERO 47753 DESIGNA O SERVIDOR 106402 3 ANDRE BELIZARIO JACINTO PARA COMPOR COMO SUPLENTE A COMISSAO ESPECIAL PERMANENTE DE PROCESSOS ADMINISTR...",
+     "edicao": "4039",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:SEBASTIAO CUSTODIO FILHO": {
+  "doou": {
+   "valorTotal": 500.0,
+   "n": 1,
+   "para": [
+    {
+     "candidato": "JEAN PATRICK GARCIA BALECHE",
+     "valor": 500.0
+    }
+   ],
+   "municipio": "MARILIA",
+   "docsDistintos": 1
+  },
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2010-10-21",
+     "tipo": "nomeacao",
+     "trecho": "...LO C 2 A PARTIR DE 18 DE OUTUBRO DE 2010 PORTARIA NUMERO 24062 NOMEIA SEBASTIAO CUSTODIO FILHO PARA O EXERCICIO DO CARGO EM COMISSAO DE COORDENADOR DE ESPORTES E LAZER SIMBOL...",
+     "edicao": "344",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:JOSE CARLOS DA SILVA": {
+  "doou": {
+   "valorTotal": 1000.0,
+   "n": 1,
+   "para": [
+    {
+     "candidato": "JEAN PATRICK GARCIA BALECHE",
+     "valor": 1000.0
+    }
+   ],
+   "municipio": "MARILIA",
+   "docsDistintos": 1
+  },
+  "fornecedor": {
+   "total": 168486.68,
+   "entidadeId": "06560523845",
+   "nEmpenhos": 114,
+   "nContratos": 0
+  },
+  "servidor": {
+   "orgaos": [
+    "CORPO ADMINISTRATIVO"
+   ],
+   "cargo": null,
+   "vinculo": "beneficiario-diaria-passagem",
+   "fontes": [
+    "diaria",
+    "passagem"
+   ],
+   "nMovimentos": 88,
+   "valorDiariasPassagens": 150620.0
+  },
+  "dom": {
+   "n": 5,
+   "exemplos": [
+    {
+     "data": "2012-11-14",
+     "tipo": "nomeacao",
+     "trecho": "...E SUAS ATIVIDADES DA OUTRAS PROVIDENCIAS PORTARIA NUMERO 27529 NOMEIA JOSE CARLOS DA SILVA COMO PRESIDENTE DA COMISSAO ESPECIAL DE ESTUDOS CONSTITUIDA ATRAVES DA PORTARIA...",
+     "edicao": "850",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2013-03-29",
+     "tipo": "designacao",
+     "trecho": "...O LEGAL A PARTIR DE 25 DE MARCO DE 2013 PORTARIA NUMERO 28223 DESIGNA JOSE CARLOS DA SILVA DIRETOR TECNICO ADMINISTRATIVO PARA RESPONDER COMO SECRETARIO MUNICIPAL DA ADMI...",
+     "edicao": "939",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2019-12-12",
+     "tipo": "nomeacao",
+     "trecho": "...RACAO PORTARIA NUMERO 37407 NOMEIA A PARTIR DE 13 DE DEZEMBRO DE 2019 JOSE CARLOS DA SILVA PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR ESPECIAL DE ASSUNTOS ESTRATEG...",
+     "edicao": "2576",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-10-03",
+     "tipo": "designacao",
+     "trecho": "...19 DE 28 DE SETEMBRO DE 2020 PORTARIA NUMERO 38630 DESIGNA O SERVIDOR JOSE CARLOS DA SILVA ASSESSOR ESPECIAL DE ASSUNTOS ESTRATEGICOS DA SECRETARIA MUNICIPAL DA ADMINISTR...",
+     "edicao": "2789",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-12-19",
+     "tipo": "nomeacao",
+     "trecho": "... 2019 PORTARIA NUMERO 38877 NOMEIA A PARTIR DE 18 DE DEZEMBRO DE 2020 JOSE CARLOS DA SILVA PARA O EXERCICIO DO CARGO EM COMISSAO DE CHEFE DE GABINETE DO SECRETARIO MUNICI...",
+     "edicao": "2841",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:VILMA PEREIRA": {
+  "doou": {
+   "valorTotal": 500.0,
+   "n": 1,
+   "para": [
+    {
+     "candidato": "JEAN PATRICK GARCIA BALECHE",
+     "valor": 500.0
+    }
+   ],
+   "municipio": "MARILIA",
+   "docsDistintos": 1
+  },
+  "dom": {
+   "n": 5,
+   "exemplos": [
+    {
+     "data": "2016-10-05",
+     "tipo": "designacao",
+     "trecho": "... 17 DE DEZEMBRO DE 1991 MODIFICADA POSTERIORMENTE DESIGNA A SERVIDORA VILMA PEREIRA AUXILIAR DE SERVICOS GERAIS REFERENCIA 1 D PARA O DESEMPENHO DA FUNCAO DE COORD...",
+     "edicao": "1798",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2021-07-31",
+     "tipo": "aposentadoria",
+     "trecho": "...IR DE 01 DE AGOSTO DE 2021 PORTARIA NUMERO 39728 APOSENTA A SERVIDORA VILMA PEREIRA DA SILVA NO CARGO DE GARI REFERENCIA 1 H INSCRITA NO CPF N 096 362 258 77 ATRAV...",
+     "edicao": "3000",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-02-12",
+     "tipo": "nomeacao",
+     "trecho": "...PUT DO ARTIGO 66 DO REFERIDO TEXTO LEGAL PORTARIA NUMERO 40431 NOMEIA VILMA PEREIRA PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSORA DO GABINETE DO SECRETARIO SI...",
+     "edicao": "3138",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-04-15",
+     "tipo": "nomeacao",
+     "trecho": "...ARIA NO 40429 DE 11 DE FEVEREIRO DE 2022 PORTARIA NUMERO 40765 NOMEIA VILMA PEREIRA PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSORA DO GABINETE DO SECRETARIO SI...",
+     "edicao": "3179",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-09-19",
+     "tipo": "exoneracao",
+     "trecho": "...1991 PORTARIA NUMERO 45014 EXONERA A PARTIR DE 19 DE SETEMBRO DE 2024 VILMA PEREIRA DO CARGO EM COMISSAO DE ASSESSORA DO GABINETE DO SECRETARIO SIMBOLO C 2 DA SECR...",
+     "edicao": "3784",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:JOSE ROBERTO DOS SANTOS": {
+  "socio": {
+   "empresas": [
+    {
+     "cnpj": "04138886000195",
+     "nome": "GEO BRASILIS CONSULTORIA, PLANEJAMENTO, MEIO AMBIENTE E GEOPROCESSAMENTO LTDA",
+     "qualificacao": "Sócio-Administrador",
+     "cpfMasc": "60**78"
+    }
+   ],
+   "n": 1
+  }
+ },
+ "n:JOEL LAURENTINO DA ROCHA": {
+  "socio": {
+   "empresas": [
+    {
+     "cnpj": "44475945000135",
+     "nome": "ASSOC DOS SERVIDORES PUBLICOS MUNICIPAIS DE MARILIA",
+     "qualificacao": "Presidente",
+     "cpfMasc": "25**58"
+    }
+   ],
+   "n": 1
+  },
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2020-08-15",
+     "tipo": "cessao",
+     "trecho": "...SERVIDORES PUBLICOS MUNICIPAIS DE MARILIA ASPMM CONCEDIDA AO SERVIDOR JOEL LAURENTINO DA ROCHA FISCAL DE OBRAS LOTADO NA SECRETARIA MUNICIPAL DA ADMINISTRACAO ATRAVES DA PORT...",
+     "edicao": "2753",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:JOSE FERREIRA DA SILVA": {
+  "socio": {
+   "empresas": [
+    {
+     "cnpj": "51245172000166",
+     "nome": "J F DA SILVA HORTIFRUTI LTDA",
+     "qualificacao": "Sócio-Administrador",
+     "cpfMasc": "58**29"
+    }
+   ],
+   "n": 1
+  }
+ },
+ "n:PAULO JORGE DE OLIVEIRA ALVES": {
+  "socio": {
+   "empresas": [
+    {
+     "cnpj": "51525632000100",
+     "nome": "EMPRESA MUNICIPAL DE MOBILIDADE URBANA DE MARILIA - EMDURB",
+     "qualificacao": "Presidente",
+     "cpfMasc": "08**98"
+    }
+   ],
+   "n": 1
+  },
+  "dom": {
+   "n": 3,
+   "exemplos": [
+    {
+     "data": "2025-01-02",
+     "tipo": "nomeacao",
+     "trecho": "... LEGAL PORTARIA NUMERO 45630 NOMEIA A PARTIR DE 1O DE JANEIRO DE 2025 PAULO JORGE DE OLIVEIRA ALVES PARA COMPOR A DIRETORIA EXECUTIVA DA EMPRESA MUNICIPAL DE MOBILIDADE URBANA DE ...",
+     "edicao": "3853",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-11-26",
+     "tipo": "cessao",
+     "trecho": "... AO OSSUARIO GERAL E A SEPULTURA PODERA SER CONCEDIDA A OUTRO TITULAR PAULO JORGE DE OLIVEIRA ALVES DIRETOR PRESIDENTE EXTRATO DE ADITAMENTO DE ALTERACAO CONTRATUAL REFERENTE PROC...",
+     "edicao": "4079",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-12-31",
+     "tipo": "cessao",
+     "trecho": "... AO OSSUARIO GERAL E A SEPULTURA PODERA SER CONCEDIDA A OUTRO TITULAR PAULO JORGE DE OLIVEIRA ALVES DIRETOR PRESIDENTE...",
+     "edicao": "4102",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:CLAUDEMIR TEGANA": {
+  "fornecedor": {
+   "total": 150.0,
+   "entidadeId": "00190208805",
+   "nEmpenhos": 3,
+   "nContratos": 0
+  },
+  "servidor": {
+   "orgaos": [
+    "DESENVOLVIMENTO SOCIAL"
+   ],
+   "cargo": null,
+   "vinculo": "beneficiario-diaria-passagem",
+   "fontes": [
+    "passagem"
+   ],
+   "nMovimentos": 2,
+   "valorDiariasPassagens": 100.0
+  },
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2025-02-15",
+     "tipo": "nomeacao",
+     "trecho": "...PUT DO ARTIGO 66 DO REFERIDO TEXTO LEGAL PORTARIA NUMERO 46268 NOMEIA CLAUDEMIR TEGANA PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR GOVERNAMENTAL SIMBOLO CC 4 DA...",
+     "edicao": "3886",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:SEBASTIAO TELES DE MENEZES": {
+  "fornecedor": {
+   "total": 4765.37,
+   "entidadeId": "00190953845",
+   "nEmpenhos": 1,
+   "nContratos": 0
+  },
+  "dom": {
+   "n": 3,
+   "exemplos": [
+    {
+     "data": "2020-01-03",
+     "tipo": "exoneracao",
+     "trecho": "...PORTARIA NUMERO 37544 EXONERA A PEDIDO SEBASTIAO TELES DE MENEZES DO CARGO EM COMISSAO DE CHEFE DE GABINETE DO SECRETARIO DA SECRETARIA MUNICIPAL...",
+     "edicao": "2589",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-03-07",
+     "tipo": "nomeacao",
+     "trecho": "...PUT DO ARTIGO 66 DO REFERIDO TEXTO LEGAL PORTARIA NUMERO 43859 NOMEIA SEBASTIAO TELES DE MENEZES PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO SIM...",
+     "edicao": "3647",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-02-15",
+     "tipo": "nomeacao",
+     "trecho": "...PUT DO ARTIGO 66 DO REFERIDO TEXTO LEGAL PORTARIA NUMERO 46271 NOMEIA SEBASTIAO TELES DE MENEZES PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR GOVERNAMENTAL SIMBOLO CC 4 DA...",
+     "edicao": "3886",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:MARCOS ANTONIO LAVAGNINI": {
+  "fornecedor": {
+   "total": 4601.5,
+   "entidadeId": "00196554870",
+   "nEmpenhos": 4,
+   "nContratos": 0
+  },
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2023-08-24",
+     "tipo": "processo",
+     "trecho": "...DE 2017 EM DECORRENCIA DO PROTOCOLO NO 36559 17 E ABSOLVE DO SERVIDOR MARCOS ANTONIO LAVAGNINI AGENTE OPERACIONAL E CONSEQUENTEMENTE O ARQUIVAMENTO DO PRESENTE PROCESSO ADMIN...",
+     "edicao": "3520",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2026-03-20",
+     "tipo": "aposentadoria",
+     "trecho": "...EMENTAR NO 918 DE 04 DE NOVEMBRO DE 2021 APOSENTA O SERVIDOR 100773 1 MARCOS ANTONIO LAVAGNINI NO CARGO DE AGENTE OPERACIONAL VENCIMENTO NIVEL 1 E TABELA 1 INSCRITO NO CPF N ...",
+     "edicao": "4156",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:LUIZ CARLOS CLEMENTE": {
+  "fornecedor": {
+   "total": 4295.0,
+   "entidadeId": "01546310860",
+   "nEmpenhos": 2,
+   "nContratos": 0
+  }
+ },
+ "n:ARMANDO TEGANA FILHO": {
+  "fornecedor": {
+   "total": 2859.22,
+   "entidadeId": "06181556869",
+   "nEmpenhos": 2,
+   "nContratos": 0
+  },
+  "dom": {
+   "n": 5,
+   "exemplos": [
+    {
+     "data": "2020-08-15",
+     "tipo": "exoneracao",
+     "trecho": "...PARTIR DE 15 DE AGOSTO DE 2020 PORTARIA NUMERO 38487 EXONERA A PEDIDO ARMANDO TEGANA FILHO DO CARGO EM COMISSAO DE CHEFE DE GABINETE DO SECRETARIO DA SECRETARIA MUNICIPAL...",
+     "edicao": "2753",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-11-17",
+     "tipo": "nomeacao",
+     "trecho": "...PUT DO ARTIGO 66 DO REFERIDO TEXTO LEGAL PORTARIA NUMERO 38732 NOMEIA ARMANDO TEGANA FILHO PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO DA ...",
+     "edicao": "2819",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-11-28",
+     "tipo": "nomeacao",
+     "trecho": "... 2020 PORTARIA NUMERO 38804 NOMEIA A PARTIR DE 01 DE DEZEMBRO DE 2020 ARMANDO TEGANA FILHO PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO DA ...",
+     "edicao": "2828",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2021-01-15",
+     "tipo": "nomeacao",
+     "trecho": "...PUT DO ARTIGO 66 DO REFERIDO TEXTO LEGAL PORTARIA NUMERO 39018 NOMEIA ARMANDO TEGANA FILHO PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO SIM...",
+     "edicao": "2858",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-05-19",
+     "tipo": "nomeacao",
+     "trecho": "...O DE 2022 PORTARIA NUMERO 41004 NOMEIA A PARTIR DE 19 DE MAIO DE 2022 ARMANDO TEGANA FILHO PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO SIM...",
+     "edicao": "3200",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:MARCELO JOSE DE MACEDO": {
+  "fornecedor": {
+   "total": 8638.26,
+   "entidadeId": "06799749899",
+   "nEmpenhos": 2,
+   "nContratos": 0
+  },
+  "dom": {
+   "n": 5,
+   "exemplos": [
+    {
+     "data": "2020-01-07",
+     "tipo": "convocacao",
+     "trecho": "...CATORIOS EDITAL DE CONVOCACAO CCP 001 2019 DAEM PORTARIA NUMERO 1 403 MARCELO JOSE DE MACEDO PRESIDENTE DO DEPARTAMENTO DE AGUA E ESGOTO DE MARILIA USANDO DE ATRIBUICOES LE...",
+     "edicao": "2591",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-01-28",
+     "tipo": "nomeacao",
+     "trecho": "...SUSPENSOS DE ACORDO COM O ART 2O DA LC NO 34 92 PORTARIA NUMERO 1 443 MARCELO JOSE DE MACEDO PRESIDENTE DO DEPARTAMENTO DE AGUA E ESGOTO DE MARILIA USANDO DE ATRIBUICOES LE...",
+     "edicao": "2606",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-02-19",
+     "tipo": "nomeacao",
+     "trecho": "...SUSPENSOS DE ACORDO COM O ART 2O DA LC NO 34 92 PORTARIA NUMERO 1 463 MARCELO JOSE DE MACEDO PRESIDENTE DO DEPARTAMENTO DE AGUA E ESGOTO DE MARILIA USANDO DE ATRIBUICOES LE...",
+     "edicao": "2622",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-03-10",
+     "tipo": "promocao",
+     "trecho": "...RIODOS VENCIDOS NO MES DE NOVEMBRO DE 2019 DAEM PORTARIA NUMERO 1 494 MARCELO JOSE DE MACEDO PRESIDENTE DO DEPARTAMENTO DE AGUA E ESGOTO DE MARILIA USANDO DE ATRIBUICOES LE...",
+     "edicao": "2634",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-04-03",
+     "tipo": "exoneracao",
+     "trecho": "...PELA LEI COMPLEMENTAR NO 11 91 PORTARIA NUMERO 38009 EXONERA A PEDIDO MARCELO JOSE DE MACEDO DO CARGO EM COMISSAO DE PRESIDENTE DO DEPARTAMENTO DE AGUA E ESGOTO DE MARILIA ...",
+     "edicao": "2658",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:VANDERLEI DOLCE": {
+  "fornecedor": {
+   "total": 4430.8,
+   "entidadeId": "07516448893",
+   "nEmpenhos": 1,
+   "nContratos": 0
+  },
+  "dom": {
+   "n": 5,
+   "exemplos": [
+    {
+     "data": "2017-01-07",
+     "tipo": "nomeacao",
+     "trecho": "...11 DE 17 DE DEZEMBRO DE 1991 NOMEIA A PARTIR DE 01 DE JANEIRO DE 2017 VANDERLEI DOLCE PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR ESPECIAL DE ASSUNTOS ESTRATEG...",
+     "edicao": "1858",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-09-12",
+     "tipo": "designacao",
+     "trecho": "...AUDE A PARTIR DE 25 DE SETEMBRO DE 2020 PORTARIA NUMERO 38581 DESIGNA VANDERLEI DOLCE PRESIDENTE DA FUNDACAO MARILIENSE DE RECUPERACAO SOCIAL FUMARES COMO GESTOR DO ...",
+     "edicao": "2773",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-05-19",
+     "tipo": "nomeacao",
+     "trecho": "...O DE 2021 PORTARIA NUMERO 41000 NOMEIA A PARTIR DE 18 DE MAIO DE 2022 VANDERLEI DOLCE PARA O EXERCICIO DO CARGO EM COMISSAO DE SECRETARIO MUNICIPAL DE LIMPEZA PUBLIC...",
+     "edicao": "3200",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-10-08",
+     "tipo": "designacao",
+     "trecho": "...LEGAL PORTARIA NUMERO 41733 DESIGNA A PARTIR DE 10 DE OUTUBRO DE 2022 VANDERLEI DOLCE SECRETARIO MUNICIPAL DE LIMPEZA PUBLICA E SERVICOS PARA RESPONDER PELO EXPEDIEN...",
+     "edicao": "3300",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-04-04",
+     "tipo": "exoneracao",
+     "trecho": "...NICIPAL DE PLANEJAMENTO URBANO PORTARIA NUMERO 44003 EXONERA A PEDIDO VANDERLEI DOLCE DO CARGO EM COMISSAO DE SECRETARIO MUNICIPAL DE LIMPEZA PUBLICA E SERVICOS A PA...",
+     "edicao": "3667",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:OTAVIANO SEVERINO LEITE": {
+  "fornecedor": {
+   "total": 333.3,
+   "entidadeId": "07660699822",
+   "nEmpenhos": 5,
+   "nContratos": 0
+  },
+  "servidor": {
+   "orgaos": [
+    "FUNDO MUNICIPAL DE SAÚDE"
+   ],
+   "cargo": null,
+   "vinculo": "beneficiario-diaria-passagem",
+   "fontes": [
+    "diaria"
+   ],
+   "nMovimentos": 2,
+   "valorDiariasPassagens": 133.32
+  },
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2021-09-11",
+     "tipo": "designacao",
+     "trecho": "...POSTERIORMENTE DESIGNA A PARTIR DE 10 DE SETEMBRO DE 2 021 O SERVIDOR OTAVIANO SEVERINO LEITE PARA O DESEMPENHO DA FUNCAO DE CONFIANCA DE SUPERVISOR DE REDES DE ESGOTO PORTA...",
+     "edicao": "3029",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-05-29",
+     "tipo": "designacao",
+     "trecho": "...ERIORMENTE DESIGNA A PARTIR DE 29 DE MAIO DE 2025 O SERVIDOR 181633 1 OTAVIANO SEVERINO LEITE MOTORISTA PARA O DESEMPENHO DA FUNCAO DE COORDENADOR DE SERVICOS DA CENTRAL DE ...",
+     "edicao": "3952",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:NELSON ALEIXO CORREA": {
+  "fornecedor": {
+   "total": 2293.36,
+   "entidadeId": "08927141822",
+   "nEmpenhos": 1,
+   "nContratos": 0
+  },
+  "servidor": {
+   "orgaos": [
+    "SECRETARIA MUNICIPAL DA ADMINISTRAÇÃO"
+   ],
+   "cargo": null,
+   "vinculo": "beneficiario-diaria-passagem",
+   "fontes": [
+    "diaria",
+    "passagem"
+   ],
+   "nMovimentos": 3,
+   "valorDiariasPassagens": 1820.0
+  },
+  "dom": {
+   "n": 4,
+   "exemplos": [
+    {
+     "data": "2020-08-01",
+     "tipo": "nomeacao",
+     "trecho": "...CIMENTO A PARTIR DE 03 DE AGOSTO DE 2020 PORTARIA NUMERO 38442 NOMEIA NELSON ALEIXO CORREA PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO SIM...",
+     "edicao": "2743",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-07-06",
+     "tipo": "nomeacao",
+     "trecho": "...AMBIENTE A PARTIR DE 06 DE JULHO DE 2024 PORTARIA NUMERO 44647 NOMEIA NELSON ALEIXO CORREA PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO SIM...",
+     "edicao": "3733",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-12-28",
+     "tipo": "exoneracao",
+     "trecho": "...CRETARIA MUNICIPAL DA EDUCACAO PORTARIA NUMERO 45586 EXONERA A PEDIDO NELSON ALEIXO CORREA DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO DA SECRETARIA MUNICI...",
+     "edicao": "3850",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-01-21",
+     "tipo": "nomeacao",
+     "trecho": "...PUT DO ARTIGO 66 DO REFERIDO TEXTO LEGAL PORTARIA NUMERO 45885 NOMEIA NELSON ALEIXO CORREA PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO SIM...",
+     "edicao": "3866",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:VALTER EDUARDO DE ARAUJO": {
+  "fornecedor": {
+   "total": 16336.0,
+   "entidadeId": "09616214861",
+   "nEmpenhos": 140,
+   "nContratos": 0
+  },
+  "servidor": {
+   "orgaos": [
+    "FUNDO MUNICIPAL DE SAÚDE"
+   ],
+   "cargo": null,
+   "vinculo": "beneficiario-diaria-passagem",
+   "fontes": [
+    "diaria",
+    "passagem"
+   ],
+   "nMovimentos": 167,
+   "valorDiariasPassagens": 20389.66
+  }
+ },
+ "n:FABIANA LEHNHARDT": {
+  "fornecedor": {
+   "total": 12031.2,
+   "entidadeId": "09989475806",
+   "nEmpenhos": 8,
+   "nContratos": 0
+  },
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2021-03-27",
+     "tipo": "sancao",
+     "trecho": "...DO ART 27 DA LCM NO 680 13 E APLICA A PENA DE ADVERTENCIA A SERVIDORA FABIANA LEHNHARDT MATRICULA NO 28614 PORTARIA NUMERO 39289 APOSENTA A SERVIDORA FABIANA LEHNHARDT...",
+     "edicao": "2912",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:VALERIA CAVECCI": {
+  "fornecedor": {
+   "total": 7883.32,
+   "entidadeId": "15484655854",
+   "nEmpenhos": 23,
+   "nContratos": 0
+  },
+  "servidor": {
+   "orgaos": [
+    "GESTÃO ADMINISTRATIVA E RECURSOS HUMANOS",
+    "SECRETARIA MUNICIPAL DA ADMINISTRAÇÃO"
+   ],
+   "cargo": null,
+   "vinculo": "beneficiario-diaria-passagem",
+   "fontes": [
+    "diaria"
+   ],
+   "nMovimentos": 31,
+   "valorDiariasPassagens": 14193.32
+  },
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2025-01-02",
+     "tipo": "nomeacao",
+     "trecho": "...11 DE 17 DE DEZEMBRO DE 1991 NOMEIA A PARTIR DE 1O DE JANEIRO DE 2025 VALERIA CAVECCI PARA O EXERCICIO DO CARGO EM COMISSAO DE SECRETARIA MUNICIPAL DE ESPORTES LAZER...",
+     "edicao": "3853",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-03-18",
+     "tipo": "designacao",
+     "trecho": "...A BRIGADA DE INCENDIO DO PROCON MARILIA PORTARIA NUMERO 46536 DESIGNA VALERIA CAVECCI SECRETARIA MUNICIPAL DE ESPORTES LAZER E JUVENTUDE PARA EXERCER A FUNCAO DE GES...",
+     "edicao": "3905",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:EVANDRO CESAR PELOSO": {
+  "fornecedor": {
+   "total": 1973.34,
+   "entidadeId": "17517742876",
+   "nEmpenhos": 6,
+   "nContratos": 0
+  },
+  "servidor": {
+   "orgaos": [
+    "SECRETARIA MUNICIPAL DA ADMINISTRAÇÃO"
+   ],
+   "cargo": null,
+   "vinculo": "beneficiario-diaria-passagem",
+   "fontes": [
+    "diaria",
+    "passagem"
+   ],
+   "nMovimentos": 2,
+   "valorDiariasPassagens": 686.67
+  },
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2025-01-21",
+     "tipo": "nomeacao",
+     "trecho": "...PUT DO ARTIGO 66 DO REFERIDO TEXTO LEGAL PORTARIA NUMERO 45884 NOMEIA EVANDRO CESAR PELOSO PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO SIM...",
+     "edicao": "3866",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:LUIS SERGIO DOS SANTOS": {
+  "fornecedor": {
+   "total": 4000.0,
+   "entidadeId": "21500345814",
+   "nEmpenhos": 4,
+   "nContratos": 0
+  },
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2024-03-02",
+     "tipo": "rescisao",
+     "trecho": "...SAO AMIGAVEL PRESTACAO DE SERVICOS DE SERVENTE DE PEDREIRO CONTRATADO LUIS SERGIO DOS SANTOS 52684169 MEI ASSIN 16 02 24 CT 031 24 DL 027 24 OBJETO PRESTACAO DE SERVICOS DE...",
+     "edicao": "3644",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:MICHELE CRISTIANE ALVES RAMALHO": {
+  "fornecedor": {
+   "total": 8809.99,
+   "entidadeId": "21656687860",
+   "nEmpenhos": 13,
+   "nContratos": 0
+  },
+  "servidor": {
+   "orgaos": [
+    "GESTÃO ADMINISTRATIVA E RECURSOS HUMANOS",
+    "SECRETARIA MUNICIPAL DA ADMINISTRAÇÃO"
+   ],
+   "cargo": null,
+   "vinculo": "beneficiario-diaria-passagem",
+   "fontes": [
+    "diaria"
+   ],
+   "nMovimentos": 6,
+   "valorDiariasPassagens": 3523.33
+  },
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2025-04-16",
+     "tipo": "nomeacao",
+     "trecho": "...PUT DO ARTIGO 66 DO REFERIDO TEXTO LEGAL PORTARIA NUMERO 46733 NOMEIA MICHELE CRISTIANE ALVES RAMALHO PARA O EXERCICIO DO CARGO EM COMISSAO DE SUPERINTENDENTE DE GESTAO DA CAUSA ANI...",
+     "edicao": "3925",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:IVAN BERTONCINI": {
+  "fornecedor": {
+   "total": 1066.66,
+   "entidadeId": "21773913859",
+   "nEmpenhos": 2,
+   "nContratos": 0
+  },
+  "servidor": {
+   "orgaos": [
+    "GESTÃO ADMINISTRATIVA E RECURSOS HUMANOS"
+   ],
+   "cargo": null,
+   "vinculo": "beneficiario-diaria-passagem",
+   "fontes": [
+    "diaria"
+   ],
+   "nMovimentos": 2,
+   "valorDiariasPassagens": 1066.66
+  },
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2026-02-19",
+     "tipo": "nomeacao",
+     "trecho": "...ARIA NO 46281 DE 14 DE FEVEREIRO DE 2025 PORTARIA NUMERO 48568 NOMEIA IVAN BERTONCINI PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR GOVERNAMENTAL SIMBOLO CC 4 DA...",
+     "edicao": "4133",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2026-02-20",
+     "tipo": "nomeacao",
+     "trecho": "... INCISO II DA LEI COMPLEMENTAR NO 11 DE 17 DE DEZEMBRO DE 1991 NOMEIA IVAN BERTONCINI PARA O EXERCICIO DO CARGO EM COMISSAO DE SUPERINTENDENTE DE GESTAO SIMBOLO CC 3...",
+     "edicao": "4135",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:THAISY GARCIA BRITO": {
+  "fornecedor": {
+   "total": 3000.0,
+   "entidadeId": "21858576814",
+   "nEmpenhos": 3,
+   "nContratos": 0
+  }
+ },
+ "n:ANDRE GOMES PEREIRA": {
+  "fornecedor": {
+   "total": 8861.6,
+   "entidadeId": "22489051814",
+   "nEmpenhos": 2,
+   "nContratos": 0
+  },
+  "dom": {
+   "n": 4,
+   "exemplos": [
+    {
+     "data": "2020-07-18",
+     "tipo": "nomeacao",
+     "trecho": "...DELIBERATIVO DO FUNDO MUNICIPAL DE APOIO A CULTURA ABAIXO CONSTITUIDO ANDRE GOMES PEREIRA SECRETARIO MUNICIPAL DA CULTURA PAULO LUCIO DOS SANTOS REPRESENTANTE DA SECRETA...",
+     "edicao": "2733",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-04-03",
+     "tipo": "exoneracao",
+     "trecho": "... DA SILVA BIBLIOTECA MUNICIPAL PORTARIA NUMERO 43998 EXONERA A PEDIDO ANDRE GOMES PEREIRA DO CARGO EM COMISSAO DE SECRETARIO MUNICIPAL DA CULTURA A PARTIR DE 03 DE ABRIL...",
+     "edicao": "3666",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-10-08",
+     "tipo": "nomeacao",
+     "trecho": "...RMENTE PORTARIA NUMERO 45076 NOMEIA A PARTIR DE 09 DE OUTUBRO DE 2024 ANDRE GOMES PEREIRA PARA O EXERCICIO DO CARGO EM COMISSAO DE SECRETARIO MUNICIPAL DA CULTURA CONSTA...",
+     "edicao": "3797",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-12-31",
+     "tipo": "exoneracao",
+     "trecho": "...OCIAL PORTARIA NUMERO 45600 EXONERA A PARTIR DE 1O DE JANEIRO DE 2025 ANDRE GOMES PEREIRA DO CARGO EM COMISSAO DE SECRETARIO MUNICIPAL DA CULTURA PORTARIA NUMERO 45601 E...",
+     "edicao": "3852",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:ANDRE LUIZ PASQUAL": {
+  "fornecedor": {
+   "total": 6139.99,
+   "entidadeId": "25539120809",
+   "nEmpenhos": 68,
+   "nContratos": 0
+  },
+  "servidor": {
+   "orgaos": [
+    "FUNDO MUNICIPAL DE SAÚDE"
+   ],
+   "cargo": null,
+   "vinculo": "beneficiario-diaria-passagem",
+   "fontes": [
+    "diaria",
+    "passagem"
+   ],
+   "nMovimentos": 125,
+   "valorDiariasPassagens": 11956.66
+  },
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2020-08-15",
+     "tipo": "nomeacao",
+     "trecho": "...RIODO DE 15 DE AGOSTO A 15 DE NOVEMBRO DE 2020 A NOMEACAO DO SERVIDOR ANDRE LUIZ PASQUAL MOTORISTA SOCORRISTA LOTADO NA SECRETARIA MUNICIPAL DA SAUDE COMO TITULAR ELEIT...",
+     "edicao": "2753",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:MARCOS LEONIL VERONEZ": {
+  "fornecedor": {
+   "total": 266.66,
+   "entidadeId": "25969349810",
+   "nEmpenhos": 2,
+   "nContratos": 0
+  },
+  "servidor": {
+   "orgaos": [
+    "FUNDO MUNICIPAL DE SAÚDE"
+   ],
+   "cargo": null,
+   "vinculo": "beneficiario-diaria-passagem",
+   "fontes": [
+    "diaria",
+    "passagem"
+   ],
+   "nMovimentos": 2,
+   "valorDiariasPassagens": 266.66
+  },
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2014-07-16",
+     "tipo": "nomeacao",
+     "trecho": "... INCISO II DA LEI COMPLEMENTAR NO 11 DE 17 DE DEZEMBRO DE 1991 NOMEIA MARCOS LEONIL VERONEZ PARA O EXERCICIO DO CARGO EM COMISSAO DE COORDENADOR DA ADMINISTRACAO SIMBOLO C...",
+     "edicao": "1251",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-06-03",
+     "tipo": "nomeacao",
+     "trecho": "...OM O CAPUT DO ARTIGO 66 DO REFERIDO TEXTO LEGAL PORTARIA 47098 NOMEIA MARCOS LEONIL VERONEZ PARA O EXERCICIO DO CARGO EM COMISSAO DE CHEFE DE GABINETE DE SECRETARIA SIMBOL...",
+     "edicao": "3955",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:PAULO ROBERTO SAKATAUSKAS": {
+  "fornecedor": {
+   "total": 11560.0,
+   "entidadeId": "26265459880",
+   "nEmpenhos": 5,
+   "nContratos": 0
+  },
+  "servidor": {
+   "orgaos": [
+    "CORPO ADMINISTRATIVO",
+    "CORPO LEGISLATIVO"
+   ],
+   "cargo": null,
+   "vinculo": "beneficiario-diaria-passagem",
+   "fontes": [
+    "diaria"
+   ],
+   "nMovimentos": 6,
+   "valorDiariasPassagens": 15640.0
+  },
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2025-12-24",
+     "tipo": "nomeacao",
+     "trecho": "...MARCO DE 2013 ATO NUMERO 190 NOMEIA A PARTIR DE 1O DE JANEIRO DE 2026 PAULO ROBERTO SAKATAUSKAS RG 23 272 136 1 SSP SP PARA EXERCER EM COMISSAO O CARGO DE ASSESSOR DE GABINETE...",
+     "edicao": "4099",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:ROGERIO ALEXANDRE DA GRACA": {
+  "fornecedor": {
+   "total": 22070.0,
+   "entidadeId": "28468703818",
+   "nEmpenhos": 15,
+   "nContratos": 0
+  },
+  "servidor": {
+   "orgaos": [
+    "GESTÃO ADMINISTRATIVA E RECURSOS HUMANOS",
+    "SECRETARIA MUNICIPAL DA ADMINISTRAÇÃO"
+   ],
+   "cargo": null,
+   "vinculo": "beneficiario-diaria-passagem",
+   "fontes": [
+    "diaria"
+   ],
+   "nMovimentos": 13,
+   "valorDiariasPassagens": 18380.0
+  },
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2021-09-09",
+     "tipo": "nomeacao",
+     "trecho": "... DAEM PORTARIA NUMERO 39881 NOMEIA A PARTIR DE 09 DE SETEMBRO DE 2021 ROGERIO ALEXANDRE DA GRACA PARA O EXERCICIO DO CARGO EM COMISSAO DE PRESIDENTE DO DEPARTAMENTO DE AGUA E E...",
+     "edicao": "3027",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2023-03-22",
+     "tipo": "convocacao",
+     "trecho": "...ESTADOS A MARILIA EDITAL DE CONVOCACAO DE AUDIENCIA PUBLICA NO 6 2023 ROGERIO ALEXANDRE DA GRACA 1O VICE PRESIDENTE DA CAMARA MUNICIPAL DE MARILIA ESTADO DE SAO PAULO USANDO DE...",
+     "edicao": "3412",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:VINICIUS ALMEIDA CAMARINHA": {
+  "fornecedor": {
+   "total": 20740.01,
+   "entidadeId": "28536777885",
+   "nEmpenhos": 20,
+   "nContratos": 0
+  },
+  "servidor": {
+   "orgaos": [
+    "GESTÃO ADMINISTRATIVA E RECURSOS HUMANOS",
+    "SECRETARIA MUNICIPAL DA ADMINISTRAÇÃO"
+   ],
+   "cargo": null,
+   "vinculo": "beneficiario-diaria-passagem",
+   "fontes": [
+    "diaria"
+   ],
+   "nMovimentos": 23,
+   "valorDiariasPassagens": 23120.0
+  },
+  "dom": {
+   "n": 5,
+   "exemplos": [
+    {
+     "data": "2025-04-24",
+     "tipo": "gratificacao",
+     "trecho": "... MUNICIPIO ESTABELECENDO QUE A GRATIFICACAO TEM CARATER INDENIZATORIO VINICIUS ALMEIDA CAMARINHA PREFEITO MUNICIPAL DE MARILIA USANDO DE ATRIBUICOES LEGAIS FAZ SABER QUE A CAMA...",
+     "edicao": "3929",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-08-23",
+     "tipo": "cessao",
+     "trecho": "...E ESGOTO DE MARILIA S A POR MEIO DO CONTRATO DE CONCESSAO CST 1720 24 VINICIUS ALMEIDA CAMARINHA PREFEITO DO MUNICIPIO DE MARILIA NO USO DE SUAS ATRIBUICOES LEGAIS E CONSIDERAN...",
+     "edicao": "4011",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-10-15",
+     "tipo": "designacao",
+     "trecho": "...E PERIODOS DE FUNCIONAMENTO DAS FEIRAS LIVRES NO MUNICIPIO DE MARILIA VINICIUS ALMEIDA CAMARINHA PREFEITO MUNICIPAL DE MARILIA USANDO DE ATRIBUICOES LEGAIS TENDO EM VISTA O QUE...",
+     "edicao": "4049",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-10-22",
+     "tipo": "cessao",
+     "trecho": "...ESSAO DE FERIAS PREFEITURA MUNICIPAL DE MARILIA 21 DE OUTUBRO DE 2025 VINICIUS ALMEIDA CAMARINHA PREFEITO MUNICIPAL CESAR HENRIQUE DA CUNHA FIALA SECRETARIO MUNICIPAL DA ADMINI...",
+     "edicao": "4055",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-12-16",
+     "tipo": "cessao",
+     "trecho": "...SSAO DE FERIAS PREFEITURA MUNICIPAL DE MARILIA 15 DE DEZEMBRO DE 2025 VINICIUS ALMEIDA CAMARINHA PREFEITO MUNICIPAL CESAR HENRIQUE DA CUNHA FIALA SECRETARIO MUNICIPAL DA ADMINI...",
+     "edicao": "4093",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:RAFAEL DURVAL TAKAMITSU": {
+  "fornecedor": {
+   "total": 1440.0,
+   "entidadeId": "31051507812",
+   "nEmpenhos": 2,
+   "nContratos": 0
+  },
+  "servidor": {
+   "orgaos": [
+    "SECRETARIA MUNICIPAL DA ADMINISTRAÇÃO"
+   ],
+   "cargo": null,
+   "vinculo": "beneficiario-diaria-passagem",
+   "fontes": [
+    "diaria"
+   ],
+   "nMovimentos": 2,
+   "valorDiariasPassagens": 1440.0
+  },
+  "dom": {
+   "n": 3,
+   "exemplos": [
+    {
+     "data": "2013-01-04",
+     "tipo": "nomeacao",
+     "trecho": "...PORTARIA NUMERO 27914 NOMEIA RAFAEL DURVAL TAKAMITSU PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR JURIDICO DA PROCURADORIA GERA...",
+     "edicao": "881",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-10-19",
+     "tipo": "nomeacao",
+     "trecho": "...E DE TRANSICAO ABAIXO CONSTITUIDA I REPRESENTANTES DO PREFEITO ELEITO RAFAEL DURVAL TAKAMITSU COORDENADOR RODRIGO VASQUES PAGANINI ROGERIO ALEXANDRE DA GRACA PALOMA APARECID...",
+     "edicao": "3806",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-01-02",
+     "tipo": "nomeacao",
+     "trecho": "...PORTARIA NUMERO 45611 NOMEIA A PARTIR DE 1O DE JANEIRO DE 2025 RAFAEL DURVAL TAKAMITSU PARA O EXERCICIO DO CARGO EM COMISSAO DE CHEFE DE GABINETE SIMBOLO C 1 DEVENDO ...",
+     "edicao": "3853",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:JOSIANE GOMES PELEGRIN DIAS": {
+  "fornecedor": {
+   "total": 1164.97,
+   "entidadeId": "31069448893",
+   "nEmpenhos": 4,
+   "nContratos": 0
+  }
+ },
+ "n:JONATHAN OSVALDO NATALICIO": {
+  "fornecedor": {
+   "total": 60000.0,
+   "entidadeId": "32235857884",
+   "nEmpenhos": 2,
+   "nContratos": 0
+  }
+ },
+ "n:GUSTAVO CESAR PEREIRA": {
+  "fornecedor": {
+   "total": 11750.01,
+   "entidadeId": "35377869800",
+   "nEmpenhos": 5,
+   "nContratos": 0
+  },
+  "servidor": {
+   "orgaos": [
+    "CORPO ADMINISTRATIVO"
+   ],
+   "cargo": null,
+   "vinculo": "beneficiario-diaria-passagem",
+   "fontes": [
+    "diaria",
+    "passagem"
+   ],
+   "nMovimentos": 9,
+   "valorDiariasPassagens": 22366.68
+  },
+  "dom": {
+   "n": 4,
+   "exemplos": [
+    {
+     "data": "2021-11-13",
+     "tipo": "nomeacao",
+     "trecho": "... USANDO DE SUAS ATRIBUICOES NOMEIA A PARTIR DE 12 DE NOVEMBRO DE 2021 GUSTAVO CESAR PEREIRA RG 41 099 907 6 SSP SP PARA EXERCER EM COMISSAO O CARGO DE ASSESSOR DE IMPRENSA...",
+     "edicao": "3072",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2023-02-18",
+     "tipo": "nomeacao",
+     "trecho": "...TARIA NO 38880 DE 18 DE DEZEMBRO DE 2020 PORTARIA NUMERO 42252 NOMEIA GUSTAVO CESAR PEREIRA PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO SIM...",
+     "edicao": "3392",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-01-23",
+     "tipo": "exoneracao",
+     "trecho": "...IGO 66 DO REFERIDO TEXTO LEGAL PORTARIA NUMERO 43520 EXONERA A PEDIDO GUSTAVO CESAR PEREIRA DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO DA SECRETARIA MUNICI...",
+     "edicao": "3615",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-01-04",
+     "tipo": "nomeacao",
+     "trecho": "...O 42 DE 3 DE JANEIRO DE 2025 NOMEIA A PARTIR DE 1O DE JANEIRO DE 2025 GUSTAVO CESAR PEREIRA RG 41 099 907 6 SSP SP PARA EXERCER EM COMISSAO O CARGO DE DIRETOR DE COMUNICAC...",
+     "edicao": "3854",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:RAFAEL MARTINS JORDAO": {
+  "fornecedor": {
+   "total": 19372.58,
+   "entidadeId": "39475545832",
+   "nEmpenhos": 2,
+   "nContratos": 0
+  }
+ },
+ "n:LUIS ANDRE LISQUE NORO DE FREITAS": {
+  "fornecedor": {
+   "total": 9828.04,
+   "entidadeId": "40742271854",
+   "nEmpenhos": 1,
+   "nContratos": 0
+  }
+ },
+ "n:LUIZ CARLOS MARINELLI BERNARDONI": {
+  "fornecedor": {
+   "total": 428.88,
+   "entidadeId": "82615934872",
+   "nEmpenhos": 1,
+   "nContratos": 0
+  },
+  "dom": {
+   "n": 5,
+   "exemplos": [
+    {
+     "data": "2020-08-15",
+     "tipo": "exoneracao",
+     "trecho": "...PARTIR DE 15 DE AGOSTO DE 2020 PORTARIA NUMERO 38488 EXONERA A PEDIDO LUIZ CARLOS MARINELLI BERNARDONI DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO DA SECRETARIA MUNICI...",
+     "edicao": "2753",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-08-23",
+     "tipo": "nomeacao",
+     "trecho": "...SCOLA MUNICIPAL E DA OUTRAS PROVIDENCIAS PORTARIA NUMERO 41528 NOMEIA LUIZ CARLOS MARINELLI BERNARDONI PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE SIMBOLO C 2 DEVEN...",
+     "edicao": "3266",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-11-30",
+     "tipo": "exoneracao",
+     "trecho": "...RTIR DE 02 DE DEZEMBRO DE 2024 PORTARIA NUMERO 45382 EXONERA A PEDIDO LUIZ CARLOS MARINELLI BERNARDONI DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE A PARTIR DE 17 DE DEZEMBRO DE 2024...",
+     "edicao": "3833",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-01-09",
+     "tipo": "nomeacao",
+     "trecho": "...PUT DO ARTIGO 66 DO REFERIDO TEXTO LEGAL PORTARIA NUMERO 45698 NOMEIA LUIZ CARLOS MARINELLI BERNARDONI PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO SIM...",
+     "edicao": "3858",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-01-16",
+     "tipo": "exoneracao",
+     "trecho": "...OMICO PORTARIA NUMERO 45814 EXONERA A PARTIR DE 16 DE JANEIRO DE 2024 LUIZ CARLOS MARINELLI BERNARDONI DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO DA SECRETARIA MUNICI...",
+     "edicao": "3863",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:ANDREA COIMBRA MOLINA": {
+  "fornecedor": {
+   "total": 686.58,
+   "entidadeId": "87239388620",
+   "nEmpenhos": 2,
+   "nContratos": 0
+  },
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2025-04-09",
+     "tipo": "exoneracao",
+     "trecho": "... 680 2013 PORTARIA NUMERO 46682 EXONERA A PEDIDO A SERVIDORA 174017 1 ANDREA COIMBRA MOLINA RG NO 257932872 CPF NO 872 393 886 20 DO CARGO DE AUXILIAR DE DESENVOLVIMENTO E...",
+     "edicao": "3920",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:ADRIANO MICHELETI": {
+  "servidor": {
+   "orgaos": [
+    "DESENVOLVIMENTO SOCIAL"
+   ],
+   "cargo": null,
+   "vinculo": "beneficiario-diaria-passagem",
+   "fontes": [
+    "diaria",
+    "passagem"
+   ],
+   "nMovimentos": 3,
+   "valorDiariasPassagens": 266.67
+  },
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2025-01-21",
+     "tipo": "nomeacao",
+     "trecho": "...PUT DO ARTIGO 66 DO REFERIDO TEXTO LEGAL PORTARIA NUMERO 45906 NOMEIA ADRIANO MICHELETI PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DE DIREITOS HUMANOS SIMBOLO C...",
+     "edicao": "3866",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:RODRIGO DE OLIVEIRA": {
+  "servidor": {
+   "orgaos": [
+    "DESENVOLVIMENTO SOCIAL"
+   ],
+   "cargo": null,
+   "vinculo": "beneficiario-diaria-passagem",
+   "fontes": [
+    "diaria"
+   ],
+   "nMovimentos": 1,
+   "valorDiariasPassagens": 33.33
+  },
+  "dom": {
+   "n": 3,
+   "exemplos": [
+    {
+     "data": "2024-11-09",
+     "tipo": "exoneracao",
+     "trecho": "...S BOLDRIN DE SIQUEIRA PORTARIA NUMERO 45225 EXONERA A PEDIDO DJEISSON RODRIGO DE OLIVEIRA DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE A PARTIR DE 11 DE NOVEMBRO DE 2024...",
+     "edicao": "3820",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-04-16",
+     "tipo": "nomeacao",
+     "trecho": "...PUT DO ARTIGO 66 DO REFERIDO TEXTO LEGAL PORTARIA NUMERO 46732 NOMEIA RODRIGO DE OLIVEIRA PARA O EXERCICIO DO CARGO EM COMISSAO DE SUPERINTENDENTE DE GESTAO SIMBOLO CC 3...",
+     "edicao": "3925",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-09-25",
+     "tipo": "nomeacao",
+     "trecho": "...ARTIR DE 24 DE SETEMBRO DE 2025 PORTARIA NUMERO 47725 NOMEIA DJEISSON RODRIGO DE OLIVEIRA PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR GOVERNAMENTAL SIMBOLO CC 4 DO...",
+     "edicao": "4035",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:RODRIGO SILVA AVELAR": {
+  "servidor": {
+   "orgaos": [
+    "GESTÃO ADMINISTRATIVA E RECURSOS HUMANOS"
+   ],
+   "cargo": null,
+   "vinculo": "beneficiario-diaria-passagem",
+   "fontes": [
+    "diaria"
+   ],
+   "nMovimentos": 2,
+   "valorDiariasPassagens": 66.66
+  },
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2023-12-30",
+     "tipo": "designacao",
+     "trecho": "... 12 2023 TITULAR DESIGNADO GUILHERME DE LIMA LOPES SUPLENTE DESIGNADO RODRIGO SILVA AVELAR PORTARIA NUMERO 43436 COLOCA A SERVIDORA 93386 1 ERADIA FERREIRA GONCALVES ASSI...",
+     "edicao": "3601",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:LUIZ EDUARDO NARDI": {
+  "dom": {
+   "n": 4,
+   "exemplos": [
+    {
+     "data": "2010-07-06",
+     "tipo": "designacao",
+     "trecho": "...DO ORCAMENTO VIGENTE PORTARIA NUMERO 23689 DESIGNA O ENGENHEIRO CIVIL LUIZ EDUARDO NARDI PARA INTEGRAR A EQUIPE TECNICA QUE REPRESENTARA A PREFEITURA MUNICIPAL DE MARIL...",
+     "edicao": "271",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2021-12-11",
+     "tipo": "convocacao",
+     "trecho": "...VOCA DE ACORDO COM O REQUERIMENTO NO 2420 2021 DE AUTORIA DO VEREADOR LUIZ EDUARDO NARDI PODEMOS APROVADO NA SESSAO ORDINARIA DO DIA 6 12 2021 TERCEIRA SESSAO SECRETA A...",
+     "edicao": "3093",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-09-27",
+     "tipo": "convocacao",
+     "trecho": "...VOCA DE ACORDO COM O REQUERIMENTO NO 2054 2025 DE AUTORIA DO VEREADOR LUIZ EDUARDO NARDI APROVADO NA SESSAO ORDINARIA DO DIA 22 09 2025 SESSAO SECRETA APOS O TERMINO DA...",
+     "edicao": "4037",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2026-04-03",
+     "tipo": "convocacao",
+     "trecho": "...NVOCA DE ACORDO COM O REQUERIMENTO NO 506 2026 DE AUTORIA DO VEREADOR LUIZ EDUARDO NARDI APROVADO NA SESSAO ORDINARIA DO DIA 30 03 2026 SESSAO SECRETA APOS O TERMINO DA...",
+     "edicao": "4166",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:ANTONIO CARLOS GUILHERME DE SOUZA VIEIRA": {
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2010-09-02",
+     "tipo": "exoneracao",
+     "trecho": "...PORTARIA NUMERO 23935 EXONERA A PARTIR DE 1O DE SETEMBRO DE 2010 ANTONIO CARLOS GUILHERME DE SOUZA VIEIRA DO CARGO EM COMISSAO DE DIRETOR EXECUTIVO SIMBOLO C 1 DO DEPARTAMENTO DE AGUA E...",
+     "edicao": "312",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-01-04",
+     "tipo": "nomeacao",
+     "trecho": "...PUT DO ARTIGO 66 DO REFERIDO TEXTO LEGAL PORTARIA NUMERO 45649 NOMEIA ANTONIO CARLOS GUILHERME DE SOUZA VIEIRA PARA O EXERCICIO DO CARGO EM COMISSAO DE SECRETARIO ADJUNTO DE ESPORTES LAZER E...",
+     "edicao": "3854",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:LAERTE OTAVIO ROJO ROSSETO": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2011-01-13",
+     "tipo": "nomeacao",
+     "trecho": "... SECRETARIA MUNICIPAL DE PLANEJAMENTO URBANO PORTARIA NO 24274 NOMEIA LAERTE OTAVIO ROJO ROSSETO PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR ESPECIAL DA SECRETARIA MUNICI...",
+     "edicao": "398",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:ADEIR RIBEIRO ALVES": {
+  "dom": {
+   "n": 3,
+   "exemplos": [
+    {
+     "data": "2011-01-22",
+     "tipo": "designacao",
+     "trecho": "...RTARIA NO 24310 DESIGNA A PARTIR DE 24 DE JANEIRO DE 2011 A SERVIDORA ADEIR RIBEIRO ALVES JARDINEIRO REFERENCIA 6 D PARA O DESEMPENHO DA FUNCAO GRATIFICADA DE CHEFE DA D...",
+     "edicao": "405",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-12-02",
+     "tipo": "designacao",
+     "trecho": "...IA NUMERO 38815 DESIGNA A PARTIR DE 01 DE DEZEMBRO DE 2020 O SERVIDOR ADEIR RIBEIRO ALVES JARDINEIRO PARA O DESEMPENHO DA FUNCAO GRATIFICADA DE CHEFE DA DIVISAO DE ARBOR...",
+     "edicao": "2830",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-10-12",
+     "tipo": "designacao",
+     "trecho": "...RO 45113 DESIGNA A PARTIR DE 14 DE OUTUBRO DE 2024 O SERVIDOR 30589 1 ADEIR RIBEIRO ALVES AGENTE OPERACIONAL PARA O DESEMPENHO DA FUNCAO GRATIFICADA DE CHEFE DA DIVISAO ...",
+     "edicao": "3801",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:LUCIO COELHO DE ARAUJO": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2011-06-02",
+     "tipo": "nomeacao",
+     "trecho": "...FERIDO BAIRRO PORTARIA NO 24750 NOMEIA EM CARATER EFETIVO O CANDIDATO LUCIO COELHO DE ARAUJO PARA O EXERCICIO DO CARGO DE MOTOR...",
+     "edicao": "494",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:MAURO CELIO DA CRUZ": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2011-11-22",
+     "tipo": "gratificacao",
+     "trecho": "...DO JUS A UMA GRATIFICACAO MENSAL EQUIVALENTE AO VALOR DO SIMBOLO FG 2 MAURO CELIO DA CRUZ AGENTE MUNICIPAL DE VIGILANCIA PATRIMONIAL REFERENCIA 5 D A PARTIR DE 17 DE NOV...",
+     "edicao": "608",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:JOSE EXPEDITO CAROLINO": {
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2012-05-31",
+     "tipo": "exoneracao",
+     "trecho": "...PORTARIA NUMERO 26386 12 EXONERA A PEDIDO JOSE EXPEDITO CAROLINO DO CARGO EM COMISSAO DE COORDENADOR DE SERVICOS URBANOS SIMBOLO C 2 A PARTIR DE...",
+     "edicao": "738",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-10-15",
+     "tipo": "nomeacao",
+     "trecho": "... INCISO II DA LEI COMPLEMENTAR NO 11 DE 17 DE DEZEMBRO DE 1991 NOMEIA JOSE EXPEDITO CAROLINO PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR GOVERNAMENTAL SIMBOLO CC 4 DA...",
+     "edicao": "4049",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:ROGERIA DE FATIMA CARAZATO": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2012-06-14",
+     "tipo": "nomeacao",
+     "trecho": "...PORTARIA NUMERO 26508 12 NOMEIA EM CARATER EFETIVO A CANDIDATA ROGERIA DE FATIMA CARAZATO RG NO 22035478 CLASSIFICADA EM 91O LUGAR PARA O EXERCICIO DO CARGO DE ATENDENTE...",
+     "edicao": "746",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:AMAURI MARCELO BARBOZA": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2012-08-21",
+     "tipo": "exoneracao",
+     "trecho": "...RTIR DE 03 DE SETEMBRO DE 2012 PORTARIA NUMERO 27234 EXONERA A PEDIDO AMAURI MARCELO BARBOZA DO CARGO EM COMISSAO DE COORDENADOR DE ASSISTENCIA SOCIAL SIMBOLO C 2 A PARTIR ...",
+     "edicao": "792",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:VANIA RAMOS DOS SANTOS": {
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2013-08-24",
+     "tipo": "nomeacao",
+     "trecho": "...PORTARIA NUMERO 28676 NOMEIA VANIA RAMOS DOS SANTOS PARA O EXERCICIO DO CARGO EM COMISSAO DE COORDENADORA DE SERVICOS DIVERSOS DA S...",
+     "edicao": "1037",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-03-24",
+     "tipo": "exoneracao",
+     "trecho": "...REITO AO CONTRADITORIO E A AMPLA DEFESA PORTARIA NUMERO 37953 EXONERA VANIA RAMOS DOS SANTOS DO CARGO EM COMISSAO DE ASSESSORA DA SAUDE A PARTIR DE 24 DE MARCO DE 2020 PORT...",
+     "edicao": "2648",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:DANILO AUGUSTO BIGESCHI": {
+  "dom": {
+   "n": 5,
+   "exemplos": [
+    {
+     "data": "2013-08-24",
+     "tipo": "nomeacao",
+     "trecho": "...ECRETARIA MUNICIPAL DA SAUDE SIMBOLO C 2 PORTARIA NUMERO 28677 NOMEIA DANILO AUGUSTO BIGESCHI PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR ESPECIAL DA SECRETARIA DA SAU...",
+     "edicao": "1037",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2023-10-12",
+     "tipo": "processo",
+     "trecho": "...E 2021 EM DECORRENCIA DO PROTOCOLO NO 20212 2021 E ABSOLVE O SERVIDOR DANILO AUGUSTO BIGESCHI SUPERVISOR DE SAUDE MATRICULA NO 59897 02 POR AUSENCIA DE PROVAS NOS AUTOS QUE ...",
+     "edicao": "3553",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-03-13",
+     "tipo": "convocacao",
+     "trecho": "...000 00 DATA INICIO 15 DE MARCO DE 2025 EDITAL DE CONVOCACAO NO 4 2025 DANILO AUGUSTO BIGESCHI PRESIDENTE DA CAMARA MUNICIPAL DE MARILIA ESTADO DE SAO PAULO USANDO DE SUAS AT...",
+     "edicao": "3902",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-05-10",
+     "tipo": "convocacao",
+     "trecho": "...UACAO DE RISCO DO MUNICIPIO DE MARILIA EDITAL DE CONVOCACAO NO 7 2025 DANILO AUGUSTO BIGESCHI PRESIDENTE DA CAMARA MUNICIPAL DE MARILIA ESTADO DE SAO PAULO USANDO DE SUAS AT...",
+     "edicao": "3939",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-05-14",
+     "tipo": "convocacao",
+     "trecho": "...W CAMAR SP GOV BR EDITAL DE CONVOCACAO DE AUDIENCIA PUBLICA NO 5 2025 DANILO AUGUSTO BIGESCHI PRESIDENTE DA CAMARA MUNICIPAL DE MARILIA ESTADO DE SAO PAULO USANDO DE SUAS AT...",
+     "edicao": "3941",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:BENEDITO DONIZETI ALVES": {
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2014-03-29",
+     "tipo": "exoneracao",
+     "trecho": "...PORTARIA NUMERO 29376 EXONERA A PEDIDO BENEDITO DONIZETI ALVES DO CARGO EM COMISSAO DE COORDENADOR DE ASSISTENCIA SOCIAL SIMBOLO C 2 A PARTIR ...",
+     "edicao": "1183",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-04-16",
+     "tipo": "nomeacao",
+     "trecho": "...TADA NA SECRETARIA MUNICIPAL DA EDUCACAO PORTARIA NUMERO 46730 NOMEIA BENEDITO DONIZETI ALVES PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR GOVERNAMENTAL SIMBOLO CC 4 DO...",
+     "edicao": "3925",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:JEFFERSON DA SILVA E SOUZA": {
+  "dom": {
+   "n": 3,
+   "exemplos": [
+    {
+     "data": "2014-04-03",
+     "tipo": "nomeacao",
+     "trecho": "...NSCRICOES PORTARIA NUMERO 29403 NOMEIA EM CARATER EFETIVO O CANDIDATO JEFFERSON DA SILVA E SOUZA RG NO 321866289 CLASSIFICADO EM 133O LUGAR PARA O EXERCICIO DO CARGO PROFESSOR ...",
+     "edicao": "1186",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2019-10-17",
+     "tipo": "designacao",
+     "trecho": "... DESIGNADA SUELI DA SILVA RODRIGUES SUPLENTE DESIGNADA TITULAR ELEITO JEFFERSON DA SILVA E SOUZA TITULAR ELEITO TITULAR ELEITA KARINA CRISTINA DOS SANTOS ALVES TITULAR ELEITA S...",
+     "edicao": "2538",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2019-10-24",
+     "tipo": "designacao",
+     "trecho": "... DESIGNADA SUELI DA SILVA RODRIGUES SUPLENTE DESIGNADA TITULAR ELEITO JEFFERSON DA SILVA E SOUZA TITULAR ELEITO TITULAR ELEITA FABIANA SILVEIRA TITULAR ELEITA TITULAR ELEITA KA...",
+     "edicao": "2543",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:JOSE BISPO BRAGA": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2015-09-29",
+     "tipo": "designacao",
+     "trecho": "...A LEI COMPLEMENTAR NO 11 DE 17 DE DEZEMBRO DE 1991 DESIGNA O SERVIDOR JOSE BISPO BRAGA AUXILIAR DE ESCRITA REFERENCIA 17 D PARA O DESEMPENHO DA FUNCAO GRATIFICADA DE ...",
+     "edicao": "1549",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:ALESSANDRA VIANA": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2016-10-06",
+     "tipo": "designacao",
+     "trecho": "... 17 DE DEZEMBRO DE 1991 MODIFICADA POSTERIORMENTE DESIGNA A SERVIDORA ALESSANDRA VIANA AUXILIAR DE SERVICOS GERAIS REFERENCIA 1 F PARA O DESEMPENHO DA FUNCAO DE SUPER...",
+     "edicao": "1799",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:EVANDRO DE OLIVEIRA GALETE": {
+  "dom": {
+   "n": 5,
+   "exemplos": [
+    {
+     "data": "2016-10-15",
+     "tipo": "nomeacao",
+     "trecho": "...11 DE 17 DE DEZEMBRO DE 1991 NOMEIA A PARTIR DE 17 DE OUTUBRO DE 2016 EVANDRO DE OLIVEIRA GALETE PARA O EXERCICIO DO CARGO EM COMISSAO DE COORDENADOR DA AGRICULTURA PECUARIA E ...",
+     "edicao": "1805",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-02-05",
+     "tipo": "convocacao",
+     "trecho": "...ESOLUCAO NO 327 DE 19 DE MARCO DE 2013 EDITAL DE CONVOCACAO NO 1 2022 EVANDRO DE OLIVEIRA GALETE 1O VICE PRESIDENTE DA CAMARA MUNICIPAL DE MARILIA ESTADO DE SAO PAULO USANDO DE...",
+     "edicao": "3133",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-02-15",
+     "tipo": "convocacao",
+     "trecho": "...PRESIDENTE CAMARA EDITAL DE CONVOCACAO DE AUDIENCIA PUBLICA NO 1 2022 EVANDRO DE OLIVEIRA GALETE 1O VICE PRESIDENTE DA CAMARA MUNICIPAL DE MARILIA ESTADO DE SAO PAULO USANDO DE...",
+     "edicao": "3139",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-02-26",
+     "tipo": "convocacao",
+     "trecho": "...O DE UM BANCO DE MATERIAIS ORTOPEDICOS EDITAL DE CONVOCACAO NO 2 2022 EVANDRO DE OLIVEIRA GALETE 1O VICE PRESIDENTE DA CAMARA MUNICIPAL DE MARILIA ESTADO DE SAO PAULO USANDO DE...",
+     "edicao": "3148",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-03-03",
+     "tipo": "convocacao",
+     "trecho": "...DRIMESTRE DE 2021 EDITAL DE CONVOCACAO DE AUDIENCIA PUBLICA NO 3 2022 EVANDRO DE OLIVEIRA GALETE 1O VICE PRESIDENTE DA CAMARA MUNICIPAL DE MARILIA ESTADO DE SAO PAULO USANDO DE...",
+     "edicao": "3149",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:DANIEL ALONSO": {
+  "dom": {
+   "n": 5,
+   "exemplos": [
+    {
+     "data": "2017-03-04",
+     "tipo": "cessao",
+     "trecho": "...ONCESSAO DE DIARIAS AO SERVIDOR QUE A SERVICO SE AFASTAR DO MUNICIPIO DANIEL ALONSO PREFEITO MUNICIPAL DE MARILIA USANDO DE ATRIBUICOES LEGAIS TENDO EM VISTA O CON...",
+     "edicao": "1895",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2017-03-11",
+     "tipo": "cessao",
+     "trecho": "...ONCESSAO DE DIARIAS AO SERVIDOR QUE A SERVICO SE AFASTAR DO MUNICIPIO DANIEL ALONSO PREFEITO MUNICIPAL DE MARILIA USANDO DE ATRIBUICOES LEGAIS D E C R E T A ART 1O...",
+     "edicao": "1900",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2019-10-15",
+     "tipo": "aposentadoria",
+     "trecho": "...OTOR APOSENTADO E EX PREFEITO OCORRIDO NA MADRUGADA DESTA TERCA FEIRA DANIEL ALONSO PREFEITO MUNICIPAL DE MARILIA USANDO DE ATRIBUICOES LEGAIS CONSIDERANDO QUE O P...",
+     "edicao": "2536",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-01-09",
+     "tipo": "cessao",
+     "trecho": "...RRENCIA DE SUA AUSENCIA POR CONCESSAO DE FERIAS PORTARIA NUMERO 37553 DANIEL ALONSO PREFEITO MUNICIPAL DE MARILIA USANDO DE ATRIBUICOES LEGAIS TENDO EM VISTA O QUE...",
+     "edicao": "2593",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-05-19",
+     "tipo": "sancao",
+     "trecho": "...NOCENCIA OU INADEQUACAO DA PENALIDADE APLICADA PORTARIA NUMERO 40 945 DANIEL ALONSO PREFEITO MUNICIPAL DE MARILIA USANDO DE ATRIBUICOES LEGAIS CONSOANTE O QUE DISP...",
+     "edicao": "3200",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:EDUARDO DUARTE DO NASCIMENTO": {
+  "dom": {
+   "n": 5,
+   "exemplos": [
+    {
+     "data": "2017-10-21",
+     "tipo": "nomeacao",
+     "trecho": "...11 DE 17 DE DEZEMBRO DE 1991 NOMEIA A PARTIR DE 19 DE OUTUBRO DE 2017 EDUARDO DUARTE DO NASCIMENTO PARA O EXERCICIO DO CARGO EM COMISSAO DE SECRETARIO MUNICIPAL DE ESPORTES LAZER...",
+     "edicao": "2048",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-04-04",
+     "tipo": "exoneracao",
+     "trecho": "... PARTIR DE 02 DE ABRIL DE 2020 PORTARIA NUMERO 38015 EXONERA A PEDIDO EDUARDO DUARTE DO NASCIMENTO DO CARGO EM COMISSAO DE SECRETARIO MUNICIPAL DE ESPORTES LAZER E JUVENTUDE A PA...",
+     "edicao": "2659",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2023-03-04",
+     "tipo": "convocacao",
+     "trecho": "...O DE 2023 EDITAIS EDITAL DE CONVOCACAO DE AUDIENCIA PUBLICA NO 3 2023 EDUARDO DUARTE DO NASCIMENTO PRESIDENTE DA CAMARA MUNICIPAL DE MARILIA ESTADO DE SAO PAULO USANDO DE SUAS AT...",
+     "edicao": "3400",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2023-03-08",
+     "tipo": "convocacao",
+     "trecho": "...ELA 5 ANEXO IV LC918 21 CAMARA EDITAIS EDITAL DE CONVOCACAO NO 4 2023 EDUARDO DUARTE DO NASCIMENTO PRESIDENTE DA CAMARA MUNICIPAL DE MARILIA ESTADO DE SAO PAULO USANDO DE SUAS AT...",
+     "edicao": "3402",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2023-03-09",
+     "tipo": "convocacao",
+     "trecho": "...TE CAMARA EDITAIS EDITAL DE CONVOCACAO DE AUDIENCIA PUBLICA NO 4 2023 EDUARDO DUARTE DO NASCIMENTO PRESIDENTE DA CAMARA MUNICIPAL DE MARILIA ESTADO DE SAO PAULO USANDO DE SUAS AT...",
+     "edicao": "3403",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:RICARDO SEVILHA MUSTAFA": {
+  "dom": {
+   "n": 5,
+   "exemplos": [
+    {
+     "data": "2018-04-10",
+     "tipo": "nomeacao",
+     "trecho": "...O 11 DE 17 DE DEZEMBRO DE 1991 NOMEIA A PARTIR DE 09 DE ABRIL DE 2018 RICARDO SEVILHA MUSTAFA PARA O EXERCICIO DO CARGO EM COMISSAO DE SECRETARIO MUNICIPAL DA ADMINISTRACAO ...",
+     "edicao": "2161",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2019-10-16",
+     "tipo": "designacao",
+     "trecho": "... 2O INCISO VI DA LEI FEDERAL NO 13 019 DE 31 DE JULHO DE 2014 DESIGNA RICARDO SEVILHA MUSTAFA SECRETARIO MUNICIPAL DA SAUDE PAR SEVILHA MUSTAFA A EXERCER A FUNCAO DE GESTOR ...",
+     "edicao": "2537",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-04-03",
+     "tipo": "exoneracao",
+     "trecho": "... PARTIR DE 03 DE ABRIL DE 2020 PORTARIA NUMERO 38010 EXONERA A PEDIDO RICARDO SEVILHA MUSTAFA DO CARGO EM COMISSAO DE SECRETARIO MUNICIPAL DA SAUDE A PARTIR DE 03 DE ABRIL D...",
+     "edicao": "2658",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-08-11",
+     "tipo": "designacao",
+     "trecho": "...O O EXERCICIO FUNCIONAL DO SEGUNDO CARGO PORTARIA NUMERO 41455 NOMEIA RICARDO SEVILHA MUSTAFA PARA O EXERCICIO DO CARGO EM COMISSAO DE PROCURADOR GERAL DO MUNICIPIO SIMBOLO ...",
+     "edicao": "3258",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-06-04",
+     "tipo": "exoneracao",
+     "trecho": "...PLA DEFESA AO SERVIDOR ACUSADO PORTARIA NUMERO 44436 EXONERA A PEDIDO RICARDO SEVILHA MUSTAFA DO CARGO EM COMISSAO DE PROCURADOR GERAL DO MUNICIPIO A PARTIR DE 04 DE JUNHO D...",
+     "edicao": "3706",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:ANTONIO FERREIRA DE MORAES JUNIOR": {
+  "dom": {
+   "n": 4,
+   "exemplos": [
+    {
+     "data": "2019-01-08",
+     "tipo": "exoneracao",
+     "trecho": "... DA LEI COMPLEMENTAR NO 11 DE 17 DE DEZEMBRO DE 1991 EXONERA A PEDIDO ANTONIO FERREIRA DE MORAES JUNIOR DO CARGO EM COMISSAO DE SECRETARIO MUNICIPAL DA AGRICULTURA PECUARIA E ABASTECI...",
+     "edicao": "2342",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-04-04",
+     "tipo": "exoneracao",
+     "trecho": "...PORTARIA NUMERO 38014 EXONERA A PEDIDO ANTONIO FERREIRA DE MORAES JUNIOR DO CARGO EM COMISSAO DE ASSESSOR ESPECIAL DE ASSUNTOS ESTRATEGICOS DO GABINETE ...",
+     "edicao": "2659",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-04-15",
+     "tipo": "nomeacao",
+     "trecho": "...PORTARIA NO 36878 DE 29 DE JULHO DE 2019 PORTARIA NUMERO 38049 NOMEIA ANTONIO FERREIRA DE MORAES JUNIOR PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO DA ...",
+     "edicao": "2665",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-08-15",
+     "tipo": "exoneracao",
+     "trecho": "...PARTIR DE 15 DE AGOSTO DE 2020 PORTARIA NUMERO 38484 EXONERA A PEDIDO ANTONIO FERREIRA DE MORAES JUNIOR DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO DA SECRETARIA MUNICI...",
+     "edicao": "2753",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:CARMEN LUCIA RIBEIRO": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2019-02-22",
+     "tipo": "exoneracao",
+     "trecho": "...UTRAS PROVIDENCIAS PORTARIA NUMERO 36099 EXONERA A PEDIDO A SERVIDORA CARMEN LUCIA RIBEIRO RG NO 15 250 292 CPF NO 092993378 88 DO CARGO DE PROFESSORA DE EMEF LOTADA NA S...",
+     "edicao": "2375",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:FLAVIA DE OLIVEIRA SILVA": {
+  "dom": {
+   "n": 5,
+   "exemplos": [
+    {
+     "data": "2019-08-10",
+     "tipo": "exoneracao",
+     "trecho": "...PORTARIA NUMERO 36985 EXONERA A PEDIDO FLAVIA DE OLIVEIRA SILVA DO CARGO EM COMISSAO DE SUBPREFEITA DO DISTRITO DE DIRCEU A PARTIR DE 09 DE AGO...",
+     "edicao": "2488",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-02-01",
+     "tipo": "nomeacao",
+     "trecho": "...A SECRETARIA MUNICIPAL DE OBRAS PUBLICAS PORTARIA NUMERO 37682 NOMEIA FLAVIA DE OLIVEIRA SILVA PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSORA DE GABINETE DO SECRETARIO SI...",
+     "edicao": "2610",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-02-08",
+     "tipo": "nomeacao",
+     "trecho": "...2019 PORTARIA NUMERO 37726 NOMEIA A PARTIR DE 10 DE FEVEREIRO DE 2020 FLAVIA DE OLIVEIRA SILVA PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSORA DO GABINETE DO SECRETARIO SI...",
+     "edicao": "2615",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-08-15",
+     "tipo": "exoneracao",
+     "trecho": "...PARTIR DE 15 DE AGOSTO DE 2020 PORTARIA NUMERO 38490 EXONERA A PEDIDO FLAVIA DE OLIVEIRA SILVA DO CARGO EM COMISSAO DE ASSESSORA DO GABINETE DO SECRETARIO DA SECRETARIA MUNIC...",
+     "edicao": "2753",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-11-17",
+     "tipo": "nomeacao",
+     "trecho": "...RESA PUBLICA MUNICIPAL NO USO DE SUAS ATRIBUICOES LEGAIS NOMEIA A SRA FLAVIA DE OLIVEIRA SILVA PARA O EXERCICIO DO CARGO DE CHEFE DE GABINETE DO DIRETOR ADJUNTO SIMBOLO C 2 C...",
+     "edicao": "2819",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:PATRICIA MENDES DA SILVA": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2019-10-17",
+     "tipo": "designacao",
+     "trecho": "...06 DE SETEMBRO DE 2019 DESIGNA POR NECESSIDADE DO SERVICO A SERVIDORA PATRICIA MENDES DA SILVA PROFESSORA DE EMEF MATRI PATRICIA MENDES DA SILVA CULA NO 77405 LOTADA NA SECRE...",
+     "edicao": "2538",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:MARCOS SANTANA REZENDE": {
+  "dom": {
+   "n": 5,
+   "exemplos": [
+    {
+     "data": "2019-11-21",
+     "tipo": "convocacao",
+     "trecho": "...RENCIA DE ADMINISTRACAO E INFORMATICA EDITAL DE CONVOCACAO NO 43 2019 MARCOS SANTANA REZENDE PRESIDENTE DA CAMARA MUNICIPAL DE MARILIA ESTADO DE SAO PAULO USANDO DE SUAS AT...",
+     "edicao": "2561",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2019-12-04",
+     "tipo": "convocacao",
+     "trecho": "...IDATOS EM REFERENCIA A PROVA APLICADA EDITAL DE CONVOCACAO NO 45 2019 MARCOS SANTANA REZENDE PRESIDENTE DA CAMARA MUNICIPAL DE MARILIA ESTADO DE SAO PAULO USANDO DE SUAS AT...",
+     "edicao": "2570",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-02-06",
+     "tipo": "convocacao",
+     "trecho": "... BUSINESS BROKERS EDITAL DE CONVOCACAO DE AUDIENCIA PUBLICA NO 1 2020 MARCOS SANTANA REZENDE PRESIDENTE DA CAMARA MUNICIPAL DE MARILIA ESTADO DE SAO PAULO USANDO DE SUAS AT...",
+     "edicao": "2613",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-02-08",
+     "tipo": "convocacao",
+     "trecho": "...FEVEREIRO DE 2020 EDITAL DE CONVOCACAO DE AUDIENCIA PUBLICA NO 3 2020 MARCOS SANTANA REZENDE PRESIDENTE DA CAMARA MUNICIPAL DE MARILIA ESTADO DE SAO PAULO USANDO DE SUAS AT...",
+     "edicao": "2615",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-02-19",
+     "tipo": "convocacao",
+     "trecho": "...EIRA DE CARNAVAL EDITAL DE CONVOCACAO DE AUDIENCIA PUBLICA NO 04 2020 MARCOS SANTANA REZENDE PRESIDENTE DA CAMARA MUNICIPAL DE MARILIA ESTADO DE SAO PAULO USANDO DE SUAS AT...",
+     "edicao": "2622",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:ANDRE LUIZ MARTINS": {
+  "dom": {
+   "n": 5,
+   "exemplos": [
+    {
+     "data": "2019-12-31",
+     "tipo": "exoneracao",
+     "trecho": "...CRETARIA MUNICIPAL DA EDUCACAO PORTARIA NUMERO 37536 EXONERA A PEDIDO ANDRE LUIZ MARTINS DO CARGO EM COMISSAO DE ASSESSOR DE DIREITOS HUMANOS DA SECRETARIA MUNICIPAL DE...",
+     "edicao": "2588",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2021-04-16",
+     "tipo": "nomeacao",
+     "trecho": "...PRESA PUBLICA MUNICIPAL NO USO DE SUAS ATRIBUICOES LEGAIS NOMEIA O SR ANDRE LUIZ MARTINS PARA O EXERCICIO DO CARGO DE ASSESSOR DO GABINETE DO DIRETOR ADJUNTO SIMBOLO C ...",
+     "edicao": "2926",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-05-06",
+     "tipo": "exoneracao",
+     "trecho": "... HORARIO 15 00 HORAS EMDURB PORTARIA NUMERO 95 2022 0000 EXONERA O SR ANDRE LUIZ MARTINS DO CARGO DE CONFIANCA DE ASSESSOR DO GABINETE DA DIRETORA ADJUNTA A PARTIR DE 1...",
+     "edicao": "3191",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-07-13",
+     "tipo": "nomeacao",
+     "trecho": "...PUT DO ARTIGO 66 DO REFERIDO TEXTO LEGAL PORTARIA NUMERO 41288 NOMEIA ANDRE LUIZ MARTINS PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO SIM...",
+     "edicao": "3237",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-05-28",
+     "tipo": "exoneracao",
+     "trecho": "... 11 1991 PORTARIA NUMERO 44391 EXONERA A PARTIR DE 28 DE MAIO DE 2024 ANDRE LUIZ MARTINS DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO SIMBOLO C 2 DA SECRE...",
+     "edicao": "3702",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:JULIANA FERREIRA DO NASCIMENTO": {
+  "dom": {
+   "n": 3,
+   "exemplos": [
+    {
+     "data": "2020-01-15",
+     "tipo": "exoneracao",
+     "trecho": "...OPERADOR MOTOR BOMBA 825 EMDURB PORTARIA NUMERO 02 2020 EXONERA A SRA JULIANA FERREIRA DO NASCIMENTO DO CARGO EM COMISSAO DE ASSESSORA DE DIVULGACAO E COMUNICACAO SIMBOLO C 2 A PAR...",
+     "edicao": "2597",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-08-15",
+     "tipo": "exoneracao",
+     "trecho": "...ESA PUBLICA MUNICIPAL NO USO DE SUAS ATRIBUICOES LEGAIS EXONERA A SRA JULIANA FERREIRA DO NASCIMENTO DO CARGO EM COMISSAO DE CHEFE DE GABINETE DO DIRETOR PRESIDENTE SIMBOLO C 2 A P...",
+     "edicao": "2753",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-11-28",
+     "tipo": "nomeacao",
+     "trecho": "...RESA PUBLICA MUNICIPAL NO USO DE SUAS ATRIBUICOES LEGAIS NOMEIA A SRA JULIANA FERREIRA DO NASCIMENTO PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSORA DE GABINETE DO DIRETOR PRESI...",
+     "edicao": "2828",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:FRANCISCO CARLOS DE OLIVEIRA": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2020-02-14",
+     "tipo": "convocacao",
+     "trecho": "...VOCACAO ATRAVES DA LISTA DE ESPERA PROTOCOLO NOME SEGMENTO 49690 2019 FRANCISCO CARLOS DE OLIVEIRA DERIVADOS DE MILHO 49692 2019 ROGERIO BOLOGNESI NEVES FRANGO FRITO E BATATA FRI...",
+     "edicao": "2619",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:RICARDO CARDOZO FLORES": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2020-02-19",
+     "tipo": "nomeacao",
+     "trecho": "...NO 11 DE 17 DE DEZEMBRO DE 1991 NOMEIA EM CARATER EFETIVO O CANDIDATO RICARDO CARDOZO FLORES RG NO 66229 134 CLASSIFICADO EM 13O LUGAR PARA O EXERCICIO DO CARGO DE OPERADOR...",
+     "edicao": "2622",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:DIRCEU FREDERICO JUNIOR": {
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2020-03-24",
+     "tipo": "nomeacao",
+     "trecho": "... DE 2020 PORTARIA NUMERO 37955 NOMEIA A PARTIR DE 24 DE MARCO DE 2020 DIRCEU FREDERICO JUNIOR PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DA SAUDE SIMBOLO C 2 DEVENDO ...",
+     "edicao": "2648",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-12-19",
+     "tipo": "nomeacao",
+     "trecho": "... 2018 PORTARIA NUMERO 38890 NOMEIA A PARTIR DE 18 DE DEZEMBRO DE 2020 DIRCEU FREDERICO JUNIOR PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO SIM...",
+     "edicao": "2841",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:ADRIANA TOGNOLI": {
+  "dom": {
+   "n": 5,
+   "exemplos": [
+    {
+     "data": "2020-03-24",
+     "tipo": "nomeacao",
+     "trecho": "... PORTARIA NO 34810 DE 07 DE MAIO DE 2018 PORTARIA NUMERO 37956 NOMEIA ADRIANA TOGNOLI PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSORA DE DIREITOS HUMANOS SIMBOLO ...",
+     "edicao": "2648",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-08-15",
+     "tipo": "exoneracao",
+     "trecho": "...PARTIR DE 15 DE AGOSTO DE 2020 PORTARIA NUMERO 38486 EXONERA A PEDIDO ADRIANA TOGNOLI DO CARGO EM COMISSAO DE ASSESSORA DE DIREITOS HUMANOS DA SECRETARIA MUNICIPAL D...",
+     "edicao": "2753",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-11-28",
+     "tipo": "nomeacao",
+     "trecho": "...TARIA NO 38732 DE 16 DE NOVEMBRO DE 2020 PORTARIA NUMERO 38805 NOMEIA ADRIANA TOGNOLI PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSORA DO GABINETE DO SECRETARIO DA...",
+     "edicao": "2828",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2021-03-26",
+     "tipo": "nomeacao",
+     "trecho": "...OLO C 2 DA SECRETARIA MUNICIPAL DA SAUDE PORTARIA NUMERO 39283 NOMEIA ADRIANA TOGNOLI PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSORA DO GABINETE DO SECRETARIO DA...",
+     "edicao": "2911",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2023-03-15",
+     "tipo": "nomeacao",
+     "trecho": "... DE 2020 PORTARIA NUMERO 42350 NOMEIA A PARTIR DE 15 DE MARCO DE 2023 ADRIANA TOGNOLI PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSORA DO GABINETE DO SECRETARIO DA...",
+     "edicao": "3407",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:LUCIANA DOS SANTOS FERREIRA": {
+  "dom": {
+   "n": 5,
+   "exemplos": [
+    {
+     "data": "2020-03-26",
+     "tipo": "nomeacao",
+     "trecho": "... DE 2019 PORTARIA NUMERO 37964 NOMEIA A PARTIR DE 26 DE MARCO DE 2020 LUCIANA DOS SANTOS FERREIRA PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSORA DO GABINETE DO SECRETARIO SI...",
+     "edicao": "2650",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-08-15",
+     "tipo": "exoneracao",
+     "trecho": "...PARTIR DE 15 DE AGOSTO DE 2020 PORTARIA NUMERO 38483 EXONERA A PEDIDO LUCIANA DOS SANTOS FERREIRA DO CARGO EM COMISSAO DE ASSESSORA DO GABINETE DO SECRETARIO DA SECRETARIA MUNIC...",
+     "edicao": "2753",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-11-17",
+     "tipo": "nomeacao",
+     "trecho": "...OCIAL A PARTIR DE 17 DE NOVEMBRO DE 2020 PORTARIA NUMERO 38731 NOMEIA LUCIANA DOS SANTOS FERREIRA PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSORA DO GABINETE DO SECRETARIO DA...",
+     "edicao": "2819",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2021-04-17",
+     "tipo": "nomeacao",
+     "trecho": "... DE 2021 PORTARIA NUMERO 39343 NOMEIA A PARTIR DE 19 DE ABRIL DE 2021 LUCIANA DOS SANTOS FERREIRA PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSORA DO GABINETE SIMBOLO C 2 DEVE...",
+     "edicao": "2927",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2021-05-27",
+     "tipo": "nomeacao",
+     "trecho": "...AO A FRANCISCO DE ASSIS MECENAS DA SILVA PORTARIA NUMERO 39478 NOMEIA LUCIANA DOS SANTOS FERREIRA ASSESSORA DO GABINETE PARA COMPOR O GRUPO DE TRABALHO QUE TEM POR OBJETIVO A RE...",
+     "edicao": "2956",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:ANA PAULA TOSIN": {
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2020-03-26",
+     "tipo": "nomeacao",
+     "trecho": "... PORTARIA NO 36570 DE 10 DE MAIO DE 2019 PORTARIA NUMERO 37965 NOMEIA ANA PAULA TOSIN PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSORA DO GABINETE DO SECRETARIO SI...",
+     "edicao": "2650",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2021-03-16",
+     "tipo": "exoneracao",
+     "trecho": "...ORTARIA NO 39241 DE 12 DE MARCO DE 2021 PORTARIA NUMERO 39258 EXONERA ANA PAULA TOSIN PORTARIA NUMERO 39259 NOMEIA MILTON DOS SANTOS TERMO DE ABERTURA EDITAL DE LICI...",
+     "edicao": "2903",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:VANDERLEI PEREIRA DA SILVA": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2020-03-31",
+     "tipo": "aposentadoria",
+     "trecho": "...RTIR DE 01 DE ABRIL DE 2020 PORTARIA NUMERO 37977 APOSENTA O SERVIDOR VANDERLEI PEREIRA DA SILVA NO CARGO DE AGENTE COMUNITARIO DE SAUDE REFERENCIA 1 D INSCRITO NO CPF NO 771 8...",
+     "edicao": "2655",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:FABIANO BENEDITO DAQUINO": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2020-04-14",
+     "tipo": "nomeacao",
+     "trecho": "...0 INCISO II DA LEI COMPLEMENTAR N 11 DE 17 DE DEZEMBRO DE 1991 NOMEIA FABIANO BENEDITO DAQUINO PARA O EXERCICIO DO CARGO EM COMISSAO DE CHEFE DE GABINETE DO PRESIDENTE SIMBOL...",
+     "edicao": "2664",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:THIAGO DE SOUZA VASCONCELOS": {
+  "dom": {
+   "n": 3,
+   "exemplos": [
+    {
+     "data": "2020-04-15",
+     "tipo": "nomeacao",
+     "trecho": "...680 2013 PORTARIA NUMERO 38048 NOMEIA A PARTIR DE 15 DE ABRIL DE 2020 THIAGO DE SOUZA VASCONCELOS PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR ESPECIAL DE ASSUNTOS ESTRATEG...",
+     "edicao": "2665",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2021-01-08",
+     "tipo": "nomeacao",
+     "trecho": "...IA USANDO DE SUAS ATRIBUICOES NOMEIA A PARTIR DE 4 DE JANEIRO DE 2021 THIAGO DE SOUZA VASCONCELOS RG 45 484 098 6 SSP SP PARA EXERCER EM COMISSAO O CARGO DE CHEFE DE GABINETE DE...",
+     "edicao": "2851",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-07-02",
+     "tipo": "exoneracao",
+     "trecho": "...TERMOS DA CORRESPONDENCIA NO 990 2024 A PARTIR DE 1O DE JULHO DE 2024 THIAGO DE SOUZA VASCONCELOS RG 45 484 098 6 SSP SP DO CARGO EM COMISSAO DE CHEFE DE GABINETE DE VEREADOR SI...",
+     "edicao": "3728",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:CLEIPETERSON REMO SELARO": {
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2020-05-23",
+     "tipo": "processo",
+     "trecho": "...E 2018 EM DECORRENCIA DO PROTOCOLO NO 58730 2018 E ABSOLVE O SERVIDOR CLEIPETERSON REMO SELARO PELO NAO COMETIMENTO DA INFRACAO CAPITULADA NO ITEM 21 INCISO I DO GRUPO I DO A...",
+     "edicao": "2693",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2021-11-20",
+     "tipo": "aposentadoria",
+     "trecho": "...LICAS PORTARIA NUMERO 40110 APOSENTA POR INVALIDEZ O SERVIDOR 83054 1 CLEIPETERSON REMO SELARO NO CARGO DE MOTORISTA SOCORRISTA REFERENCIA 31 B INSCRITO NO CPF N 147 491 138 ...",
+     "edicao": "3076",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:JUSTINA MARIA COELHO DA SILVA": {
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2020-05-23",
+     "tipo": "processo",
+     "trecho": "... DE 2017 EM DECORRENCIA DO PROTOCOLO NO 2673 17 E ABSOLVE A SERVIDORA JUSTINA MARIA COELHO DA SILVA PELO NAO COMETIMENTO DAS INFRACOES CAPITULADAS NOS ITENS 17 E 21 INCISO II DO G...",
+     "edicao": "2693",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-08-30",
+     "tipo": "aposentadoria",
+     "trecho": "...DE AGOSTO DE 2025 PORTARIA NUMERO 47621 APOSENTA A SERVIDORA 119539 1 JUSTINA MARIA COELHO DA SILVA NO CARGO DE AGENTE OPERACIONAL DE SERVICOS VENCIMENTO NIVEL 1 E TABELA 2 INSCRI...",
+     "edicao": "4017",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:SILVIA DANIELA DOMINGOS D AVILA ALVES": {
+  "dom": {
+   "n": 3,
+   "exemplos": [
+    {
+     "data": "2020-05-30",
+     "tipo": "designacao",
+     "trecho": "...ARIA NUMERO 38253 DESIGNA A PARTIR DE 01 DE JUNHO DE 2020 A SERVIDORA SILVIA DANIELA DOMINGOS D AVILA ALVES PROFESSORA DE EMEF LOTADA NA SECRETARIA MUNICIPAL DA EDUCACAO PARA O DESEMPENHO...",
+     "edicao": "2698",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-12-01",
+     "tipo": "designacao",
+     "trecho": "...A NUMERO 38812 DESIGNA A PARTIR DE 01 DE DEZEMBRO DE 2020 A SERVIDORA SILVIA DANIELA DOMINGOS D AVILA ALVES PROFESSORA DE EMEF PARA O DESEMPENHO DA FUNCAO DE AUXILIAR DE DIRECAO DE EMEF D...",
+     "edicao": "2829",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-11-23",
+     "tipo": "designacao",
+     "trecho": "...1739 2021 ENTENDENDO SER ILEGITIMA E ILEGAL A DESIGNACAO DA SERVIDORA SILVIA DANIELA DOMINGOS D AVILA ALVES PROFESSORA DE EMEF PARA O DESEMPENHO DA REFERIDA FUNCAO CONSIDERANDO AINDA O SO...",
+     "edicao": "3328",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:ELLEN PATRICIA ALVES": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2020-06-04",
+     "tipo": "processo",
+     "trecho": "...JULHO DE 2019 EM DECORRENCIA DO PROTOCOLO NO 40415 14 E ABSOLVE A SRA ELLEN PATRICIA ALVES INSCRITA NO CPF SOB NO 326 571 668 65 PELO NAO DESCUMPRIMENTO DO ARTIGO 11 DO D...",
+     "edicao": "2701",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:ANTONIO DE OLIVEIRA": {
+  "dom": {
+   "n": 5,
+   "exemplos": [
+    {
+     "data": "2020-06-10",
+     "tipo": "nomeacao",
+     "trecho": "...DO CARGO PORTARIA NUMERO 38278 NOMEIA A PARTIR DE 10 DE JUNHO DE 2020 ANTONIO DE OLIVEIRA PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR ESTRATEGICO DA SECRETARIA MUN...",
+     "edicao": "2706",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-12-19",
+     "tipo": "nomeacao",
+     "trecho": "... 2018 PORTARIA NUMERO 38884 NOMEIA A PARTIR DE 18 DE DEZEMBRO DE 2020 ANTONIO DE OLIVEIRA PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO SIM...",
+     "edicao": "2841",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2021-05-20",
+     "tipo": "exoneracao",
+     "trecho": "...INGUES USANDO DA ATRIBUICAO QUE LHE CONFERE RESOLVE EXONERAR O SENHOR ANTONIO DE OLIVEIRA PORTADOR DO C P F NO 001 119 918 03 DO EMPREGO DE PROVIMENTO EM COMISSAO COMO A...",
+     "edicao": "2950",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-03-24",
+     "tipo": "nomeacao",
+     "trecho": "...EIRO DE 2022 QUE NOMEARAM OS CANDIDATOS MARCELO YUKIO IKEBARA E MAURO ANTONIO DE OLIVEIRA JUNIOR PARA O CARGO DE ASSISTENTE ADMINISTRATIVO UMA VEZ QUE NAO COMPARECERAM A...",
+     "edicao": "3164",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-05-14",
+     "tipo": "nomeacao",
+     "trecho": "...840 PORTARIA NUMERO 40922 NOMEIA EM CARATER EFETIVO O CANDIDATO MAURO ANTONIO DE OLIVEIRA JUNIOR RG N 40050562 CLASSIFICADO EM 13O LUGAR PARA O EXERCICIO DO CARGO DE TEL...",
+     "edicao": "3197",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:LUIS ALBERTO COLOMBO": {
+  "dom": {
+   "n": 4,
+   "exemplos": [
+    {
+     "data": "2020-07-07",
+     "tipo": "licitacao",
+     "trecho": "...TUADA PELO PREGOEIRO VALDINEI XAVIER CONFORME SEGUE EMPRESA VENCEDORA LUIS ALBERTO COLOMBO MARILIA ME LOCALIZADA NA RUA CANADA NO250 JARDIM VITORIA MARILIA SP CEP 17520 1...",
+     "edicao": "2724",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-02-25",
+     "tipo": "licitacao",
+     "trecho": "...O PREGOEIRO ALDO LUIZ GONCALVES DIAS CONFORME SEGUE EMPRESA VENCEDORA LUIS ALBERTO COLOMBO MARILIA ME LOCALIZADA NA RUA CANADA NO 250 JARDIM VITORIA MARILIA SP CEP 17520 ...",
+     "edicao": "3147",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-12-10",
+     "tipo": "contratacao",
+     "trecho": "...O DO DECRETO MUNICIPAL NO 14 464 2024 A CONTRATACAO DIRETA DA EMPRESA LUIS ALBERTO COLOMBO MARILIA CNPJ NO 03 984 300 0001 40 PARA AQUISICAO DE TROFEUS DESTINADOS A SECRE...",
+     "edicao": "3839",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-04-16",
+     "tipo": "contratacao",
+     "trecho": "...O DO DECRETO MUNICIPAL NO 14 464 2024 VISANDO A CONTRATACAO DIRETA DA LUIS ALBERTO COLOMBO MARILIA ME CNPJ NO 03 984 300 0001 40 AQUISICAO DE PECAS E PRESTACAO DE SERVICO...",
+     "edicao": "3925",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:CLAUDIA MARINA DO AMARAL COLEONE": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2020-08-15",
+     "tipo": "nomeacao",
+     "trecho": "...IODO DE 15 DE AGOSTO A 15 DE NOVEMBRO DE 2020 A NOMEACAO DA SERVIDORA CLAUDIA MARINA DO AMARAL COLEONE AUXILIAR DE SERVICOS GERAIS LOTADA NA SECRETARIA MUNICIPAL DA EDUCACAO COMO VIC...",
+     "edicao": "2753",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:LUIS CARLOS SOARES": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2020-08-15",
+     "tipo": "exoneracao",
+     "trecho": "...CRETARIA MUNICIPAL DA EDUCACAO PORTARIA NUMERO 38482 EXONERA A PEDIDO LUIS CARLOS SOARES DO CARGO EM COMISSAO DE ASSESSOR DA DEFESA CIVIL DO GABINETE DO PREFEITO A PART...",
+     "edicao": "2753",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:JANE IRENE DOS SANTOS VIAES": {
+  "dom": {
+   "n": 5,
+   "exemplos": [
+    {
+     "data": "2020-08-15",
+     "tipo": "exoneracao",
+     "trecho": "...PARTIR DE 15 DE AGOSTO DE 2020 PORTARIA NUMERO 38489 EXONERA A PEDIDO JANE IRENE DOS SANTOS VIAES DO CARGO EM COMISSAO DE ASSESSORA DO GABINETE DO SECRETARIO DA SECRETARIA MUNIC...",
+     "edicao": "2753",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-11-17",
+     "tipo": "exoneracao",
+     "trecho": "...TARIA NO 38566 EM 01 DE SETEMBRO DE 2020 PORTARIA NUMERO 38736 NOMEIA JANE IRENE DOS SANTOS VIAES PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSORA DA SAUDE SIMBOLO C 2 DEVENDO...",
+     "edicao": "2819",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-12-19",
+     "tipo": "nomeacao",
+     "trecho": "... 2020 PORTARIA NUMERO 38888 NOMEIA A PARTIR DE 18 DE DEZEMBRO DE 2020 JANE IRENE DOS SANTOS VIAES PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSORA DO GABINETE DO SECRETARIO SI...",
+     "edicao": "2841",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2021-01-09",
+     "tipo": "nomeacao",
+     "trecho": "...E 2019 PORTARIA NUMERO 38973 NOMEIA A PARTIR DE 11 DE JANEIRO DE 2021 JANE IRENE DOS SANTOS VIAES PARA O EXERCICIO DO CARGO EM COMISSAO DE SECRETARIA ADJUNTA DA CULTURA SIMBOLO ...",
+     "edicao": "2852",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-03-22",
+     "tipo": "exoneracao",
+     "trecho": "...O E DA AMPLA DEFESA AO SERVIDOR ACUSADO PORTARIA NUMERO 40642 EXONERA JANE IRENE DOS SANTOS VIAES DO CARGO EM COMISSAO DE SECRETARIA ADJUNTA DA CULTURA A PARTIR DE 22 DE MARCO D...",
+     "edicao": "3162",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:DECIO DOS SANTOS": {
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2020-08-19",
+     "tipo": "nomeacao",
+     "trecho": "...DE 2020 PORTARIA NUMERO 38502 NOMEIA A PARTIR DE 19 DE AGOSTO DE 2020 DECIO DOS SANTOS PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DE DIREITOS HUMANOS DA SECRET...",
+     "edicao": "2756",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-08-20",
+     "tipo": "nomeacao",
+     "trecho": "...REYNALDO PEDRO PARA O EXERCICIO DO CARGO PORTARIA NUMERO 38502 NOMEIA DECIO DOS SANTOS PARA O EXERCICIO DO CARGO PORTARIA NUMERO 38503 NOMEIA THAYANA SOARES SAKR ORDE...",
+     "edicao": "2757",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:ANTONIO FRANCISCO PIRES": {
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2020-08-29",
+     "tipo": "aposentadoria",
+     "trecho": "...TE DE ESCOLA REFERENCIA 5 K PORTARIA NUMERO 38550 APOSENTA O SERVIDOR ANTONIO FRANCISCO PIRES NO CARGO DE AGENTE MUNICIPAL DE VIGILANCIA PATRIMONIAL PORTARIA NUMERO 38551 AP...",
+     "edicao": "2764",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2020-09-19",
+     "tipo": "cessao",
+     "trecho": "...ORTARIAS DE CONCESSAO DE APOSENTADORIA PROGRESSAO POR MERITO INATIVOS ANTONIO FRANCISCO PIRES JOAO DELGADO VERA LUCIA GOMES DA SILVA ELIANE DA SILVA GONCALVES MARAN PROGRESS...",
+     "edicao": "2778",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:LUIZ CARLOS FERNANDES": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2020-10-01",
+     "tipo": "aposentadoria",
+     "trecho": "...MENDA CONSTITUCIONAL NO 47 DE 05 DE JULHO DE 2005 APOSENTA O SERVIDOR LUIZ CARLOS FERNANDES NO CARGO DE AUXILIAR DE SERVICOS GERAIS REFERENCIA 1 E INSCRITO NO CPF NO 711 8...",
+     "edicao": "2786",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:ACACIO ROBERTO COLOMBO DE SOUZA": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2020-10-24",
+     "tipo": "aposentadoria",
+     "trecho": "... NUMERO 13154 PORTARIA NUMERO 38687 APOSENTA POR INVALIDEZ O SERVIDOR ACACIO ROBERTO COLOMBO DE SOUZA NO CARGO DE MOTORISTA REFERENCIA 30 G INSCRITO NO CPF N 175 627 188 73 ATRAVES ...",
+     "edicao": "2803",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:JOAO GAMA DA SILVA": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2020-10-30",
+     "tipo": "aposentadoria",
+     "trecho": "...R DE 08 DE NOVEMBRO DE 2020 PORTARIA NUMERO 38704 APOSENTA O SERVIDOR JOAO GAMA DA SILVA NO CARGO DE TRABALHADOR BRACAL REFERENCIA 1 J INSCRITO NO CPF N 796 977 558 68 ...",
+     "edicao": "2808",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:REGINA CELIA SMANIOTTO DE FRANCA": {
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2020-11-14",
+     "tipo": "designacao",
+     "trecho": "...A NUMERO 38726 DESIGNA A PARTIR DE 16 DE NOVEMBRO DE 2020 A SERVIDORA REGINA CELIA SMANIOTTO DE FRANCA PROFESSORA DE EMEI PARA O DESEMPENHO DA FUNCAO DE AUXILIAR DE DIRECAO DE EMEI D...",
+     "edicao": "2818",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-09-14",
+     "tipo": "aposentadoria",
+     "trecho": "... MARILIA SP GOV BR PORTARIA NUMERO 44996 APOSENTA A SERVIDORA 59285 1 REGINA CELIA SMANIOTTO DE FRANCA NO CARGO DE PROFESSORA DE EMEI VENCIMENTO NIVEL 1 E TABELA MAGISTERIO 1 INSCRIT...",
+     "edicao": "3781",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:WILSON ALVES DAMASCENO": {
+  "dom": {
+   "n": 5,
+   "exemplos": [
+    {
+     "data": "2020-12-31",
+     "tipo": "nomeacao",
+     "trecho": "...E 2008 PORTARIA NUMERO 38936 NOMEIA A PARTIR DE 01 DE JANEIRO DE 2021 WILSON ALVES DAMASCENO PARA O EXERCICIO DO CARGO EM COMISSAO DE SECRETARIO MUNICIPAL DE DIREITOS HUMAN...",
+     "edicao": "2847",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-08-20",
+     "tipo": "designacao",
+     "trecho": "...ADUAL N 10083 DE 23 DE SETEMBRO DE 1998 PORTARIA NUMERO 41527 DESIGNA WILSON ALVES DAMASCENO SECRETARIO MUNICIPAL DE DIREITOS HUMANOS PARA EXERCER A FUNCAO DE GESTOR DAS PA...",
+     "edicao": "3265",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2023-03-15",
+     "tipo": "nomeacao",
+     "trecho": "... DE 2022 PORTARIA NUMERO 42343 NOMEIA A PARTIR DE 15 DE MARCO DE 2023 WILSON ALVES DAMASCENO PARA O EXERCICIO DO CARGO EM COMISSAO DE SECRETARIO MUNICIPAL DE ASSISTENCIA E ...",
+     "edicao": "3407",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2023-03-24",
+     "tipo": "designacao",
+     "trecho": "...NERACAO A PARTIR DE 24 DE MARCO DE 2023 PORTARIA NUMERO 42389 DESIGNA WILSON ALVES DAMASCENO SECRETARIO MUNICIPAL DE ASSISTENCIA E DESENVOLVIMENTO SOCIAL PARA EXERCER A FUN...",
+     "edicao": "3414",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2023-03-28",
+     "tipo": "designacao",
+     "trecho": "...DUCACAO A PARTIR DE 27 DE MARCO DE 2023 PORTARIA NUMERO 42408 DESIGNA WILSON ALVES DAMASCENO SECRETARIO MUNICIPAL DE ASSISTENCIA E DESENVOLVIMENTO SOCIAL PARA EXERCER A FUN...",
+     "edicao": "3416",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:PAULO ROGERIO DA SILVA": {
+  "dom": {
+   "n": 4,
+   "exemplos": [
+    {
+     "data": "2021-01-08",
+     "tipo": "nomeacao",
+     "trecho": "...PUT DO ARTIGO 66 DO REFERIDO TEXTO LEGAL PORTARIA NUMERO 38951 NOMEIA PAULO ROGERIO DA SILVA PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO SIM...",
+     "edicao": "2851",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2023-10-18",
+     "tipo": "designacao",
+     "trecho": "...GA A PARTIR DE 1O DE OUTUBRO DE 2023 A DESIGNACAO DO SERVIDOR 89516 1 PAULO ROGERIO DA SILVA AGENTE DE VIGILANCIA PATRIMONIAL PARA O DESEMPENHO DA FUNCAO DE RESPONSAVEL PEL...",
+     "edicao": "3555",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-07-03",
+     "tipo": "exoneracao",
+     "trecho": "...ELA LEI COMPLEMENTAR N 11 1991 PORTARIA NUMERO 44613 EXONERA A PEDIDO PAULO ROGERIO DA SILVA DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO DA SECRETARIA MUNICI...",
+     "edicao": "3729",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-11-29",
+     "tipo": "nomeacao",
+     "trecho": "...5 DE 28 DE NOVEMBRO DE 2024 NOMEIA A PARTIR DE 28 DE NOVEMBRO DE 2024 PAULO ROGERIO DA SILVA RG 20 361 193 SSP SP PARA EXERCER EM COMISSAO O CARGO DE ASSESSOR DE GABINETE D...",
+     "edicao": "3832",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:VANDERLEI APARECIDO DA SILVA": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2021-01-08",
+     "tipo": "rescisao",
+     "trecho": "...AMIGAVEL DO CONTRATO 061 20 A PARTIR DA DATA DA ASSINATURA CONTRATADO VANDERLEI APARECIDO DA SILVA MEI CNPJ 37 092 802 0001 89 ASSIN 04 12 20 CT 144 20 DL 071 20 OBJETO RESCISAO ...",
+     "edicao": "2851",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:DANIEL BAHIANO GONCALVES": {
+  "dom": {
+   "n": 5,
+   "exemplos": [
+    {
+     "data": "2021-01-08",
+     "tipo": "nomeacao",
+     "trecho": "...IA USANDO DE SUAS ATRIBUICOES NOMEIA A PARTIR DE 4 DE JANEIRO DE 2021 DANIEL BAHIANO GONCALVES RG 32 187 416 SSP SP PARA EXERCER EM COMISSAO O CARGO DE ASSESSOR DE GABINETE D...",
+     "edicao": "2851",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2021-05-20",
+     "tipo": "exoneracao",
+     "trecho": "...LIA USANDO DE SUAS ATRIBUICOES EXONERA A PARTIR DE 18 DE MAIO DE 2021 DANIEL BAHIANO GONCALVES RG 32 187 416 SSP SP DO CARGO EM COMISSAO DE ASSESSOR DE GABINETE DE VEREADOR S...",
+     "edicao": "2950",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-08-02",
+     "tipo": "exoneracao",
+     "trecho": "...A USANDO DE SUAS ATRIBUICOES EXONERA A PARTIR DE 1O DE AGOSTO DE 2022 DANIEL BAHIANO GONCALVES RG 32 187 416 SSP SP DO CARGO EM COMISSAO DE ASSESSOR DE GABINETE DE VEREADOR S...",
+     "edicao": "3251",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2023-05-18",
+     "tipo": "nomeacao",
+     "trecho": "...PORTARIA NO 29597 DE 04 DE JUNHO DE 2014 PORTARIA NUMERO 42575 NOMEIA DANIEL BAHIANO GONCALVES PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO SIM...",
+     "edicao": "3450",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-07-06",
+     "tipo": "exoneracao",
+     "trecho": "... NO 42292 DE 1 DE MARCO DE 2023 PORARIA NUMERO 44641 EXONERA A PEDIDO DANIEL BAHIANO GONCALVES DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO DA SECRETARIA MUNICI...",
+     "edicao": "3733",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:DANIELA PAULA BUENO": {
+  "dom": {
+   "n": 3,
+   "exemplos": [
+    {
+     "data": "2021-01-14",
+     "tipo": "nomeacao",
+     "trecho": "...A USANDO DE SUAS ATRIBUICOES NOMEIA A PARTIR DE 1O DE JANEIRO DE 2021 DANIELA PAULA BUENO RG 28 584 865 SSP SP PARA EXERCER EM COMISSAO O CARGO DE ASSESSOR DE GABINETE D...",
+     "edicao": "2857",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2021-08-19",
+     "tipo": "exoneracao",
+     "trecho": "...O 68 DE 18 DE AGOSTO DE 2021 EXONERA A PARTIR DE 18 DE AGOSTO DE 2021 DANIELA PAULA BUENO RG 28 584 865 SSP SP DO CARGO EM COMISSAO DE ASSESSOR DE GABINETE DE VEREADOR S...",
+     "edicao": "3013",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-04-17",
+     "tipo": "processo",
+     "trecho": "...ECORRENCIA DO MEMORANDO DIGITAL N O 35 376 2023 E ABSOLVE A SERVIDORA DANIELA PAULA BUENO ASSISTENTE ADMINISTRATIVA MATRICULA NO 116920 1 LOTADA ATUALMENTE NA SECRETARIA...",
+     "edicao": "3926",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:MOISES FERREIRA DA PAIXAO": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2021-01-30",
+     "tipo": "exoneracao",
+     "trecho": "... DA REFERIDA FUNCAO PORTARIA NUMERO 39119 EXONERA A PEDIDO O SERVIDOR MOISES FERREIRA DA PAIXAO RG NO 27 566 117 9 E CPF NO 183 428 348 59 DO CARGO DE AGENTE MUNICIPAL DE VIGI...",
+     "edicao": "2870",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:THIAGO RAMOS BRITO": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2021-02-25",
+     "tipo": "nomeacao",
+     "trecho": "... EMDURB EMPRESA PUBLICA NO USO DE SUAS ATRIBUICOES LEGAIS NOMEIA O SR THIAGO RAMOS BRITO PARA EXERCER A FUNCAO DE CONFIANCA DE ASSISTENTE DE CHEFIA DE FISCALIZACAO A PA...",
+     "edicao": "2889",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:JOSE GUILHERME ALVES DE MORAES": {
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2021-04-24",
+     "tipo": "designacao",
+     "trecho": "...39358 ALTERA A PARTIR DE 23 DE ABRIL DE 2021 A DESIGNACAO DO SERVIDOR JOSE GUILHERME ALVES DE MORAES AUXILIAR DE ESCRITA DE QUE TRATA A PORTARIA NO 36929 DE 01 DE AGOSTO DE 2019 IT...",
+     "edicao": "2931",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-10-05",
+     "tipo": "designacao",
+     "trecho": "...RO 45063 DESIGNA A PARTIR DE 07 DE OUTUBRO DE 2024 O SERVIDOR 83267 1 JOSE GUILHERME ALVES DE MORAES ASSISTENTE ADMINISTRATIVO PARA O DESEMPENHO DA FUNCAO DE DIRETOR DO PROCON MARI...",
+     "edicao": "3796",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:ADILSON SIMAO DE SOUZA": {
+  "dom": {
+   "n": 3,
+   "exemplos": [
+    {
+     "data": "2021-04-24",
+     "tipo": "designacao",
+     "trecho": "...TARIA NUMERO 39360 DESIGNA A PARTIR DE 23 DE ABRIL DE 2021 O SERVIDOR ADILSON SIMAO DE SOUZA AGENTE MUNICIPAL DE VIGILANCIA PATRIMONIAL PARA O DESEMPENHO DA FUNCAO DE DIRET...",
+     "edicao": "2931",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-02-15",
+     "tipo": "designacao",
+     "trecho": "...SSA NISHIZAWA 307 996 248 61 PORTARIA NUMERO 40442 DESIGNA O SERVIDOR ADILSON SIMAO DE SOUZA AGENTE DE VIGILANCIA PATRIMONIAL DIRETOR DE VIGILANCIA PATRIMONIAL SEGURANCA E ...",
+     "edicao": "3139",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-02-19",
+     "tipo": "designacao",
+     "trecho": "...IA NUMERO 40476 DESIGNA A PARTIR DE 23 DE SETEMBRO DE 2021 O SERVIDOR ADILSON SIMAO DE SOUZA DIRETOR DE VIGILANCIA PATRIMONIAL SEGURANCA E MULTISSERVICOS PARA RESPONDER PEL...",
+     "edicao": "3143",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:MARIANA FRANZOLIN VALERA": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2021-06-15",
+     "tipo": "convocacao",
+     "trecho": "...ONVOCACAO DE AUDIENCIA PUBLICA DE REVISAO DO PLANO DIRETOR DE MARILIA MARIANA FRANZOLIN VALERA ENQUANTO PRESIDENTE DO CONSELHO DE HABITACAO E POLITICA URBANA DE MARILIA ESTAD...",
+     "edicao": "2967",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:MATHEUS PANSSONATO DA SILVA": {
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2021-06-19",
+     "tipo": "nomeacao",
+     "trecho": "...ILADO A PARTIR DE 14 DE MAIO DE 2021 O TITULO DE NOMEACAO DO SERVIDOR MATHEUS PANSSONATO DA SILVA REFERENCIA IV C PARA REFERENCIA IV D EM RAZAO DA PROGRESSAO POR MERITO DE QUE T...",
+     "edicao": "2971",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-06-13",
+     "tipo": "nomeacao",
+     "trecho": "...ILADO A PARTIR DE 14 DE MAIO DE 2024 O TITULO DE NOMEACAO DO SERVIDOR MATHEUS PANSSONATO DA SILVA REFERENCIA X D PARA REFERENCIA X E EM RAZAO DA PROGRESSAO POR MERITO DE QUE TRA...",
+     "edicao": "3713",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:ERADIA FERREIRA GONCALVES": {
+  "dom": {
+   "n": 4,
+   "exemplos": [
+    {
+     "data": "2021-08-03",
+     "tipo": "licitacao",
+     "trecho": "... 666 93 E 10 520 2002 RATIFICA A ADJUDICACAO PROFERIDA PELA PREGOEIRA ERADIA FERREIRA GONCALVES DESIGNADA PELA PORTARIA NO 1 713 2021 HOMOLOGANDO NESTA DATA O RESULTADO DO PRO...",
+     "edicao": "3001",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2023-01-31",
+     "tipo": "licitacao",
+     "trecho": "... 8 666 93 E 10 520 2002 RATIFICA ADJUDICACAO PROFERIDA PELA PREGOEIRA ERADIA FERREIRA GONCALVES DESIGNADA PELA PORTARIA NO 1 713 2021 HOMOLOGANDO EM 24 01 2023 O RESULTADO DO ...",
+     "edicao": "3377",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2023-12-30",
+     "tipo": "designacao",
+     "trecho": "...RODRIGO SILVA AVELAR PORTARIA NUMERO 43436 COLOCA A SERVIDORA 93386 1 ERADIA FERREIRA GONCALVES ASSISTENTE ADMINISTRATIVA A DISPOSICAO DO DEPARTAMENTO DE AGUA E ESGOTO DE MARI...",
+     "edicao": "3601",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-01-15",
+     "tipo": "designacao",
+     "trecho": "...O 45790 DESIGNA A PARTIR DE 15 DE JANEIRO DE 2025 A SERVIDORA 93386 1 ERADIA FERREIRA GONCALVES ASSISTENTE ADMINISTRATIVA PARA O DESEMPENHO DA FUNCAO DE DIRETORA DE SERVICOS A...",
+     "edicao": "3862",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:MAURO CIRINO DE ANDRADE": {
+  "dom": {
+   "n": 3,
+   "exemplos": [
+    {
+     "data": "2022-01-28",
+     "tipo": "designacao",
+     "trecho": "...A NUMERO 1 854 DESIGNA A PARTIR DE 01 DE FEVEREIRO DE 2022 O SERVIDOR MAURO CIRINO DE ANDRADE PARA O DESEMPENHO DA FUNCAO GRATIFICADA DE CHEFE DO SERVICO DE ALMOXARIFADO SIM...",
+     "edicao": "3127",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-07-05",
+     "tipo": "designacao",
+     "trecho": "...TARIA NUMERO 1 951 DESIGNA A PARTIR DE 04 DE JULHO DE 2022 O SERVIDOR MAURO CIRINO DE ANDRADE PARA O DESEMPENHO DA FUNCAO GRATIFICADA DE CHEFE DA DIVISAO DE DOCUMENTACAO SIM...",
+     "edicao": "3232",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2026-03-14",
+     "tipo": "designacao",
+     "trecho": "... SUAS ATRIBUICOES LEGAIS DESIGNA A PARTIR DE 12 DE MARCO DE 2026 O SR MAURO CIRINO DE ANDRADE PARA DESEMPENHO DA FUNCAO DE CONFIANCA DENOMINADA ENCARREGADO DE SERVICOS DA RO...",
+     "edicao": "4152",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:GUILHERME FERNANDES DOS REIS": {
+  "dom": {
+   "n": 3,
+   "exemplos": [
+    {
+     "data": "2022-02-24",
+     "tipo": "nomeacao",
+     "trecho": "...PUT DO ARTIGO 66 DO REFERIDO TEXTO LEGAL PORTARIA NUMERO 40513 NOMEIA GUILHERME FERNANDES DOS REIS PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO SIM...",
+     "edicao": "3146",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-03-03",
+     "tipo": "nomeacao",
+     "trecho": "... NOGUEIRA ALTINO WANG MEDICA GENERALISTA PORTARIA NUMERO 40545 NOMEIA GUILHERME FERNANDES DOS REIS PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO SIM...",
+     "edicao": "3149",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2023-10-18",
+     "tipo": "exoneracao",
+     "trecho": "...USADA PORTARIA NUMERO 43170 EXONERA A PARTIR DE 18 DE OUTUBRO DE 2023 GUILHERME FERNANDES DOS REIS DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO DA SECRETARIA MUNICI...",
+     "edicao": "3555",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:CATARINA TERTO ZAFRA": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2022-03-05",
+     "tipo": "gratificacao",
+     "trecho": "...M DEFASAGEM DE CONTEUDOS FAZENDO JUS A RESPECTIVA GRATIFICACAO MENSAL CATARINA TERTO ZAFRA SANDRA BARROS DE SOUZA PORTARIA S E NUMERO 0010 PROF HELTER ROGERIO BOCHI SECRE...",
+     "edicao": "3151",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:JOAO DOS SANTOS DINIZ NETO": {
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2022-03-16",
+     "tipo": "nomeacao",
+     "trecho": "...IPAL DE ENSINO SUPERIOR DE MARILIA FUMES PORTARIA NUMERO 40600 NOMEIA JOAO DOS SANTOS DINIZ NETO PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO SIM...",
+     "edicao": "3158",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-07-06",
+     "tipo": "exoneracao",
+     "trecho": "...A PARTIR DE 06 DE JULHO DE 2024 PORARIA NUMERO 44642 EXONERA A PEDIDO JOAO DOS SANTOS DINIZ NETO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO DA SECRETARIA MUNICI...",
+     "edicao": "3733",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:DANUSA PAULINO SOUTO": {
+  "dom": {
+   "n": 3,
+   "exemplos": [
+    {
+     "data": "2022-04-15",
+     "tipo": "designacao",
+     "trecho": "... NUMERO 40759 DESIGNA POR NECESSIDADE DO SERVICO A SERVIDORA 140910 1 DANUSA PAULINO SOUTO EDUCADORA SOCIAL LOTADA NA SECRETARIA MUNICIPAL DE ASSISTENCIA E DESENVOLVIMENT...",
+     "edicao": "3179",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2023-02-08",
+     "tipo": "designacao",
+     "trecho": "... NUMERO 42174 DESIGNA POR NECESSIDADE DO SERVICO A SERVIDORA 140910 1 DANUSA PAULINO SOUTO EDUCADORA SOCIAL LOTADA NA SECRETARIA MUNICIPAL DE ASSISTENCIA E DESENVOLVIMENT...",
+     "edicao": "3383",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2026-01-29",
+     "tipo": "designacao",
+     "trecho": "... NUMERO 48444 DESIGNA POR NECESSIDADE DO SERVICO A SERVIDORA 140910 1 DANUSA PAULINO SOUTO EDUCADORA SOCIAL LOTADA NA SECRETARIA MUNICIPAL DE ASSISTENCIA SOCIAL E CIDADAN...",
+     "edicao": "4120",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:SERGIO ANTONIO NECHAR": {
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2022-06-15",
+     "tipo": "nomeacao",
+     "trecho": "...A FUNCAO PORTARIA NUMERO 41137 NOMEIA A PARTIR DE 15 DE JUNHO DE 2022 SERGIO ANTONIO NECHAR PARA O EXERCICIO DO CARGO EM COMISSAO DE SECRETARIO MUNICIPAL DA SAUDE CONSTANT...",
+     "edicao": "3219",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2023-01-16",
+     "tipo": "exoneracao",
+     "trecho": "...PORTARIA NO 42075 EXONERA A PEDIDO SERGIO ANTONIO NECHAR DO CARGO EM COMISSAO DE SECRETARIO MUNICIPAL DA SAUDE A PARTIR DE 16 DE JANEIRO...",
+     "edicao": "3366",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:LUCIANE APARECIDA DOS SANTOS": {
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2022-07-27",
+     "tipo": "designacao",
+     "trecho": "... E NUMERO 0085 DESIGNA POR NECESSIDADE DE SERVICO A SERVIDORA 54097 6 LUCIANE APARECIDA DOS SANTOS ALMEIDA JORNADA ESPECIAL EM EMEF DAEM DEPARTAMENTO DE AGUA E ESGOTO DE MARILIA ...",
+     "edicao": "3247",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2023-06-01",
+     "tipo": "designacao",
+     "trecho": "...POSTERIORMENTE DESIGNA POR NECESSIDADE DE SERVICO A SERVIDORA 54097 6 LUCIANE APARECIDA DOS SANTOS ALMEIDA PROFESSORA DE EMEF LOTADA NA SECRETARIA MUNICIPAL DA EDUCACAO PARA CUMP...",
+     "edicao": "3460",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:MARIA ROSA DA SILVA": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2022-07-30",
+     "tipo": "nomeacao",
+     "trecho": "...DE 17 DE DEZEMBRO DE 1991 NOMEIA EM CARATER EFETIVO A CANDIDATA LIVIA MARIA ROSA DA SILVA CPF NO 375 337 768 60 CLASSIFICADA EM 107O LUGAR PARA O EXERCICIO DO CARGO DE A...",
+     "edicao": "3250",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:MAYCON DA SILVA GONZAGA": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2022-08-30",
+     "tipo": "promocao",
+     "trecho": "...SSOCIACOES QUE PROMOVAM A SEGURANCA ALIMENTAR E NUTRICIONAL TITULARES MAYCON DA SILVA GONZAGA ADALIO DE SOUZA AQUINO SUPLENTES ESTER GABRIELE DOS REIS GONZAGA MARIA TEREZA T...",
+     "edicao": "3271",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:EVANDRO APARECIDO MOYSES VILAS BOAS": {
+  "dom": {
+   "n": 3,
+   "exemplos": [
+    {
+     "data": "2022-09-15",
+     "tipo": "processo",
+     "trecho": "...6 2015 EM DECORRENCIA DO PROTOCOLO NO 34314 2015 E ABSOLVE O SERVIDOR EVANDRO APARECIDO MOYSES VILAS BOAS MOTORISTA SOCORRISTA MATRICULA NO 140481 1 LOTADO NA SECRETARIA MUNICIPAL DA SA...",
+     "edicao": "3282",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-10-18",
+     "tipo": "processo",
+     "trecho": "...3 2018 EM DECORRENCIA DO PROTOCOLO NO 68588 2017 E ABSOLVE O SERVIDOR EVANDRO APARECIDO MOYSES VILAS BOAS MOTORISTA SOCORRISTA MATRICULA 140481 1 LOTADO NA SECRETARIA MUNICIPAL DA SAUDE...",
+     "edicao": "3305",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-01-24",
+     "tipo": "processo",
+     "trecho": "...EM DECORRENCIA DO PROTOCOLO FISICO NO 50087 2015 E ABSOLVE O SERVIDOR EVANDRO APARECIDO MOYSES VILAS BOAS CARGO DE MOTORISTA SOCORRISTA MATRICULA NO 140481 1 PELA AUSENCIA DE PROVAS E C...",
+     "edicao": "3869",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:EDVALDO PEREIRA DOS SANTOS": {
+  "dom": {
+   "n": 3,
+   "exemplos": [
+    {
+     "data": "2022-10-15",
+     "tipo": "designacao",
+     "trecho": "...RO 41784 DESIGNA A PARTIR DE 17 DE OUTUBRO DE 2022 O SERVIDOR 54542 1 EDVALDO PEREIRA DOS SANTOS PARA O DESEMPENHO DA FUNCAO GRATIFICADA DE ENCARREGADO DA RONDA SOCIAL SIMBOLO ...",
+     "edicao": "3304",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-04-10",
+     "tipo": "designacao",
+     "trecho": "...TERA A PARTIR DE 04 DE ABRIL DE 2024 A DESIGNACAO DO SERVIDOR 54542 1 EDVALDO PEREIRA DOS SANTOS DE QUE TRATA A PORTARIA NO 41784 DE 14 DE OUTUBRO DE 2022 PARA O DESEMPENHO DA ...",
+     "edicao": "3669",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-01-21",
+     "tipo": "nomeacao",
+     "trecho": "...PUT DO ARTIGO 66 DO REFERIDO TEXTO LEGAL PORTARIA NUMERO 45888 NOMEIA EDVALDO PEREIRA DOS SANTOS PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSOR DO GABINETE DO SECRETARIO SIM...",
+     "edicao": "3866",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:VALDIR SILVEIRA MARIN": {
+  "dom": {
+   "n": 4,
+   "exemplos": [
+    {
+     "data": "2022-11-18",
+     "tipo": "designacao",
+     "trecho": "...A NUMERO 41898 DESIGNA POR NECESSIDADE DO SERVICO O SERVIDOR 138045 1 VALDIR SILVEIRA MARIN MEDICO ESPECIALISTA AREA UROLOGIA LOTADO NA SECRETARIA MUNICIPAL DA SAUDE PARA ...",
+     "edicao": "3325",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2022-11-23",
+     "tipo": "designacao",
+     "trecho": "... 41912 DESIGNA A PARTIR DE 23 DE NOVEMBRO DE 2022 O SERVIDOR 138045 1 VALDIR SILVEIRA MARIN MEDICO ESPECIALISTA AREA UROLOGIA PARA O DESEMPENHO DA FUNCAO DE SUPERVISOR MED...",
+     "edicao": "3328",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2023-09-02",
+     "tipo": "processo",
+     "trecho": "...E 2018 EM DECORRENCIA DO PROTOCOLO NO 17804 2018 E ABSOLVE O SERVIDOR VALDIR SILVEIRA MARIN MEDICO ESPECIALISTA AREA UROLOGIA MATRICULA 138045 1 E CONSEQUENTEMENTE ARQUIVA...",
+     "edicao": "3527",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-02-07",
+     "tipo": "processo",
+     "trecho": "...E 2016 EM DECORRENCIA DO PROTOCOLO NO 68471 2014 E ABSOLVE O SERVIDOR VALDIR SILVEIRA MARIN MEDICO MATRICULA NO 138045 1 PELA AUSENCIA DE PROVAS CONCLUSIVAS E A EXISTENCIA...",
+     "edicao": "3879",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:WILSON MIGUEL": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2022-12-24",
+     "tipo": "aposentadoria",
+     "trecho": "... DE JANEIRO DE 2023 PORTARIA NUMERO 42000 APOSENTA O SERVIDOR 25801 1 WILSON MIGUEL DE OLIVEIRA NO CARGO DE FISCAL DE OBRAS VENCIMENTO NIVEL 1 K TABELA 10 INSCRITO...",
+     "edicao": "3349",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:IVAN LUIS DO NASCIMENTO": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2023-01-10",
+     "tipo": "exoneracao",
+     "trecho": "... 5 DE JANEIRO DE 2023 OS SEGUINTES SERVIDORES DO GABINETE DO VEREADOR IVAN LUIS DO NASCIMENTO A DANIEL BAHIANO GONCALVES RG 32 187 416 X SSP SP OCUPANTE DO CARGO EM COMISSAO...",
+     "edicao": "3361",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:INES MARIA DE OLIVEIRA MARQUES": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2023-02-28",
+     "tipo": "aposentadoria",
+     "trecho": "...IDENCIAS PORTARIAS PORTARIA NUMERO 42270 APOSENTA A SERVIDORA 91928 1 INES MARIA DE OLIVEIRA MARQUES NO CARGO DE AGENTE OPERACIONAL DE SERVICOS VENCIMENTO NIVEL 1 D TABELA 2 INSCRI...",
+     "edicao": "3396",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:BRUNA RENATA VALENTE DA SILVA": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2023-06-23",
+     "tipo": "exoneracao",
+     "trecho": "...PORTARIA NUMERO 42681 EXONERA A PEDIDO A SERVIDORA 175463 1 BRUNA RENATA VALENTE DA SILVA RG NO 453119566 CPF NO 343 715 438 98 DO CARGO DE AUXILIAR DE DESENVOLVIMENTO E...",
+     "edicao": "3474",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:JULIANA TAVARES DE ALMEIDA": {
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2024-01-16",
+     "tipo": "designacao",
+     "trecho": "...ILIA EMDURB EMPRESA PUBLICA NO USO DE SUAS ATRIBUICOES LEGAIS DESIGNA JULIANA TAVARES DE ALMEIDA PARA O EXERCICIO DA FUNCAO DE CONFIANCA DE ASSISTENTE DE DIRETORIA A PARTIR DE ...",
+     "edicao": "3610",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2025-01-22",
+     "tipo": "designacao",
+     "trecho": "...EMPRESA PUBLICA NO USO DE SUAS ATRIBUICOES LEGAIS DESIGNA A SERVIDORA JULIANA TAVARES DE ALMEIDA PARA O EXERCICIO DA FUNCAO DE CONFIANCA DE DIRETORA DE PATRIMONIO A PARTIR DE 2...",
+     "edicao": "3867",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:CAROLINA CAVALCANTE ZEQUINI": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2024-02-20",
+     "tipo": "aposentadoria",
+     "trecho": "...E LIVROS EM LIBRAS PORTARIA NUMERO 43722 APOSENTA A SERVIDORA 67342 1 CAROLINA CAVALCANTE ZEQUINI NO CARGO DE ASSISTENTE ADMINISTRATIVA NIVEL 1 H TABELA 12 INSCRITA NO CPF N 076...",
+     "edicao": "3634",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:PATRICIA MODESTO DE MOURA": {
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2024-04-24",
+     "tipo": "nomeacao",
+     "trecho": "...PUT DO ARTIGO 66 DO REFERIDO TEXTO LEGAL PORTARIA NUMERO 44115 NOMEIA PATRICIA MODESTO DE MOURA PARA O EXERCICIO DO CARGO EM COMISSAO DE ASSESSORA DO GABINETE DO SECRETARIO SI...",
+     "edicao": "3679",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2024-07-06",
+     "tipo": "exoneracao",
+     "trecho": "...A PARTIR DE 06 DE JULHO DE 2024 PORARIA NUMERO 44645 EXONERA A PEDIDO PATRICIA MODESTO DE MOURA DO CARGO EM COMISSAO DE ASSESSORA DO GABINETE DO SECRETARIO DA SECRETARIA MUNIC...",
+     "edicao": "3733",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:APARECIDO FERREIRA DA CRUZ": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2024-05-25",
+     "tipo": "aposentadoria",
+     "trecho": "...1O DE JUNHO DE 2024 PORTARIA NUMERO 44372 APOSENTA O SERVIDOR 68314 1 APARECIDO FERREIRA DA CRUZ NO CARGO DE AGENTE OPERACIONAL DE SERVICOS VENCIMENTO NIVEL 1 H TABELA 2 INSCRI...",
+     "edicao": "3701",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:FRANCIELLE LUZIA DE SOUZA DURAN": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2024-05-25",
+     "tipo": "convocacao",
+     "trecho": "...7H NO AMBIENTE DA SECRETARIA MUNICIPAL DA EDUCACAO MEMBROS CONVOCADOS FRANCIELLE LUZIA DE SOUZA DURAN RG 34 561 313 2 JOSE CARLOS DA SILVA RG 27 610 178 9 MARCELO DE SOUZA FERMINO R...",
+     "edicao": "3701",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:MARCIA REGINA DE CAMPOS FIORIN MACEDO": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2024-10-16",
+     "tipo": "designacao",
+     "trecho": "...O 45127 DESIGNA A PARTIR DE 16 DE OUTUBRO DE 2024 A SERVIDORA 97918 1 MARCIA REGINA DE CAMPOS FIORIN MACEDO AGENTE DE VIGILANCIA PATRIMONIAL PARA O DESEMPENHO DA FUNCAO GRATIFICADA DE CHE...",
+     "edicao": "3803",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:VICENTE DE PAULA": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2024-11-20",
+     "tipo": "aposentadoria",
+     "trecho": "...PLEMENTAR NO 918 DE 04 DE NOVEMBRO DE 2021 APOSENTA O SERVIDOR 009151 VICENTE DE PAULA NO CARGO DE TECNICO EM QUIMICA VENCIMENTO TABELA 8 NIVEL 1 K INSCRITO NO CPF NO...",
+     "edicao": "3826",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:CAROLINA DOS SANTOS SAUSANAVICIUS": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2025-01-09",
+     "tipo": "nomeacao",
+     "trecho": "...AO PORTARIA NUMERO 45664 LEIA SE COMO SEGUE E NAO COMO CONSTOU NOMEIA CAROLINA DOS SANTOS SAUSANAVICIUS TERMO DE ANULACAO DA REVOGACAO EDITAL DE LICITACAO N 050 2024 UASG 986681 COMPR...",
+     "edicao": "3858",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:JOSIEL DOS SANTOS RIBEIRO": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2025-01-15",
+     "tipo": "designacao",
+     "trecho": "...RO 45787 DESIGNA A PARTIR DE 15 DE JANEIRO DE 2025 O SERVIDOR 55182 1 JOSIEL DOS SANTOS RIBEIRO ASSISTENTE ADMINISTRATIVO PARA O DESEMPENHO DA FUNCAO DE DIRETOR DO GANHA TEMPO...",
+     "edicao": "3862",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:CARLOS EDUARDO CAMILLIS": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2025-01-23",
+     "tipo": "designacao",
+     "trecho": "...5 REVIGORA A PARTIR DE 03 DE JANEIRO DE 2025 A DESIGNACAO DO SERVIDOR CARLOS EDUARDO CAMILLIS ELETRICISTA PARA O DESEMPENHO DA FUNCAO DE CHEFE DA DIVISAO DE MANUTENCAO ELETR...",
+     "edicao": "3868",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:TATIANE BARBAROTO": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2025-02-07",
+     "tipo": "designacao",
+     "trecho": "...EMPRESA PUBLICA NO USO DE SUAS ATRIBUICOES LEGAIS DESIGNA A SERVIDORA TATIANE BARBAROTO PARA O EXERCICIO DA FUNCAO DE CONFIANCA DE ASSISTENTE DE CHEFIA DO COMPLEXO DE ...",
+     "edicao": "3879",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:ALESSANDRA VIANA KRAEMER": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2025-03-29",
+     "tipo": "designacao",
+     "trecho": "...ERO 46638 DESIGNA A PARTIR DE 07 DE ABRIL DE 2025 A SERVIDORA 55743 1 ALESSANDRA VIANA KRAEMER PARA O DESEMPENHO DA FUNCAO DE SUPERVISORA DE PROJETOS DA SECRETARIA MUNICIPAL ...",
+     "edicao": "3914",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:SILVIO ROSA DE JESUS": {
+  "dom": {
+   "n": 2,
+   "exemplos": [
+    {
+     "data": "2025-04-25",
+     "tipo": "contratacao",
+     "trecho": "...O DO DECRETO MUNICIPAL NO 14 464 2024 A CONTRATACAO DIRETA DA EMPRESA SILVIO ROSA DE JESUS CNPJ 60 090 633 0001 60 PARA PRESTACAO DE SERVICOS DE CONCEPCAO E EXECUCAO DO P...",
+     "edicao": "3930",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2026-03-28",
+     "tipo": "contratacao",
+     "trecho": "...O DO DECRETO MUNICIPAL NO 14 464 2024 A CONTRATACAO DIRETA DA EMPRESA SILVIO ROSA DE JESUS CNPJ 60 090 633 0001 60 PARA PRESTACAO DO SERVICO CONSISTENTE NA CONCEPCAO E EX...",
+     "edicao": "4162",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:GABRIEL HENRIQUE DOMINGUES JORGE": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2025-05-14",
+     "tipo": "processo",
+     "trecho": "...ROCESSO ADMINISTRATIVO ELETRONICO NO 22 613 2024 E ABSOLVE O SERVIDOR GABRIEL HENRIQUE DOMINGUES JORGE CARGO DE AUXILIAR DE DESENVOLVIMENTO ESCOLAR E CONSEQUENTEMENTE ARQUIVA O PROCE...",
+     "edicao": "3941",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:ADRIANO DE ANDRADE CLEMENTE": {
+  "dom": {
+   "n": 3,
+   "exemplos": [
+    {
+     "data": "2025-05-24",
+     "tipo": "contratacao",
+     "trecho": "...TO MUNICIPAL NO 14 464 2024 VISANDO A CONTRATACAO DIRETA DA EMPRESA A ADRIANO DE ANDRADE CLEMENTE CNPJ 27 529 688 0001 58 PARA PRESTACAO DE SERVICOS DE ANIMACAO E INTERACAO COM ...",
+     "edicao": "3949",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2026-02-12",
+     "tipo": "contratacao",
+     "trecho": "...RETO MUNICIPAL NO 14 464 2024 VISANDO A CONTRATACAO DIRETA DA EMPRESA ADRIANO DE ANDRADE CLEMENTE CNPJ 27 529 688 0001 58 PARA PRESTACAO DE SERVICOS DE ANIMACAO E INTERACAO COM ...",
+     "edicao": "4130",
+     "fonte": "diarios"
+    },
+    {
+     "data": "2026-04-07",
+     "tipo": "contratacao",
+     "trecho": "...O DO DECRETO MUNICIPAL NO 14 464 2024 A CONTRATACAO DIRETA DA EMPRESA ADRIANO DE ANDRADE CLEMENTE CNPJ NO 27 529 688 0001 58 PARA APRESENTACAO ARTISTICA TEATRAL EM FORMA DE PALH...",
+     "edicao": "4167",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:GABRIEL FERNANDES DE SOUZA": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2025-09-13",
+     "tipo": "aposentadoria",
+     "trecho": "...DE SETEMBRO DE 2025 PORTARIA NUMERO 47671 APOSENTA O SERVIDOR 91812 2 GABRIEL FERNANDES DE SOUZA NO CARGO DE TECNICO DE ENFERMAGEM VENCIMENTO NIVEL 1 E TABELA 13 INSCRITO NO CP...",
+     "edicao": "4027",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:MIRELA SOARES SILVA": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2025-09-24",
+     "tipo": "designacao",
+     "trecho": "...47718 DESIGNA A PARTIR DE 24 DE SETEMBRO DE 2025 A SERVIDORA 101702 2 MIRELA SOARES SILVA PARA O DESEMPENHO DA FUNCAO GRATIFICADA DE CHEFE DA DIVISAO DE CADASTRO FUNCION...",
+     "edicao": "4034",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:GABRIEL PEREIRA DE SOUZA LIMA": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2025-12-13",
+     "tipo": "designacao",
+     "trecho": "...ANTOS TITULARES DESIGNADOS ANDREIA CARDOSO JOCA GALLY ANGELICA PUERTA GABRIEL PEREIRA DE SOUZA LIMA GEISON REINAR FOGO RODRIGO SANTOS BIANCHI SANDRA REGINA DOMINGOS FENILLE SILVIA...",
+     "edicao": "4092",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:VANESSA ISIDIO TEODORO DIAS": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2025-12-18",
+     "tipo": "processo",
+     "trecho": "...5 DE ABRIL DE 2021 E POR CONSEGUINTE ABSOLVE A EX CONSELHEIRA TUTELAR VANESSA ISIDIO TEODORO DIAS MATRICULA N O 144851 2 DAS IMPUTACOES DE VIOLACAO AO ARTIGO 27 INCISO I ITEM 13...",
+     "edicao": "4095",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:EDUARDO APARECIDO SANCHES": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2026-02-21",
+     "tipo": "nomeacao",
+     "trecho": "...RTINENTES NOS NIVEIS FEDERAL E MUNICIPAL PORTARIA NUMERO 48583 NOMEIA EDUARDO APARECIDO SANCHES PARA O EXERCICIO DO CARGO EM COMISSAO DE CHEFE DE GABINETE DE SECRETARIA SIMBOL...",
+     "edicao": "4136",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:JULINHA APARECIDA ANDRADE DE SOUZA MELLO": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2026-03-20",
+     "tipo": "aposentadoria",
+     "trecho": "...LEMENTAR N 918 DE 04 DE NOVEMBRO DE 2021 APOSENTA A SERVIDORA 51020 1 JULINHA APARECIDA ANDRADE DE SOUZA MELLO NO CARGO DE PROFESSORA DE EMEF VENCIMENTO NIVEL 2 G TABELA MAGISTERIO 1 INSCRIT...",
+     "edicao": "4156",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:ANTONIO VIEIRA": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2026-05-06",
+     "tipo": "aposentadoria",
+     "trecho": "...LEMENTAR NO 918 DE 04 DE NOVEMBRO DE 2021 APOSENTA O SERVIDOR 28053 1 ANTONIO VIEIRA LIMA NO CARGO DE AGENTE DE SAUDE VENCIMENTO NIVEL 1 J TABELA 6 INSCRITO NO CPF ...",
+     "edicao": "4186",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:OSCAR ALVES DA SILVA": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2026-05-13",
+     "tipo": "designacao",
+     "trecho": "...TERIORMENTE DESIGNA A PARTIR DE 12 DE MAIO DE 2026 O SERVIDOR 24929 1 OSCAR ALVES DA SILVA AGENTE OPERACIONAL PARA O DESEMPENHO DA FUNCAO GRATIFICADA DE ENCARREGADO DO SE...",
+     "edicao": "4192",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:ALINE SUEMI FUKASE": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2026-06-16",
+     "tipo": "contratacao",
+     "trecho": "...O DO DECRETO MUNICIPAL NO 14 464 2024 A CONTRATACAO DIRETA DA EMPRESA ALINE SUEMI FUKASE CNPJ NO 39 811 770 0001 50 PARA AQUISICAO DE CAFE TORRADO EM GRAOS DESTINADA A ...",
+     "edicao": "4216",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ },
+ "n:RAFAEL AMARAL CANDIDO": {
+  "dom": {
+   "n": 1,
+   "exemplos": [
+    {
+     "data": "2026-06-18",
+     "tipo": "contratacao",
+     "trecho": "...RETO MUNICIPAL NO 14 464 2024 VISANDO A CONTRATACAO DIRETA DA EMPRESA RAFAEL AMARAL CANDIDO CNPJ 11 583 456 0001 48 PARA AQUISICAO DE UM CAPACETE PARA MOTO DO SETOR DE PAT...",
+     "edicao": "4218",
+     "fonte": "diarios"
+    }
+   ]
+  }
+ }
+}

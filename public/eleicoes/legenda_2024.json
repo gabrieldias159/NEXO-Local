@@ -1,0 +1,128 @@
+{
+  "validosVereador": 113448,
+  "cadeiras": 17,
+  "porPartido": {
+    "PSDB": {
+      "legenda": 1672,
+      "nominais": 8251
+    },
+    "PL": {
+      "legenda": 778,
+      "nominais": 7759
+    },
+    "NOVO": {
+      "legenda": 371,
+      "nominais": 3923
+    },
+    "PSOL": {
+      "legenda": 274,
+      "nominais": 1678
+    },
+    "PT": {
+      "legenda": 250,
+      "nominais": 2924
+    },
+    "PP": {
+      "legenda": 139,
+      "nominais": 12860
+    },
+    "PDT": {
+      "legenda": 120,
+      "nominais": 2028
+    },
+    "PSD": {
+      "legenda": 102,
+      "nominais": 5877
+    },
+    "UNIÃO": {
+      "legenda": 95,
+      "nominais": 6127
+    },
+    "PSB": {
+      "legenda": 89,
+      "nominais": 4819
+    },
+    "AVANTE": {
+      "legenda": 88,
+      "nominais": 6625
+    },
+    "PODE": {
+      "legenda": 87,
+      "nominais": 8964
+    },
+    "MDB": {
+      "legenda": 78,
+      "nominais": 5093
+    },
+    "SOLIDARIEDADE": {
+      "legenda": 77,
+      "nominais": 7422
+    },
+    "MOBILIZA": {
+      "legenda": 73,
+      "nominais": 4865
+    },
+    "REPUBLICANOS": {
+      "legenda": 72,
+      "nominais": 6164
+    },
+    "CIDADANIA": {
+      "legenda": 72,
+      "nominais": 4080
+    },
+    "PRD": {
+      "legenda": 64,
+      "nominais": 3473
+    },
+    "DC": {
+      "legenda": 55,
+      "nominais": 5590
+    },
+    "PCO": {
+      "legenda": 14,
+      "nominais": 34
+    },
+    "PV": {
+      "legenda": 11,
+      "nominais": 211
+    },
+    "PC do B": {
+      "legenda": 9,
+      "nominais": 85
+    },
+    "REDE": {
+      "legenda": 6,
+      "nominais": 0
+    }
+  },
+  "porColigacao": {
+    "Federação BRASIL DA ESPERANÇA - FE BRASIL": {
+      "legenda": 270,
+      "nominais": 3220,
+      "partidos": [
+        "PC do B",
+        "PT",
+        "PV"
+      ],
+      "sigla": "PT/PC do B/PV"
+    },
+    "Federação PSOL REDE": {
+      "legenda": 280,
+      "nominais": 1678,
+      "partidos": [
+        "PSOL",
+        "REDE"
+      ],
+      "sigla": "PSOL/REDE"
+    },
+    "Federação PSDB CIDADANIA": {
+      "legenda": 1744,
+      "nominais": 12331,
+      "partidos": [
+        "CIDADANIA",
+        "PSDB"
+      ],
+      "sigla": "PSDB/CIDADANIA"
+    }
+  }
+}

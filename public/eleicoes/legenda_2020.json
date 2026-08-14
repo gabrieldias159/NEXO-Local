@@ -1,0 +1,86 @@
+{
+  "validosVereador": 107234,
+  "cadeiras": 13,
+  "porPartido": {
+    "PSDB": {
+      "legenda": 1674,
+      "nominais": 12897
+    },
+    "PODE": {
+      "legenda": 1632,
+      "nominais": 12586
+    },
+    "PSOL": {
+      "legenda": 321,
+      "nominais": 1117
+    },
+    "PT": {
+      "legenda": 284,
+      "nominais": 1945
+    },
+    "PRTB": {
+      "legenda": 255,
+      "nominais": 4506
+    },
+    "PP": {
+      "legenda": 227,
+      "nominais": 12369
+    },
+    "PDT": {
+      "legenda": 198,
+      "nominais": 2363
+    },
+    "PSL": {
+      "legenda": 171,
+      "nominais": 5699
+    },
+    "PL": {
+      "legenda": 156,
+      "nominais": 10492
+    },
+    "PSB": {
+      "legenda": 141,
+      "nominais": 10789
+    },
+    "REPUBLICANOS": {
+      "legenda": 111,
+      "nominais": 5731
+    },
+    "PSD": {
+      "legenda": 95,
+      "nominais": 8551
+    },
+    "SOLIDARIEDADE": {
+      "legenda": 94,
+      "nominais": 5324
+    },
+    "PV": {
+      "legenda": 86,
+      "nominais": 696
+    },
+    "DEM": {
+      "legenda": 58,
+      "nominais": 1049
+    },
+    "PTB": {
+      "legenda": 52,
+      "nominais": 354
+    },
+    "PATRIOTA": {
+      "legenda": 33,
+      "nominais": 1380
+    },
+    "PROS": {
+      "legenda": 29,
+      "nominais": 1158
+    },
+    "PTC": {
+      "legenda": 29,
+      "nominais": 1681
+    },
+    "AVANTE": {
+      "legenda": 29,
+      "nominais": 872
+    }
+  }
+}
