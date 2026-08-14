@@ -92,3 +92,58 @@ export {
 // ia_uso/{AAAA-MM-DD}. O app (Next.js) não tem admin — por isso esta function
 // é a que lê/escreve com privilégio. Usada pelas verticais GERENTE/ADVOGADO.
 export { onIaConfigUso } from "./ia/config-uso";
+
+// ───────────────────────────────────────────────────────────────────────────
+// ESTÚDIO DE VÍDEO — portado do oficioexpress. Roda no emulador de functions
+// com o ffmpeg do `@ffmpeg-installer` (render 100% local, custo zero).
+//
+// EXCEÇÃO: `onVideoCompressTranscoderRequest`/`onTranscoderPoll` falam com o
+// Google Cloud Video Transcoder — serviço PAGO e online. Ficam exportados por
+// paridade com a origem, mas NÃO funcionam offline; para render local use os
+// tiers `onRenderRequest*`, que são ffmpeg puro.
+
+// Compress: 3 tiers (small ≤100MB, medium ≤500MB, large >500MB).
+export {
+  onVideoCompressRequestSmall,
+  onVideoCompressRequestMedium,
+  onVideoCompressRequestLarge,
+} from "./video/compress";
+export { onCompressionStaleCleanup } from "./video/compress-cleanup";
+export { onCleanupOrphanVideos } from "./video/orphan-cleanup";
+export {
+  onVideoCompressTranscoderRequest,
+  onTranscoderPoll,
+} from "./video/compress-transcoder";
+export { onVideoQuickEditRequest } from "./video/quick-edit";
+// Render: 3 tiers (low/medium/high). Cliente seleciona via selectRenderTier().
+export {
+  onRenderRequestLow,
+  onRenderRequestMedium,
+  onRenderRequestHigh,
+} from "./video/render";
+export { onCaptionGenerateRequest } from "./video/caption-generate";
+
+// Recortes: gera CAPA (thumbnail) dos vídeos — trigger p/ novos + backfill admin.
+export {
+  onRecorteVideoCreated,
+  onGerarCapasRecortes,
+} from "./video/recorte-thumbnail";
+// Render: gera CAPA (thumbnail) do vídeo de saída — triggers (update/create) +
+// backfill admin. Sem esses exports os triggers não deployam.
+export {
+  onRenderJobThumbnail,
+  onRenderJobThumbnailCreated,
+  onGerarCapasRenders,
+} from "./video/render-thumbnail";
+// Recortes: PREVIEW (rendition 720p+faststart) no bucket de São Paulo.
+export {
+  onRecorteVideoPreview,
+  onGerarPreviewsRecortes,
+} from "./video/recorte-preview";
+
+// Cleanup de Storage ao apagar tasks (manual ou via TTL de 14 dias).
+// Evita acumular arquivos orfaos em `renders/{uid}/`.
+export {
+  onRenderJobDeleted,
+  onQuickEditJobDeleted,
+} from "./video/job-cleanup";

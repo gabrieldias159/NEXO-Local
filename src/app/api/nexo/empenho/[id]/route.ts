@@ -30,7 +30,7 @@
 import { NextResponse } from 'next/server';
 import { verificarSessao } from '@/lib/nexo/auth-server';
 import { lerColecaoNexo, lerDocNexo } from '@/lib/nexo/firestore-read';
-import { filterModulo } from '@/lib/nexo/sources/smarapd';
+import { filterModulo, type FiltroRedireciona } from '@/lib/nexo/sources/smarapd';
 import {
   normalizarEmpenhosFornecedor,
   parseValorBR,
@@ -285,6 +285,97 @@ const CAMPOS_EMPENHO = [
   'UG', 'UnidadeGestora',
 ];
 
+// ── Itens do empenho (drill-down `itensempenho` via `FiltroRedirecionaVisao`) ─
+
+/** Item cru devolvido pelo `itensempenho` (dump analítico do SMARAPD). */
+interface ItemEmpenhoBruto {
+  Descricao?: unknown;
+  Quantidade?: unknown;
+  ValorUnitario?: unknown;
+  ValorTotal?: unknown;
+  ID?: unknown;
+  Id?: unknown;
+}
+
+/**
+ * Extrai o `FiltroRedirecionaVisao` da URL no campo `Itens` do empenho. Esse
+ * campo é o link do portal p/ o drill-down analítico:
+ *   `.../empenho_sintetico/itensempenho?...
+ *     colunafiltroredirecionavisao=IDDespesa&valorfiltroredirecionavisao=850226&
+ *     tipovalfiltroredirecionavisao=3`
+ * A query fica no FRAGMENTO (`#/dinamico/...?...`), então o parse ignora o `#`.
+ */
+function extrairRedirecionaItens(itemUrl: unknown): FiltroRedireciona | null {
+  const raw = str(itemUrl);
+  if (!raw) return null;
+  const fragmento = raw.split('#')[1] ?? raw;
+  const qs = fragmento.split('?')[1];
+  if (!qs) return null;
+  const params = new URLSearchParams(qs);
+  const campo = params.get('colunafiltroredirecionavisao');
+  const valor = params.get('valorfiltroredirecionavisao');
+  if (!campo || !valor) return null;
+  return {
+    campo,
+    valor,
+    tipoValor: params.get('tipovalorfiltroredirecionavisao') || '1',
+  };
+}
+
+/** Entra o bloco `ItensEmpenho` chamando o drill-down on-demand (uma página). */
+async function resolverItens(
+  docEmpenho: Record<string, unknown>,
+  exercicio: number,
+): Promise<ItensEmpenho> {
+  const redireciona = extrairRedirecionaItens(docEmpenho.Itens);
+  if (!redireciona) {
+    return {
+      disponivel: false,
+      motivo:
+        'O empenho não traz o link do drill-down de itens (campo `Itens` ausente ' +
+        'ou sem filtro de redirecionamento), ou a visão de itens não está no portal.',
+      idDespesa: null,
+      itens: [],
+      total: 0,
+    };
+  }
+  let resp;
+  try {
+    resp = await filterModulo<ItemEmpenhoBruto>({
+      chaveModulo: 'empenho_sintetico',
+      nomeVisao: 'itensempenho',
+      exercicio,
+      periodicidade: '',
+      periodo: null,
+      pagina: 1,
+      quantidadeRegistros: 500,
+      filtroRedireciona: redireciona,
+    });
+  } catch (err) {
+    return {
+      disponivel: false,
+      motivo: err instanceof Error ? err.message : 'falha ao consultar os itens',
+      idDespesa: redireciona.valor,
+      itens: [],
+      total: 0,
+    };
+  }
+  const itens: EmpenhoItem[] = (resp.Valores ?? []).map((v) => ({
+    id: str(v.Id) || str(v.ID),
+    descricao: str(v.Descricao),
+    quantidade: parseValorBR(v.Quantidade) || 0,
+    valorUnitario: parseValorBR(v.ValorUnitario) || 0,
+    valorTotal: parseValorBR(v.ValorTotal) || 0,
+  }));
+  return {
+    disponivel: true,
+    motivo: null,
+    idDespesa: redireciona.valor,
+    itens,
+    total: itens.length,
+  };
+}
+
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -297,6 +388,7 @@ export async function GET(
     );
   }
   const idToken = sessao.idToken;
+  const { searchParams } = new URL(req.url);
 
   const { id: idBruto } = await params;
   const id = str(idBruto);
@@ -350,6 +442,26 @@ export async function GET(
   // O docId é a identidade real no grafo — força-o como id do empenho.
   empenho.id = id;
 
+  // Itens do empenho (drill-down SMARAPD) — só sob demanda, via `?itens=1`.
+  // Falha externa degrada honesto (`disponivel:false`), nunca derruba o raio-x.
+  let blocoItens: ItensEmpenho | undefined;
+  if (searchParams.get('itens') === '1') {
+    try {
+      blocoItens = await resolverItens(docEmpenho, empenho.exercicio);
+    } catch (err) {
+      blocoItens = {
+        disponivel: false,
+        motivo:
+          err instanceof Error
+            ? err.message
+            : 'falha ao consultar os itens do empenho',
+        idDespesa: null,
+        itens: [],
+        total: 0,
+      };
+    }
+  }
+
   const processos: ProcessoEmpenho[] = [];
   if (empenho.processoAdministrativo) {
     processos.push({ numero: empenho.processoAdministrativo, tipo: 'administrativo' });
@@ -388,6 +500,7 @@ export async function GET(
         dom: [],
         tce: [],
       },
+      ...(blocoItens ? { itens: blocoItens } : {}),
       atualizadoEm: new Date().toISOString(),
     };
     return NextResponse.json(semGrafo, { headers: headersCache });
@@ -411,6 +524,7 @@ export async function GET(
         dom: [],
         tce: [],
       },
+      ...(blocoItens ? { itens: blocoItens } : {}),
       atualizadoEm: new Date().toISOString(),
     };
     return NextResponse.json(grafoVazio, { headers: headersCache });
@@ -511,6 +625,7 @@ export async function GET(
       dom,
       tce,
     },
+    ...(blocoItens ? { itens: blocoItens } : {}),
     atualizadoEm: new Date().toISOString(),
   };
   return NextResponse.json(resposta, { headers: headersCache });

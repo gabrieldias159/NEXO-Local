@@ -163,13 +163,39 @@ dev estão de pé e batendo, e reporta o estado básico das coleções `nexo_*`.
 - `docs/nexo*`, `docs/nexo/*` — plano-mestre, catálogo de fontes/detectores,
   estado atual do pipeline local.
 
+### Estúdio de Vídeo
+
+Além da sala de situação, este repo traz o **Estúdio de Vídeo** do
+oficioexpress — útil para montar os cortes/peças que saem das apurações sem
+sair do ambiente local (e sem custo de nuvem, já que o render roda no ffmpeg
+da própria máquina, via emulador de functions).
+
+- `/apps/suite-editor-videos` — **avançado**: timeline multi-track, legendas
+  (transcrição local via Whisper/`@huggingface/transformers`), transições,
+  inspector, preview e render por tiers.
+- `/apps/editor-videos` — **básico**: aplica logo e rodapé para padronização.
+- `src/components/editor/**` + `src/lib/editor/**` — o editor em si.
+- `src/app/api/video/import-url` — importa vídeo por URL (com fallback
+  `youtubei.js`).
+- `functions/src/video/**` — render/compressão/legendas/thumbnails.
+
+Ambos abrem **fora do shell** do NEXO (são full-screen), e estão linkados no
+menu lateral sob o grupo **Estúdio**.
+
+> `onVideoCompressTranscoderRequest`/`onTranscoderPoll` falam com o Google
+> Cloud Video Transcoder — serviço **pago e online**. Ficam no repo por
+> paridade com a origem, mas não funcionam offline; para render local use os
+> tiers `onRenderRequest*` (ffmpeg puro).
+
 ## O que NÃO veio nesta extração
 
-- Dependência de qualquer outra área do oficioexpress (ofícios, vídeos,
-  Diário Oficial "interno", Acervo de Leis, SAPL...) — o NEXO já não
-  dependia dessas áreas em runtime; só reaproveita 3 rotinas genéricas
-  compartilhadas (`src/firebase/*`, `src/components/ui/*`, `src/ai/*` — o
-  gateway de IA multi-provider).
+- Dependência das demais áreas do oficioexpress (ofícios, Diário Oficial
+  "interno", Acervo de Leis, SAPL...) — o NEXO já não dependia dessas áreas
+  em runtime; só reaproveita rotinas genéricas compartilhadas
+  (`src/firebase/*`, `src/components/ui/*`, `src/ai/*` — o gateway de IA
+  multi-provider). O Estúdio de Vídeo é a exceção deliberada: veio junto, por
+  pedido, e continua existindo também no repo de origem (os dois seguem
+  caminhos independentes a partir daqui).
 - Documentos de evidência da investigação fiscal (PDFs/imagens em
   `docs/fiscal-fontes/` no repo original, ~26 MB) — ficaram de fora por
   serem material de caso, não parte do produto. Copie manualmente se

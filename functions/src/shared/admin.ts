@@ -3,9 +3,11 @@
  * Cloud Functions do NEXO importam `db`/`bucket` daqui — sem duplicar
  * `admin.initializeApp()`.
  *
- * Trimado da versão original do oficioexpress: removido o helper de ffmpeg
- * (lazy-load de `fluent-ffmpeg`/`@ffmpeg-installer/ffmpeg`), que era usado só
- * pelas functions de vídeo — fora do escopo do NEXO-Local.
+ * O helper `ffmpeg()` (lazy-load de `fluent-ffmpeg` + binário do
+ * `@ffmpeg-installer/ffmpeg`) é usado pelas functions do Estúdio de Vídeo
+ * (`functions/src/video/*`). O lazy-load importa: carregar o binário no
+ * top-level atrasaria a subida de TODAS as functions, inclusive as de coleta
+ * do NEXO, que não têm nada a ver com vídeo.
  */
 
 import admin from "firebase-admin";
@@ -44,3 +46,18 @@ export const bucket = new Proxy(
 );
 
 export { admin };
+
+let _ffmpegLib: any;
+function getFFmpeg() {
+  if (!_ffmpegLib) {
+    const fluentFfmpeg = require("fluent-ffmpeg");
+    const { path: ffmpegPath } = require("@ffmpeg-installer/ffmpeg");
+    fluentFfmpeg.setFfmpegPath(ffmpegPath);
+    _ffmpegLib = fluentFfmpeg;
+  }
+  return _ffmpegLib;
+}
+
+export function ffmpeg(input?: any) {
+  return getFFmpeg()(input);
+}

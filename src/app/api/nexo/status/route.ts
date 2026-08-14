@@ -80,6 +80,20 @@ function asNumber(v: unknown): number {
 /** Janela em que uma ingestão ainda é considerada "fresca" — 36h cobre uma falha de 1 dia do cron. */
 const FRESCOR_MS = 36 * 60 * 60 * 1000;
 
+/**
+ * Cache TTL em memória do payload da saúde.
+ *
+ * A página /nexo e o Painel de Coleta chamam `/api/nexo/status` a cada acesso.
+ * O `revalidate=300` do rótulo NÃO efetivo em route handler dinâmica (faz
+ * auth por sessão → sempre tratada como dinâmica), então SEM este cache cada
+ * ágil executava `probeSiconfi` de novo a cada request (sonda ao vivo,
+ * ~2,5-30s) — era o que segurava o esqueleto da home. A ingestão muda no
+ * máximo 1x/dia (cron 04h15), então TTL de 60s é folgado; o novo valor é
+ * servido no request seguinte.
+ */
+const STATUS_TTL_MS = 60_000;
+let statusCache: { key: string; at: number; payload: NexoStatusResponse } | null = null;
+
 export async function GET(req: Request) {
   const sessao = await verificarSessao(req);
   if (!sessao.ok || !sessao.idToken) {
@@ -91,6 +105,15 @@ export async function GET(req: Request) {
   const idToken = sessao.idToken;
 
   const exercicioAtual = new Date().getFullYear();
+  const cacheKey = String(exercicioAtual);
+
+  // Cache-first: serve o payload anterior se ainda válido e reutiliza a sessão
+  // (evita re-probe ao vivo — SICONFI/PNCP — a cada carga da home).
+  if (statusCache && statusCache.key === cacheKey && Date.now() - statusCache.at < STATUS_TTL_MS) {
+    return NextResponse.json(statusCache.payload, {
+      headers: { 'Cache-Control': 'private, max-age=60' },
+    });
+  }
 
   // Lê o estado da ingestão (cron) e sonda SICONFI/PNCP em paralelo — essas
   // duas fontes não são cobertas pelo cron, então a sondagem ao vivo continua.
@@ -154,6 +177,7 @@ export async function GET(req: Request) {
       detalhe,
     },
   };
+  statusCache = { key: cacheKey, at: Date.now(), payload: response };
 
   return NextResponse.json(response, {
     headers: {

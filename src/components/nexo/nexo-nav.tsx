@@ -15,7 +15,7 @@ import {
   ShieldAlert, Newspaper, Cpu, FolderOpen, Landmark, HandCoins, FileSearch,
   FileSignature, Ban, Scale, ScanSearch, Gavel, Wallet, PieChart, Network, Eye,
   ListChecks, Trophy, Vote,   ChevronDown, ExternalLink, Crosshair, UserSearch, MapPinned, Activity,
-  TrendingUp, PiggyBank,
+  TrendingUp, PiggyBank, Clapperboard, Film,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { FOCO_NEXO } from './ui/nexo-tokens';
@@ -101,6 +101,28 @@ export const NAV: NavGrupo[] = [
       { href: '/nexo/vigilancia', label: 'Vigilância', icon: Eye },
       { href: '/nexo/saude-sistema', label: 'Saúde do Sistema', icon: Activity },
       { href: '/nexo/dossies', label: 'Dossiês', icon: FolderOpen },
+    ],
+  },
+  {
+    grupo: 'Estúdio',
+    itens: [
+      // Ambos vivem FORA do shell (`/apps/*`): são editores full-screen, que
+      // precisam da viewport inteira — daí `externo: true` (abre em nova aba,
+      // sem ejetar a sala de situação).
+      {
+        href: '/apps/suite-editor-videos',
+        label: 'Estúdio de Vídeo (avançado)',
+        icon: Clapperboard,
+        externo: true,
+        aliases: ['suite', 'editor avançado', 'timeline', 'legendas', 'render'],
+      },
+      {
+        href: '/apps/editor-videos',
+        label: 'Estúdio de Vídeo (básico)',
+        icon: Film,
+        externo: true,
+        aliases: ['editor básico', 'logo', 'rodapé', 'marca d\'água'],
+      },
     ],
   },
 ];

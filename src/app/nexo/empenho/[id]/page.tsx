@@ -23,6 +23,7 @@ import {
   Gavel,
   Landmark,
   Link2,
+  ListChecks,
   Newspaper,
   RefreshCw,
   ScrollText,
@@ -37,6 +38,7 @@ import { EntityProvider, EntityText } from '@/components/nexo/entity-text';
 import { nexoFetch } from '@/lib/nexo/client-fetch';
 import type {
   EmpenhoDetalheResponse,
+  EmpenhoItem,
   ContratoVinculado,
   LicitacaoVinculada,
   DomVinculado,
@@ -250,7 +252,7 @@ export default function EmpenhoDetalhePage() {
     const req = ++reqId.current;
     setLoading(true);
     setErro(null);
-    nexoFetch(`/api/nexo/empenho/${encodeURIComponent(id)}`)
+    nexoFetch(`/api/nexo/empenho/${encodeURIComponent(id)}?itens=1`)
       .then(async (r) => {
         const json = (await r.json()) as EmpenhoDetalheResponse & { erro?: string };
         // 404 traz corpo `encontrado:false` — não é erro de rede.
@@ -404,6 +406,49 @@ export default function EmpenhoDetalhePage() {
                     </Link>
                   ))}
                 </div>
+              )}
+            </Secao>
+
+            {/* Itens do empenho (drill-down analítico) */}
+            <Secao icone={ListChecks} titulo="Itens do empenho" contagem={data.itens?.itens.length}>
+              {!data.itens ? (
+                <Vazio>Itens indisponíveis nesta carga (drill-down não solicitado).</Vazio>
+              ) : !data.itens.disponivel ? (
+                <Vazio>{data.itens.motivo ?? 'Drill-down de itens indisponível.'}</Vazio>
+              ) : data.itens.itens.length === 0 ? (
+                <Vazio>O portal não retornou itens analíticos para este empenho.</Vazio>
+              ) : (
+                <Card className="border-white/5 bg-nexo-chrome">
+                  <CardContent className="overflow-x-auto py-2">
+                    <table className="w-full min-w-[640px] text-left text-sm">
+                      <thead>
+                        <tr className="border-b border-white/10 text-[11px] uppercase tracking-wide text-slate-500">
+                          <th className="py-2 pr-3 font-medium">#</th>
+                          <th className="py-2 pr-3 font-medium">Descrição</th>
+                          <th className="py-2 pr-3 text-right font-medium">Qtd.</th>
+                          <th className="py-2 pr-3 text-right font-medium">Unitário</th>
+                          <th className="py-2 text-right font-medium">Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {data.itens.itens.map((item: EmpenhoItem, i: number) => (
+                          <tr key={item.id || i} className="border-b border-white/5 last:border-0">
+                            <td className="py-2 pr-2 align-top font-mono text-xs text-slate-500">{i + 1}</td>
+                            <td className="py-2 pr-3 align-top text-slate-200">{item.descricao || '—'}</td>
+                            <td className="py-2 pr-3 align-top text-right font-mono text-slate-300">
+                              {item.quantidade.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}
+                            </td>
+                            <td className="py-2 pr-3 align-top text-right font-mono text-slate-300">{brl(item.valorUnitario)}</td>
+                            <td className="py-2 align-top text-right font-mono text-slate-100">{brl(item.valorTotal)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    <p className="mt-2 text-right text-xs text-slate-500">
+                      {data.itens.itens.length} item(ns) · {brl(data.itens.itens.reduce((s, i) => s + i.valorTotal, 0))}
+                    </p>
+                  </CardContent>
+                </Card>
               )}
             </Secao>
 

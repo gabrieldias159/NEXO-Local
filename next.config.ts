@@ -1,9 +1,11 @@
 import type { NextConfig } from 'next';
 
-// Config enxuta pro NEXO-Local — sem os headers COOP/COEP do editor de vídeo
-// e sem `serverExternalPackages` (youtubei.js), que eram do oficioexpress e
-// não se aplicam aqui.
 const nextConfig: NextConfig = {
+  // youtubei.js usa APIs do Node que não sobrevivem ao bundle do webpack.
+  // Mantê-lo como externo faz o runtime importar direto dos node_modules.
+  // Usado pelo fallback de import de vídeo por URL (`/api/video/import-url`).
+  serverExternalPackages: ['youtubei.js'],
+
   async headers() {
     return [
       {
@@ -13,6 +15,37 @@ const nextConfig: NextConfig = {
           {
             key: 'Cross-Origin-Opener-Policy',
             value: 'same-origin-allow-popups',
+          },
+        ],
+      },
+      {
+        // Headers COOP/COEP escopados ao Estúdio de Vídeo (avançado).
+        // Necessário para SharedArrayBuffer (FFmpeg.wasm multi-thread + WebCodecs).
+        // NÃO aplicar globalmente — quebra popups de auth do Firebase.
+        source: '/apps/suite-editor-videos/:path*',
+        headers: [
+          {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin',
+          },
+          {
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'require-corp',
+          },
+        ],
+      },
+      {
+        // Estúdio básico também usa FFmpeg.wasm — precisa de cross-origin isolation.
+        // credentialless permite carregar assets de CDN sem CORP header.
+        source: '/apps/editor-videos/:path*',
+        headers: [
+          {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin',
+          },
+          {
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'credentialless',
           },
         ],
       },
@@ -27,6 +60,23 @@ const nextConfig: NextConfig = {
 
   eslint: {
     ignoreDuringBuilds: true,
+  },
+
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: 'placehold.co', port: '', pathname: '/**' },
+      { protocol: 'https', hostname: 'images.unsplash.com', port: '', pathname: '/**' },
+      { protocol: 'https', hostname: 'picsum.photos', port: '', pathname: '/**' },
+      {
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org',
+        port: '',
+        pathname: '/wikipedia/commons/**',
+      },
+      { protocol: 'https', hostname: 'storage.googleapis.com', port: '', pathname: '/**' },
+      { protocol: 'https', hostname: 'firebasestorage.googleapis.com', port: '', pathname: '/**' },
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com', port: '', pathname: '/**' },
+    ],
   },
 };
 
