@@ -276,6 +276,15 @@ interface Actions {
   setTrackVisible: (trackId: string, visible: boolean) => void;
   setTrackSolo: (trackId: string, solo: boolean) => void;
   setTrackHeight: (trackId: string, px: number) => void;
+  /**
+   * Opções de TRILHA de uma track de áudio: volume em % (gainPct),
+   * nivelamento de dinâmica (audioLeveling, export) e fades automáticos
+   * (autoFade, export). Patch parcial.
+   */
+  setTrackAudioOptions: (
+    trackId: string,
+    patch: Partial<Pick<Track, 'gainPct' | 'audioLeveling' | 'autoFade'>>,
+  ) => void;
 
   // ---- 5.3b Subtracks / Camadas (só tracks de vídeo) ---------------------
   /**
@@ -1035,6 +1044,22 @@ export const useEditorStore = create<EditorStore>()(
             if (!s.project) return;
             const track = s.project.tracks.find((t) => t.id === trackId);
             if (track) track.solo = solo;
+          }),
+
+        setTrackAudioOptions: (trackId, patch) =>
+          set((s) => {
+            if (!s.project) return;
+            const track = s.project.tracks.find((t) => t.id === trackId);
+            if (!track || track.type !== 'audio') return;
+            if (patch.gainPct !== undefined) {
+              track.gainPct = clamp(patch.gainPct, 0, 200);
+            }
+            if (patch.audioLeveling !== undefined) {
+              track.audioLeveling = patch.audioLeveling;
+            }
+            if (patch.autoFade !== undefined) {
+              track.autoFade = patch.autoFade;
+            }
           }),
 
         setTrackHeight: (trackId, px) => {

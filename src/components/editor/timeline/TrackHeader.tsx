@@ -11,6 +11,13 @@
  */
 
 import { useRef } from 'react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
 import type { Track } from '@/lib/editor/types';
 import { useEditorStore } from '@/lib/editor/store';
 import { trackLayerCount } from '@/lib/editor/preview-utils';
@@ -42,6 +49,7 @@ export function TrackHeader({ track, selected }: TrackHeaderProps) {
   const setLocked = useEditorStore((s) => s.setTrackLocked);
   const setVisible = useEditorStore((s) => s.setTrackVisible);
   const addSubtrack = useEditorStore((s) => s.addSubtrack);
+  const setTrackAudioOptions = useEditorStore((s) => s.setTrackAudioOptions);
   const removeSubtrack = useEditorStore((s) => s.removeSubtrack);
   const addClipFromAsset = useEditorStore((s) => s.addClipFromAsset);
   const ingest = useIngestFiles();
@@ -102,6 +110,117 @@ export function TrackHeader({ track, selected }: TrackHeaderProps) {
         <span className="truncate text-[11px] font-medium text-foreground">
           {track.name}
         </span>
+        {/* Controle de TRILHA (volume % / nivelar / fades) — só áudio. */}
+        {!isVideo && (
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                onClick={(e) => e.stopPropagation()}
+                title="Trilha: volume %, nivelar dinâmica e fades automáticos"
+                className={cn(
+                  'w-fit rounded-[var(--editor-radius-sm)] px-0.5 text-left text-[9px] tabular-nums',
+                  (track.gainPct ?? 100) !== 100 ||
+                    track.audioLeveling ||
+                    track.autoFade
+                    ? 'text-[var(--editor-accent-strong,theme(colors.violet.400))]'
+                    : 'text-muted-foreground',
+                  'hover:bg-border hover:text-foreground',
+                )}
+              >
+                {Math.round(track.gainPct ?? 100)}%
+                {track.audioLeveling ? ' · niv' : ''}
+                {track.autoFade ? ' · fade' : ''}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent
+              className="w-64 p-3"
+              align="start"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <p className="mb-2 text-xs font-semibold">Trilha — {track.name}</p>
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-muted-foreground">
+                      Volume da track
+                    </span>
+                    <span className="text-[10px] tabular-nums">
+                      {Math.round(track.gainPct ?? 100)}%
+                    </span>
+                  </div>
+                  <Slider
+                    value={[track.gainPct ?? 100]}
+                    min={0}
+                    max={200}
+                    step={1}
+                    onValueChange={([v]) =>
+                      setTrackAudioOptions(track.id, { gainPct: v ?? 100 })
+                    }
+                  />
+                  <div className="flex gap-1">
+                    {[14, 16, 18, 100].map((v) => (
+                      <button
+                        key={v}
+                        type="button"
+                        onClick={() =>
+                          setTrackAudioOptions(track.id, { gainPct: v })
+                        }
+                        className={cn(
+                          'rounded border border-border px-1.5 py-0.5 text-[10px] tabular-nums hover:bg-muted',
+                          Math.round(track.gainPct ?? 100) === v &&
+                            'bg-[var(--editor-accent)] text-white',
+                        )}
+                        title={
+                          v === 100
+                            ? 'Neutro'
+                            : 'Padrão de trilha do gabinete (14–18%)'
+                        }
+                      >
+                        {v}%
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <label className="flex items-center justify-between gap-2 text-[11px]">
+                  <span>
+                    Nivelar dinâmica{' '}
+                    <span className="rounded bg-muted px-1 text-[8px] uppercase text-muted-foreground">
+                      export
+                    </span>
+                  </span>
+                  <Switch
+                    checked={track.audioLeveling ?? false}
+                    onCheckedChange={(v) =>
+                      setTrackAudioOptions(track.id, { audioLeveling: v })
+                    }
+                  />
+                </label>
+
+                <label className="flex items-center justify-between gap-2 text-[11px]">
+                  <span>
+                    Fades automáticos (1,2s / 2,5s){' '}
+                    <span className="rounded bg-muted px-1 text-[8px] uppercase text-muted-foreground">
+                      export
+                    </span>
+                  </span>
+                  <Switch
+                    checked={track.autoFade ?? false}
+                    onCheckedChange={(v) =>
+                      setTrackAudioOptions(track.id, { autoFade: v })
+                    }
+                  />
+                </label>
+
+                <p className="text-[10px] leading-snug text-muted-foreground">
+                  A voz nunca abaixa: o export mixa sem atenuar (normalize=0)
+                  e um limiter segura só os picos.
+                </p>
+              </div>
+            </PopoverContent>
+          </Popover>
+        )}
         {/* Controle de CAMADAS (subtracks) — só vídeo. */}
         {isVideo && (
           <div className="flex items-center gap-0.5">

@@ -185,6 +185,12 @@ export interface Track {
   clips: Clip[];
   /** Número de camadas (subtracks) — só tracks de vídeo. Ausente = 1. */
   layerCount?: number;
+  /** Volume da TRACK em % (100 = neutro) — multiplica o volume dos clips. */
+  gainPct?: number;
+  /** Nivelar dinâmica no export (dynaudnorm f=200:g=15:p=0.85). */
+  audioLeveling?: boolean;
+  /** Fades automáticos no export (in 1,2s / out 2,5s por clip). */
+  autoFade?: boolean;
 }
 
 // ---- Captions ---------------------------------------------------------------

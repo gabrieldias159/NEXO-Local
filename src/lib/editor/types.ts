@@ -276,6 +276,24 @@ export interface Track {
    * load (`normalizeSplitTracks`).
    */
   stageSlot?: 'top' | 'bottom';
+
+  // ---- Trilha (tracks de ÁUDIO) — campos aditivos/opcionais -------------
+  /**
+   * Volume da TRACK em % (100 = neutro). Multiplica o volume de cada clip
+   * no preview (mixer) e no export. Trilha do gabinete usa 14–18%.
+   */
+  gainPct?: number;
+  /**
+   * Nivelar a dinâmica da trilha no EXPORT (dynaudnorm f=200:g=15:p=0.85 —
+   * o preset da produção real). Não tem efeito no preview.
+   */
+  audioLeveling?: boolean;
+  /**
+   * Fades automáticos da trilha no EXPORT: entrada suave de 1,2s e saída
+   * longa de 2,5s em cada clip da track (clips com fade próprio mantêm o
+   * seu). Não tem efeito no preview.
+   */
+  autoFade?: boolean;
 }
 
 // ============================================================================

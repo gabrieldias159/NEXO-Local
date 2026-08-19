@@ -190,7 +190,7 @@ function projectTracksKey(project: VideoProject | null): string {
   return project.tracks
     .map(
       (t) =>
-        `${t.id}:${t.type}:${'volume' in t ? '' : ''}${(t as Track).muted ? 'M' : ''}${t.solo ? 'S' : ''}`,
+        `${t.id}:${t.type}:${t.gainPct ?? 100}:${(t as Track).muted ? 'M' : ''}${t.solo ? 'S' : ''}`,
     )
     .join('|');
 }
@@ -206,11 +206,9 @@ function applyTracksAudioState(
 ): void {
   if (!project) return;
   for (const track of project.tracks) {
-    // Volume: o tipo Track no spec não tem volume explícito (apenas muted/
-    // solo), então a track herda volume "1" e a granularidade fica no clip.
-    // Mantemos o setter pronto caso o tipo evolua. Se a Track ganhar
-    // `volume`, ler aqui.
-    const trackVol = (track as unknown as { volume?: number }).volume ?? 1;
+    // Volume da track: `gainPct` (0–200, 100 = neutro) — o "volume %"
+    // da trilha do gabinete. Preview e export usam o mesmo fator.
+    const trackVol = (track.gainPct ?? 100) / 100;
     mixer.setTrackVolume(track.id, trackVol);
     mixer.setTrackMuted(track.id, track.muted);
     mixer.setTrackSolo(track.id, track.solo);

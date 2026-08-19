@@ -338,6 +338,7 @@ export function buildFilterComplex(
       const built = buildAudioClipChain({
         inputIndex: idx,
         clip,
+        track,
         outLabel: label,
       });
       if (!built) return;
@@ -357,8 +358,14 @@ export function buildFilterComplex(
     lines.push(`${audioLabels[0]}anull[a_final]`);
     audioStream = `[a_final]`;
   } else {
+    // normalize=0: a VOZ nunca abaixa quando a trilha entra (o amix padrão
+    // atenua cada input por 1/N). O limiter no master só segura picos —
+    // não normaliza (preset da produção real do gabinete).
     lines.push(
-      `${audioLabels.join("")}amix=inputs=${audioLabels.length}:duration=longest:dropout_transition=0[a_final]`,
+      `${audioLabels.join("")}amix=inputs=${audioLabels.length}:duration=longest:dropout_transition=0:normalize=0[a_mixed]`,
+    );
+    lines.push(
+      `[a_mixed]alimiter=limit=0.97:attack=5:release=50:level=false[a_final]`,
     );
     audioStream = `[a_final]`;
   }
@@ -553,11 +560,13 @@ function buildVideoClipChain(args: BuildVideoChainArgs): string {
 interface BuildAudioChainArgs {
   inputIndex: number;
   clip: Clip;
+  /** Track dona — opções de TRILHA (gainPct/audioLeveling/autoFade). */
+  track?: Track;
   outLabel: string;
 }
 
 function buildAudioClipChain(args: BuildAudioChainArgs): string | null {
-  const { inputIndex, clip, outLabel } = args;
+  const { inputIndex, clip, track, outLabel } = args;
   const dur = Math.max(0.001, clipDurationOnTimeline(clip));
   const startTl = Math.max(0, clip.startInTimeline);
 
@@ -575,19 +584,38 @@ function buildAudioClipChain(args: BuildAudioChainArgs): string | null {
     }
   }
 
-  if (clip.audio.fadeInDuration > 0) {
+  // Trilha nivelada (track de música): dynaudnorm ANTES do volume, com o
+  // preset da produção real do gabinete.
+  if (track?.audioLeveling) {
+    filters.push("dynaudnorm=f=200:g=15:p=0.85");
+  }
+
+  // Fades automáticos da trilha (in 1,2s / out 2,5s) quando o clip não tem
+  // fade próprio configurado.
+  const autoIn =
+    track?.autoFade && clip.audio.fadeInDuration <= 0 ? Math.min(1.2, dur / 2) : 0;
+  const autoOut =
+    track?.autoFade && clip.audio.fadeOutDuration <= 0 ? Math.min(2.5, dur / 2) : 0;
+
+  const fadeIn = clip.audio.fadeInDuration > 0 ? clip.audio.fadeInDuration : autoIn;
+  const fadeOut =
+    clip.audio.fadeOutDuration > 0 ? clip.audio.fadeOutDuration : autoOut;
+
+  if (fadeIn > 0) {
+    filters.push(`afade=t=in:st=0:d=${Math.min(fadeIn, dur).toFixed(3)}`);
+  }
+  if (fadeOut > 0) {
+    const start = Math.max(0, dur - fadeOut);
     filters.push(
-      `afade=t=in:st=0:d=${Math.min(clip.audio.fadeInDuration, dur).toFixed(3)}`,
+      `afade=t=out:st=${start.toFixed(3)}:d=${Math.min(fadeOut, dur).toFixed(3)}`,
     );
   }
-  if (clip.audio.fadeOutDuration > 0) {
-    const start = Math.max(0, dur - clip.audio.fadeOutDuration);
-    filters.push(
-      `afade=t=out:st=${start.toFixed(3)}:d=${Math.min(clip.audio.fadeOutDuration, dur).toFixed(3)}`,
-    );
-  }
-  if (clip.audio.volume !== 1) {
-    filters.push(`volume=${clip.audio.volume.toFixed(3)}`);
+
+  // Volume efetivo = volume do clip × gain da track (gainPct, 100 = neutro).
+  const trackGain = (track?.gainPct ?? 100) / 100;
+  const volumeEfetivo = clip.audio.volume * trackGain;
+  if (Math.abs(volumeEfetivo - 1) > 1e-6) {
+    filters.push(`volume=${volumeEfetivo.toFixed(3)}`);
   }
   if (clip.audio.pan && clip.audio.pan !== 0) {
     const pan = Math.max(-1, Math.min(1, clip.audio.pan));

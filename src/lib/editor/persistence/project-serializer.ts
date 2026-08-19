@@ -126,6 +126,10 @@ function serializeTrack(track: Track): DocumentData {
     // stageSlot só existe em tracks de vídeo de palco; stripUndefined o omite
     // quando ausente (tracks tela-cheia/áudio/single).
     stageSlot: track.stageSlot,
+    // Trilha (áudio): aditivos — stripUndefined omite quando ausentes.
+    gainPct: track.gainPct,
+    audioLeveling: track.audioLeveling,
+    autoFade: track.autoFade,
     clips: track.clips.map(serializeClip),
   });
 }
@@ -271,6 +275,10 @@ export function deserializeProjectFromFirestore(
           tr.stageSlot === 'top' || tr.stageSlot === 'bottom'
             ? tr.stageSlot
             : undefined,
+        gainPct: typeof tr.gainPct === 'number' ? tr.gainPct : undefined,
+        audioLeveling:
+          typeof tr.audioLeveling === 'boolean' ? tr.audioLeveling : undefined,
+        autoFade: typeof tr.autoFade === 'boolean' ? tr.autoFade : undefined,
         clips: Array.isArray(tr.clips)
           ? (tr.clips as DocumentData[]).map((c) => {
               return {
