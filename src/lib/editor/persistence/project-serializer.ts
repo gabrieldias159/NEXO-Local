@@ -80,6 +80,7 @@ function serializeAsset(asset: MediaAsset): DocumentData | null {
   if (asset.width !== undefined) out.width = asset.width;
   if (asset.height !== undefined) out.height = asset.height;
   if (asset.thumbnailUrl !== undefined) out.thumbnailUrl = asset.thumbnailUrl;
+  if (asset.text !== undefined) out.text = { ...asset.text };
   return out;
 }
 
@@ -246,6 +247,7 @@ export function deserializeProjectFromFirestore(
         thumbnailUrl: asset.thumbnailUrl,
         status: (asset.status as MediaAsset['status']) ?? 'ready',
         uploadProgress: asset.uploadProgress,
+        text: asset.text,
         createdAt: toTimestamp(asset.createdAt),
       } as MediaAsset;
     }),

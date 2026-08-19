@@ -125,6 +125,7 @@ export const EditorIcons = {
   Settings: Settings2,
   Sliders,
   Caption: Type,
+  Type,
   Layers,
   Transform: Move,
   Speed: Gauge,

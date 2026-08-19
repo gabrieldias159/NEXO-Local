@@ -20,6 +20,7 @@ import { MediaBinHeader, type MediaBinFilter } from './MediaBinHeader';
 import { AssetUploader } from './AssetUploader';
 import { AssetItem } from './AssetItem';
 import { ImportUrlDialog } from './ImportUrlDialog';
+import { TextClipDialog } from './TextClipDialog';
 import { AiStageGenerator } from '../ai/AiStageGenerator';
 import { EditorIcons } from '../shared/EditorIcons';
 import { cn } from '@/lib/utils';
@@ -31,6 +32,7 @@ export function MediaBin() {
   const [filter, setFilter] = useState<MediaBinFilter>('all');
   const [aiOpen, setAiOpen] = useState(false);
   const [urlOpen, setUrlOpen] = useState(false);
+  const [textOpen, setTextOpen] = useState(false);
   const [isFileOver, setIsFileOver] = useState(false);
   const ingest = useIngestFiles();
 
@@ -92,6 +94,17 @@ export function MediaBin() {
         </Button>
         <Button
           type="button"
+          variant="outline"
+          size="sm"
+          className="w-full gap-2"
+          onClick={() => setTextOpen(true)}
+          title="Palavra empilhável estilo cartaz (IPTU, CONTA DE LUZ...) com som acoplado"
+        >
+          <EditorIcons.Type className="h-4 w-4" />
+          Clip de texto
+        </Button>
+        <Button
+          type="button"
           variant={stageMode === 'split-vertical' ? 'default' : 'outline'}
           size="sm"
           className="w-full gap-2"
@@ -105,6 +118,7 @@ export function MediaBin() {
         </Button>
       </div>
       <ImportUrlDialog open={urlOpen} onOpenChange={setUrlOpen} />
+      <TextClipDialog open={textOpen} onOpenChange={setTextOpen} />
       <AiStageGenerator open={aiOpen} onOpenChange={setAiOpen} />
 
       <div

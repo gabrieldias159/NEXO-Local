@@ -162,7 +162,11 @@ export function buildTransform(t: ClipTransform): string {
   const flipX = t.flipH ? -1 : 1;
   const flipY = t.flipV ? -1 : 1;
   return [
-    `translate(${t.x * 100}%, ${t.y * 100}%)`,
+    // x/y sao relativos ao CENTRO do slot em meias-larguras (-1 = borda
+    // esquerda/topo, 1 = borda direita/base) — mesma semantica do render
+    // server-side (dy = y*slotH/2). translate(%) refere-se ao tamanho do
+    // proprio elemento (o slot inteiro), logo o fator certo e 50, nao 100.
+    `translate(${t.x * 50}%, ${t.y * 50}%)`,
     `scale(${t.scale})`,
     `rotate(${t.rotation}deg)`,
     `scaleX(${flipX})`,

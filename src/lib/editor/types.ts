@@ -189,6 +189,36 @@ export interface MediaAsset {
   /** 0-100 enquanto status === 'uploading'. */
   uploadProgress?: number;
   createdAt: Timestamp;
+  /**
+   * Presente quando o asset é um CLIP DE TEXTO (asset sintético): o PNG em
+   * `downloadUrl`/`storagePath` foi gerado a partir desta especificação
+   * (client-side, canvas). Editar o texto = regenerar o PNG e substituir o
+   * arquivo. Campo aditivo — assets comuns não o possuem.
+   */
+  text?: TextAssetSpec;
+}
+
+/**
+ * Especificação de um clip de TEXTO (palavra empilhável estilo cartaz —
+ * "IPTU", "CONTA DE LUZ"... com som de erro acoplado).
+ */
+export interface TextAssetSpec {
+  /** Conteúdo (aceita quebras de linha). */
+  content: string;
+  /** Fonte (default 'Arial Black'). */
+  fontFamily: string;
+  /** Cor do texto (hex). */
+  color: string;
+  /** Cor do contorno (hex). */
+  strokeColor: string;
+  /** Espessura do contorno em % do tamanho da fonte (0 = sem contorno). */
+  strokePct: number;
+  /** Sombra dura deslocada (estilo cartaz). */
+  shadow: boolean;
+  /** Largura máxima do texto em % da largura do palco (auto-ajuste). */
+  maxWidthPct: number;
+  /** Tamanho manual da fonte em % da largura do palco; ausente = auto. */
+  fontSizePct?: number;
 }
 
 // ============================================================================

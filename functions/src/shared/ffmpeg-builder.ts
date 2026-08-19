@@ -192,6 +192,15 @@ export function buildFilterComplex(
     clip: Clip;
   }> = [];
 
+  // 1º passe: coleta os clips (metadados) na ordem de composição.
+  const pending: Array<{
+    inputIndex: number;
+    clip: Clip;
+    track: Track;
+    label: string;
+    fadeInSuppressed: boolean;
+    fadeOutSuppressed: boolean;
+  }> = [];
   videoTracks.forEach((track) => {
     // Ordena por CAMADA (subtrack) ascendente: camadas maiores são
     // sobrepostas DEPOIS (ficam por cima). Sort estável → tracks de camada
@@ -206,25 +215,53 @@ export function buildFilterComplex(
         // Asset não foi baixado (provavelmente local-blob) — pula.
         return;
       }
-      const label = `v_${safe(track.id)}_${ci}`;
-      lines.push(
-        buildVideoClipChain({
-          inputIndex: idx,
-          clip,
-          outputResolution: { width: W, height: H },
-          stageMode: project.stageMode,
-          splitRatio: project.splitRatio,
-          outLabel: label,
-          frameRate: project.frameRate,
-        }),
-      );
-      clipNodes.push({
-        label: `[${label}]`,
-        start: clip.startInTimeline,
-        end: clip.endInTimeline,
-        track,
+      pending.push({
+        inputIndex: idx,
         clip,
+        track,
+        label: `v_${safe(track.id)}_${ci}`,
+        fadeInSuppressed: false,
+        fadeOutSuppressed: false,
       });
+    });
+  });
+
+  // Detecta pares xfade ANTES de montar as chains: clips que participam de
+  // xfade não recebem alpha-fade individual (o blend do xfade já faz o papel).
+  for (let i = 0; i < pending.length; i += 1) {
+    const cur = pending[i];
+    if (!cur.clip.transitionOut) continue;
+    for (let j = i + 1; j < pending.length; j += 1) {
+      if (pending[j].track.id !== cur.track.id) continue;
+      if (areClipsAdjacent(cur.clip, pending[j].clip)) {
+        cur.fadeOutSuppressed = true;
+        pending[j].fadeInSuppressed = true;
+      }
+      break;
+    }
+  }
+
+  // 2º passe: monta a chain de cada clip.
+  pending.forEach((p) => {
+    lines.push(
+      buildVideoClipChain({
+        inputIndex: p.inputIndex,
+        clip: p.clip,
+        outputResolution: { width: W, height: H },
+        stageMode: project.stageMode,
+        splitRatio: project.splitRatio,
+        outLabel: p.label,
+        frameRate: project.frameRate,
+        fadeInSuppressed: p.fadeInSuppressed,
+        fadeOutSuppressed: p.fadeOutSuppressed,
+      }),
+    );
+    clipNodes.push({
+      label: `[${p.label}]`,
+      start: p.clip.startInTimeline,
+      end: p.clip.endInTimeline,
+      track: p.track,
+      clip: p.clip,
     });
   });
 
@@ -347,10 +384,23 @@ interface BuildVideoChainArgs {
   splitRatio: number;
   outLabel: string;
   frameRate: number;
+  /** True quando o clip participa de um xfade (o blend substitui o fade). */
+  fadeInSuppressed?: boolean;
+  fadeOutSuppressed?: boolean;
 }
 
 function buildVideoClipChain(args: BuildVideoChainArgs): string {
-  const { inputIndex, clip, outputResolution, stageMode, splitRatio, outLabel, frameRate } = args;
+  const {
+    inputIndex,
+    clip,
+    outputResolution,
+    stageMode,
+    splitRatio,
+    outLabel,
+    frameRate,
+    fadeInSuppressed,
+    fadeOutSuppressed,
+  } = args;
   const { width: W, height: H } = outputResolution;
 
   const filters: string[] = [];
@@ -431,24 +481,38 @@ function buildVideoClipChain(args: BuildVideoChainArgs): string {
     filters.push(`rotate=${rad.toFixed(4)}:c=black@0:ow=rotw(${rad.toFixed(4)}):oh=roth(${rad.toFixed(4)})`);
   }
 
-  // 6. Scale para caber no slot mantendo aspect ratio (decrease + pad).
+  // 6. Scale para caber no slot mantendo aspect ratio (decrease) e posiciona
+  //    dentro do slot com pad ALARGADO + crop. O pad do ffmpeg não aceita
+  //    offset negativo nem mídia maior que a área — o pad direto quebrava o
+  //    render com transform.x/y ≠ 0 (mídia deslocada) ou scale > 1. A margem
+  //    M absorve deslocamento/estouro e o crop devolve o slot exato (mídia
+  //    além da borda é cortada, como no preview com overflow:hidden).
   const scaleFactor = Math.max(0.05, clip.transform.scale);
   const targetW = Math.max(2, ensureEven(Math.round(slotW * scaleFactor)));
   const targetH = Math.max(2, ensureEven(Math.round(slotH * scaleFactor)));
   filters.push(
     `scale=${targetW}:${targetH}:force_original_aspect_ratio=decrease`,
   );
-  filters.push(
-    `pad=${slotW}:${slotH}:(ow-iw)/2:(oh-ih)/2:color=black@0`,
-  );
-
-  // 7. Translate via pad final no canvas inteiro (slot offset + clip x/y).
   // x/y do transform são relativos (-1..1) ao centro do slot.
-  const offsetX = Math.round(slotX + (clip.transform.x * slotW) / 2);
-  const offsetY = Math.round(slotY + (clip.transform.y * slotH) / 2);
+  const dx = Math.round((clip.transform.x * slotW) / 2);
+  const dy = Math.round((clip.transform.y * slotH) / 2);
+  const margin =
+    Math.max(
+      0,
+      Math.ceil((targetW - slotW) / 2),
+      Math.ceil((targetH - slotH) / 2),
+    ) +
+    Math.max(Math.abs(dx), Math.abs(dy)) +
+    2;
   filters.push(
-    `pad=${W}:${H}:${offsetX}:${offsetY}:color=black@0`,
+    `pad=${slotW + 2 * margin}:${slotH + 2 * margin}:(ow-iw)/2+${dx}:(oh-ih)/2+${dy}:color=black@0`,
   );
+  filters.push(`crop=${slotW}:${slotH}:${margin}:${margin}`);
+
+  // 7. Posiciona o slot no canvas inteiro (offset do split, sempre >= 0).
+  if (slotW !== W || slotH !== H || slotX !== 0 || slotY !== 0) {
+    filters.push(`pad=${W}:${H}:${slotX}:${slotY}:color=black@0`);
+  }
 
   // 8. Opacity (via colorchannelmixer aa) — aplicado depois do pad
   if (clip.transform.opacity !== undefined && clip.transform.opacity < 1) {
@@ -456,6 +520,25 @@ function buildVideoClipChain(args: BuildVideoChainArgs): string {
     filters.push(`format=rgba,colorchannelmixer=aa=${aa.toFixed(3)}`);
   } else {
     filters.push("format=rgba");
+  }
+
+  // 8b. Alpha-fades de transição (entrada/saída) — porta o comportamento do
+  // pipeline do gabinete (`fade=...:alpha=1` nos overlays). Clips que
+  // participam de xfade não recebem (o blend já faz a transição). O tempo é
+  // clip-local (a chain já resetou PTS com trim+setpts). `dur` vem do passo 1.
+  if (clip.transitionIn && clip.transitionIn.duration > 0 && !fadeInSuppressed) {
+    const d = Math.min(clip.transitionIn.duration, dur);
+    filters.push(`fade=t=in:st=0:d=${d.toFixed(3)}:alpha=1`);
+  }
+  if (
+    clip.transitionOut &&
+    clip.transitionOut.duration > 0 &&
+    !fadeOutSuppressed
+  ) {
+    const d = Math.min(clip.transitionOut.duration, dur);
+    filters.push(
+      `fade=t=out:st=${Math.max(0, dur - d).toFixed(3)}:d=${d.toFixed(3)}:alpha=1`,
+    );
   }
 
   // 9. Ajusta PTS para a posição da timeline (offset por overlay enable=)
