@@ -201,12 +201,18 @@ function styleLineFromCaptionStyle(
     return `Style: ${name},Inter,36,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,-1,0,0,0,100,100,0,0,1,2,1,2,40,40,40,1`;
   }
   const fontname = style.fontFamily || "Inter";
-  const fontsize = Math.max(12, Math.round(style.fontSize));
+  // Os tamanhos do editor são px @1080 DE ALTURA (mesma semântica do preview,
+  // que escala por stageHeight/1080). O ASS usa px no PlayRes real — sem este
+  // fator, um export vertical (PlayResY 1280/1920) saía com a legenda menor
+  // que o preview mostrava.
+  const escala = resolution.height / 1080;
+  const fontsize = Math.max(12, Math.round(style.fontSize * escala));
   const primary = hexToAssColor(style.color);
   const outline = style.outlineColor ? hexToAssColor(style.outlineColor) : "&H00000000";
   const bold = style.fontWeight >= 600 ? -1 : 0;
   const borderStyle = style.outlineColor ? 1 : 3; // 3 = caixa de fundo
-  const outlineWidth = Math.max(0, style.outlineWidth ?? 1);
+  const outlineWidth =
+    Math.round(Math.max(0, style.outlineWidth ?? 1) * escala * 10) / 10;
   // Em ASS, BackColour é a cor da CAIXA quando BorderStyle=3 e a cor da SOMBRA
   // quando BorderStyle=1 — usar backgroundColor nos dois casos pintava a sombra
   // com a cor do fundo (presets com contorno+sombra saíam errados no MP4).
@@ -217,22 +223,22 @@ function styleLineFromCaptionStyle(
   // `shadowBlur` no editor é raio de desfoque (px); o Shadow do ASS é DISTÂNCIA
   // do offset (sem blur por estilo). Mapeia para uma profundidade discreta —
   // blur 16 virar offset 16 deslocava a sombra pra fora do texto.
-  const shadowBlur = style.shadowBlur ?? 0;
+  const shadowBlur = (style.shadowBlur ?? 0) * escala;
   const shadow =
     shadowBlur <= 0 ? 0 : Math.min(4, Math.max(1, Math.round(shadowBlur / 4)));
   const alignment = assAlignment(style.align, style.position);
   // Espaçamento entre letras (px @1080, mesmo referencial do fontSize).
-  const spacing = Math.max(0, style.letterSpacing ?? 0);
+  const spacing = Math.max(0, (style.letterSpacing ?? 0) * escala);
   // maxWidthPct → margens laterais ((100-pct)/2 de cada lado). Sem o campo,
   // mantém os 40px históricos.
   const margemLateral =
     typeof style.maxWidthPct === "number" && style.maxWidthPct >= 10
       ? Math.round((((100 - Math.min(100, style.maxWidthPct)) / 2) / 100) * resolution.width)
-      : 40;
+      : Math.round(40 * escala);
   // offsetY (% da altura, aplicado sobre `position`): bottom sobe com offset
   // negativo (margem cresce), top desce com offset positivo. Para position
   // center o ASS ignora MarginV — sem ajuste (mesmo fallback do overlay).
-  let margemV = 40;
+  let margemV = Math.round(40 * escala);
   const offsetY = style.offsetY ?? 0;
   if (offsetY !== 0) {
     const px = Math.round((Math.abs(offsetY) / 100) * resolution.height);

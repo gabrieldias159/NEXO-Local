@@ -71,6 +71,7 @@ import {
   X,
   Sparkles,
   Captions,
+  Landmark,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -222,6 +223,19 @@ export function CaptionsDrawer() {
     a.download = `${activeTrack.name || 'legendas'}.srt`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const handleGabinete = () => {
+    if (!activeTrack) return;
+    const applyGabinete = useEditorStore.getState().applyGabineteCaptions;
+    const n = applyGabinete(activeTrack.id, 5);
+    toast({
+      title: n > 0 ? `Preset Gabinete aplicado — ${n} cue(s)` : 'Track vazia',
+      description:
+        n > 0
+          ? 'Estilo amarelo do gabinete + quebra em até 5 palavras por cue.'
+          : undefined,
+    });
   };
 
   const handleSelectCue = (cue: CaptionCue) => {
@@ -419,6 +433,13 @@ export function CaptionsDrawer() {
               label="Estilo padrão"
               onClick={() => setStyleEditorOpen(true)}
               disabled={!activeTrack}
+            />
+            <ToolbarBtn
+              icon={<Landmark className="h-3.5 w-3.5" />}
+              label="Gabinete ≤5"
+              onClick={handleGabinete}
+              disabled={!activeTrack || activeTrack.cues.length === 0}
+              accent
             />
 
             <div className="ml-auto">

@@ -26,6 +26,8 @@ import { persist } from 'zustand/middleware';
 import { temporal } from 'zundo';
 import type { TemporalState } from 'zundo';
 
+import { GABINETE_CAPTION_STYLE } from './captions/presets';
+import { splitCueByWords } from './captions/utils';
 import type {
   VideoProject,
   ProjectIdentity,
@@ -427,6 +429,13 @@ interface Actions {
   ) => void;
   removeCaption: (cueId: string) => void;
   setCaptionStyle: (cueId: string, partial: Partial<CaptionStyle>) => void;
+  /**
+   * Preset "Gabinete" na track inteira: aplica o estilo aprovado (amarelo
+   * Arial bold, contorno preto, MAIÚSCULAS) e REPARTE cada cue em pedaços
+   * de até `maxWords` palavras com tempos proporcionais por contagem.
+   * Devolve o número de cues resultante (0 = track não encontrada/vazia).
+   */
+  applyGabineteCaptions: (trackId: string, maxWords?: number) => number;
   setCaptionSlot: (cueId: string, slot: 'full' | 'top' | 'bottom') => void;
   /** Importa .srt — parser injetado pelo caller (mantém store puro). */
   importSrt: (
@@ -1851,6 +1860,30 @@ export const useEditorStore = create<EditorStore>()(
             const found = findCue(s.project, cueId);
             if (found) Object.assign(found.cue.style, partial);
           }),
+
+        applyGabineteCaptions: (trackId, maxWords = 5) => {
+          let count = 0;
+          set((s) => {
+            if (!s.project) return;
+            const track = s.project.captionTracks.find((t) => t.id === trackId);
+            if (!track || track.cues.length === 0) return;
+            const novos: CaptionCue[] = [];
+            for (const cue of [...track.cues].sort(
+              (a, b) => a.startTime - b.startTime,
+            )) {
+              const estilizado: CaptionCue = {
+                ...cue,
+                style: { ...cue.style, ...GABINETE_CAPTION_STYLE },
+              };
+              for (const parte of splitCueByWords(estilizado, maxWords)) {
+                novos.push({ id: genId('cue'), ...parte });
+              }
+            }
+            track.cues = novos;
+            count = novos.length;
+          });
+          return count;
+        },
 
         setCaptionSlot: (cueId, slot) =>
           set((s) => {

@@ -14,6 +14,33 @@
 
 import type { CaptionStyle } from '../types';
 
+/**
+ * Estilo "Gabinete" — reproduz a legenda aprovada da produção real
+ * (ago/2026): Arial bold amarela #FFFF00, contorno preto, sombra leve,
+ * MAIÚSCULAS, subida de ~9,5% do rodapé (equivale ao MarginV 112 @ 478x850
+ * do ASS aprovado). Valores em px @1080 de altura (semântica do editor).
+ */
+export const GABINETE_CAPTION_STYLE: Partial<CaptionStyle> = {
+  fontFamily: 'Arial',
+  fontWeight: 700,
+  fontSize: 34,
+  color: '#FFFF00',
+  backgroundColor: '#00000000',
+  outlineColor: '#000000',
+  outlineWidth: 4,
+  shadowColor: '#00000069',
+  shadowBlur: 4,
+  align: 'center',
+  position: 'bottom',
+  offsetY: -9.5,
+  paddingX: 0,
+  paddingY: 0,
+  borderRadius: 0,
+  textTransform: 'uppercase',
+  letterSpacing: 0,
+  maxWidthPct: 96,
+};
+
 export interface CaptionPreset {
   /** Identificador estável. */
   id: string;
@@ -28,6 +55,11 @@ export interface CaptionPreset {
  * A ordem aqui é a ordem de exibição na grade de chips.
  */
 export const CAPTION_PRESETS: CaptionPreset[] = [
+  {
+    id: 'gabinete',
+    label: 'Gabinete',
+    style: { ...GABINETE_CAPTION_STYLE },
+  },
   {
     id: 'classico',
     label: 'Clássico',

@@ -15,6 +15,58 @@
 import type { CaptionCue } from '../types';
 
 // ============================================================================
+// Quebra por palavras (fluxo do gabinete)
+// ============================================================================
+
+/**
+ * Reparte um cue em pedaços de até `maxWords` palavras, com tempos
+ * PROPORCIONAIS à contagem de palavras de cada pedaço (algoritmo do
+ * `_legendas.py` da produção real). Quebra por espaço; quebras de linha viram espaço.
+ *
+ * Devolve 1..N cues SEM id (caller cria ids). Cue vazio devolve [cue].
+ */
+export function splitCueByWords(
+  cue: CaptionCue,
+  maxWords = 5,
+): Array<Omit<CaptionCue, 'id'>> {
+  const words = cue.text.replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
+  const base = {
+    slot: cue.slot,
+    style: { ...cue.style },
+  };
+  if (words.length <= maxWords) {
+    return [
+      {
+        ...base,
+        startTime: cue.startTime,
+        endTime: cue.endTime,
+        text: cue.text,
+      },
+    ];
+  }
+  const chunks: string[][] = [];
+  for (let i = 0; i < words.length; i += maxWords) {
+    chunks.push(words.slice(i, i + maxWords));
+  }
+  const total = words.length;
+  const span = Math.max(0.05, cue.endTime - cue.startTime);
+  const out: Array<Omit<CaptionCue, 'id'>> = [];
+  let t = cue.startTime;
+  for (const chunk of chunks) {
+    const d = span * (chunk.length / total);
+    out.push({
+      ...base,
+      style: { ...cue.style },
+      startTime: Number(t.toFixed(3)),
+      endTime: Number(Math.min(t + d, cue.endTime).toFixed(3)),
+      text: chunk.join(' '),
+    });
+    t += d;
+  }
+  return out;
+}
+
+// ============================================================================
 // Active cue
 // ============================================================================
 
