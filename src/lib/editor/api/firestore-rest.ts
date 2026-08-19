@@ -109,12 +109,42 @@ export async function lerDoc(
   return docParaObjeto(await res.json());
 }
 
+/**
+ * INVARIANTES do documento de projeto.
+ *
+ * Escrevemos com `Bearer owner`, que ignora as security rules — logo nada nos
+ * impede de gravar um documento que a INTERFACE nao consegue ler. A lista da
+ * interface e `where('ownerUid','==',uid)` + `orderBy('updatedAt','desc')`:
+ * sem `ownerUid` certo o filtro exclui, e sem `updatedAt` o orderBy exclui —
+ * nos dois casos o projeto existiria no banco e sumiria da tela, sem erro
+ * nenhum. Falhar aqui, alto e claro, e melhor que criar um fantasma.
+ */
+function validarProjeto(caminho: string, dados: Record<string, unknown>): void {
+  if (!caminho.startsWith('videoProjects/')) return;
+  const falhas: string[] = [];
+  if (!dados.ownerUid || typeof dados.ownerUid !== 'string') {
+    falhas.push('ownerUid ausente ou nao-string (a lista filtra por ele)');
+  }
+  if (!(dados.updatedAt instanceof Date)) {
+    falhas.push('updatedAt precisa ser Date (a lista ordena por ele)');
+  }
+  if (!dados.id || typeof dados.id !== 'string') falhas.push('id ausente');
+  if (!Array.isArray(dados.tracks)) falhas.push('tracks precisa ser array');
+  if (!Array.isArray(dados.assets)) falhas.push('assets precisa ser array');
+  if (falhas.length) {
+    throw new Error(
+      `projeto invalido — a interface nao conseguiria ler: ${falhas.join('; ')}`,
+    );
+  }
+}
+
 /** Substitui um documento inteiro (equivale a `setDoc` com merge:false). */
 export async function gravarDoc(
   caminho: string,
   dados: Record<string, unknown>,
 ): Promise<void> {
   assertEmulador();
+  validarProjeto(caminho, dados);
   const fields: Record<string, ValorRest> = {};
   for (const [k, v] of Object.entries(dados)) {
     if (v === undefined) continue;

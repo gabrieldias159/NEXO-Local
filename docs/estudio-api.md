@@ -98,7 +98,24 @@ A resposta devolve os **ids criados**, na ordem, para você encadear:
                   {"op":"addClip","ok":true,"id":"clip_..."} ] }
 ```
 
-### `addAsset` — põe mídia no acervo
+### Carregar arquivo DO DISCO — `POST /api/editor/projects/{id}/midia`
+
+```json
+{ "caminho": "C:/Users/Vereador/Videos/bruto.mp4", "nome": "Base" }
+```
+
+Sobe o arquivo para o Storage do emulador (mesmo caminho que o botao
+"Importar" usa: `videoProjects/{id}/assets/…`), mede **duração e dimensões**
+com o ffmpeg e registra o asset. Devolve `assetId`, `duracao`, `dimensoes`.
+
+A URL gerada leva `?token=…` porque o `<video>` do navegador busca sem
+cabeçalho de auth — uma URL que dependa de `Bearer` não tocaria.
+
+**Use este endpoint sempre que a mídia for um arquivo local.** O `addAsset`
+abaixo só aceita URL já acessível; uma URL inventada entra no projeto sem erro
+e só falha na hora de tocar.
+
+### `addAsset` — põe mídia no acervo (por URL)
 
 ```json
 { "op": "addAsset", "url": "https://…/base.mp4", "tipo": "video",
