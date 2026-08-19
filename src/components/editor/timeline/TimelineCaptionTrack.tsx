@@ -358,7 +358,7 @@ function IconBtn({
       title={title}
       className={cn(
         'flex h-4 w-4 items-center justify-center rounded-[var(--editor-radius-sm)]',
-        'transition-colors duration-[var(--editor-motion-fast)]',
+        'transition-colors duration-fast ease-editor',
         active
           ? 'text-foreground hover:bg-border'
           : 'text-muted-foreground hover:bg-border',

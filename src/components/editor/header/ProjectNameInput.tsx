@@ -60,7 +60,7 @@ export function ProjectNameInput({ className }: ProjectNameInputProps) {
           'truncate rounded-[var(--editor-radius-sm)] px-2 py-1 text-sm font-semibold',
           'text-foreground',
           'hover:bg-muted',
-          'transition-colors duration-[var(--editor-motion-fast)]',
+          'transition-colors duration-fast ease-editor',
           className,
         )}
         title="Clique para renomear"

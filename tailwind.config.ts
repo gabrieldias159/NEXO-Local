@@ -10,6 +10,25 @@ export default {
   ],
   theme: {
     extend: {
+      // MOVIMENTO do editor.
+      //
+      // Os tokens ja existiam em globals.css, mas eram usados como
+      // `duration-[var(--editor-motion-fast)]` — forma AMBIGUA no Tailwind 3
+      // (casa transition-duration E animation-duration), e o build descartava
+      // a classe. Resultado: as transicoes simplesmente nao rodavam. Registrar
+      // aqui torna `duration-fast` / `ease-editor` inequivocos, mantendo o
+      // valor no CSS var (um lugar so para ajustar o ritmo da interface).
+      transitionDuration: {
+        instant: 'var(--editor-motion-instant)',
+        fast: 'var(--editor-motion-fast)',
+        base: 'var(--editor-motion-base)',
+        slow: 'var(--editor-motion-slow)',
+        snap: 'var(--editor-motion-snap)',
+      },
+      transitionTimingFunction: {
+        editor: 'var(--editor-ease-out)',
+        'editor-in-out': 'var(--editor-ease-in-out)',
+      },
       fontFamily: {
         // var(--font-*) vem do next/font (self-hosted); literais ficam de
         // fallback p/ contextos sem as variáveis (ex.: print/portais antigos).

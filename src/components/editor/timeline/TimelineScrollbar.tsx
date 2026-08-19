@@ -231,8 +231,18 @@ export function TimelineScrollbar({
     }
   };
 
-  // Não renderiza se não há overflow horizontal (timeline cabe inteira).
+  // Ha conteudo alem da tela? So isso decide se ARRASTAR PARA ROLAR faz
+  // sentido — mas NAO decide se a barra aparece.
   const hasOverflow = maxScrollLeft > 1;
+
+  // A barra e as alcas de zoom ficam SEMPRE visiveis enquanto houver timeline.
+  //
+  // Antes, sem overflow a barra virava a mensagem "Timeline cabe na tela" e
+  // sumiam junto as alcas — ou seja, o controle de zoom desaparecia
+  // exatamente na hora em que o usuario queria dar zoom para comecar a
+  // trabalhar. Agora o thumb ocupa a largura toda nesse caso (nada a rolar) e
+  // as alcas continuam funcionando.
+  const temTimeline = durationSec > 0 && contentWidth > 0;
 
   return (
     <div
@@ -240,7 +250,7 @@ export function TimelineScrollbar({
         'flex shrink-0 items-center border-t border-border bg-card/80 backdrop-blur-sm',
         className,
       )}
-      style={{ height: 18 }}
+      style={{ height: 22 }}
     >
       {/* Espaço alinhado com o header de tracks à esquerda. */}
       <div
@@ -273,14 +283,19 @@ export function TimelineScrollbar({
         className="relative h-full flex-1 cursor-pointer overflow-hidden bg-muted/60"
         onClick={handleTrackClick}
       >
-        {hasOverflow ? (
+        {temTimeline ? (
           <>
             {/* Viewport thumb */}
             <div
-              className="absolute top-1 bottom-1 rounded-full bg-primary/70 hover:bg-primary cursor-grab active:cursor-grabbing transition-colors"
+              className={cn(
+                'absolute top-1 bottom-1 rounded-full bg-primary/70 transition-colors duration-fast ease-editor',
+                hasOverflow
+                  ? 'hover:bg-primary cursor-grab active:cursor-grabbing'
+                  : 'bg-primary/40 cursor-default',
+              )}
               style={{
-                left: `${thumbLeftPct}%`,
-                width: `${Math.max(thumbPct, 3)}%`,
+                left: hasOverflow ? `${thumbLeftPct}%` : '0%',
+                width: hasOverflow ? `${Math.max(thumbPct, 6)}%` : '100%',
                 // Sem touch-action:none o iOS trata o arraste como rolagem da
                 // página e o thumb não se move no iPad.
                 touchAction: 'none',
@@ -305,7 +320,7 @@ export function TimelineScrollbar({
                 onClick={(e) => e.stopPropagation()}
                 title="Arraste pra dentro/fora pra dar zoom na timeline"
                 style={{ touchAction: 'none' }}
-                className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-white border border-primary shadow cursor-ew-resize hover:scale-125 transition-transform"
+                className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 h-3.5 w-3.5 rounded-full bg-white border-2 border-primary shadow-md cursor-ew-resize transition-transform duration-fast ease-editor hover:scale-150 active:scale-125 before:absolute before:-inset-2 before:content-['']"
               />
               {/* Bolinha direita — zoom handle */}
               <div
@@ -316,7 +331,7 @@ export function TimelineScrollbar({
                 onClick={(e) => e.stopPropagation()}
                 title="Arraste pra dentro/fora pra dar zoom na timeline"
                 style={{ touchAction: 'none' }}
-                className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-white border border-primary shadow cursor-ew-resize hover:scale-125 transition-transform"
+                className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 h-3.5 w-3.5 rounded-full bg-white border-2 border-primary shadow-md cursor-ew-resize transition-transform duration-fast ease-editor hover:scale-150 active:scale-125 before:absolute before:-inset-2 before:content-['']"
               />
             </div>
             {/* Playhead miniatura sobreposto */}
@@ -325,11 +340,7 @@ export function TimelineScrollbar({
               style={{ left: `${playheadPct}%` }}
             />
           </>
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-[9px] text-muted-foreground/60">
-            Timeline cabe na tela
-          </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

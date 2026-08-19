@@ -195,7 +195,7 @@ export function CaptionCueCard({
       {/* Coluna: ações (visíveis no hover ou selected) */}
       <div
         className={cn(
-          'flex flex-col gap-0.5 opacity-0 transition-opacity duration-[var(--editor-motion-fast)]',
+          'flex flex-col gap-0.5 opacity-0 transition-opacity duration-fast ease-editor',
           'group-hover:opacity-100',
           isSelected && 'opacity-100',
         )}

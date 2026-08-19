@@ -109,7 +109,7 @@ export function AssetItem({ asset }: AssetItemProps) {
         'group relative flex items-center gap-2 rounded-[var(--editor-radius-md)] p-2',
         'border border-border bg-card',
         'text-sm text-foreground',
-        'transition-colors duration-[var(--editor-motion-fast)]',
+        'transition-colors duration-fast ease-editor',
         !isUploading && !isError && 'cursor-grab hover:bg-muted active:cursor-grabbing',
         isError && 'opacity-60',
       )}

@@ -54,7 +54,7 @@ export function SplitDivider({ ratio, stageRef, className }: SplitDividerProps) 
       className={cn(
         'absolute left-0 right-0 z-10 h-1 -translate-y-1/2 cursor-row-resize',
         'bg-[var(--editor-accent)] opacity-50 hover:opacity-100',
-        'transition-opacity duration-[var(--editor-motion-fast)]',
+        'transition-opacity duration-fast ease-editor',
         // Hitbox expandida (±10px) p/ toque confortável no iPad — a linha
         // visível continua com 1px, mas a área clicável fica ~21px.
         "before:absolute before:-inset-y-[10px] before:left-0 before:right-0 before:content-['']",
