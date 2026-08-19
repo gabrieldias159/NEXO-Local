@@ -19,6 +19,21 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        // Assets do Next: precisam declarar COEP porque o WORKER do FFmpeg.wasm
+        // e carregado de /_next/static/chunks/. Num documento com COEP, um
+        // Worker so instancia se a RESPOSTA do script dele tambem trouxer o
+        // header — senao o browser barra com
+        // ERR_BLOCKED_BY_RESPONSE e o render local morre com "Erro no worker".
+        // CORP same-origin cobre os demais assets sob a mesma politica.
+        // Declarar COEP num asset NAO isola quem o consome: paginas fora do
+        // estudio seguem sem isolamento e com os popups de auth funcionando.
+        source: '/_next/:path*',
+        headers: [
+          { key: 'Cross-Origin-Embedder-Policy', value: 'credentialless' },
+          { key: 'Cross-Origin-Resource-Policy', value: 'same-origin' },
+        ],
+      },
+      {
         // Headers COOP/COEP escopados ao Estúdio de Vídeo (avançado).
         // Necessário para SharedArrayBuffer (FFmpeg.wasm multi-thread + WebCodecs).
         // NÃO aplicar globalmente — quebra popups de auth do Firebase.

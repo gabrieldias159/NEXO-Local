@@ -388,10 +388,22 @@ function buildVideoClipChain(args: BuildVideoChainArgs): string {
   );
   // Velocidade: comprime/estica os PTS do trecho do asset. Com rate=2 o
   // material toca em metade do tempo (rápido); com rate=0.5, no dobro (lento).
+  //
+  // E DESLOCA para a posicao do clip na TIMELINE (`+start/TB`).
+  //
+  // Sem esse deslocamento o clip ficava com PTS a partir de 0 enquanto o
+  // `overlay` so o exibia entre `startInTimeline` e `endInTimeline` — ou seja,
+  // quando a exibicao comecava, o material do clip JA TINHA ACABADO e o FFmpeg
+  // segurava o ultimo quadro. So o primeiro clip (que comeca em 0) saia certo;
+  // do segundo em diante a imagem congelava/trocava de ordem enquanto o audio,
+  // esse sim posicionado via `adelay`, tocava o trecho correto. Era a causa do
+  // "inverteu a ordem dos videos" e do som fora de sincronia.
+  const offTl = Math.max(0, clip.startInTimeline);
+  const desloca = offTl > 0 ? `+${offTl.toFixed(3)}/TB` : '';
   if (rate !== 1) {
-    filters.push(`setpts=(PTS-STARTPTS)/${rate.toFixed(6)}`);
+    filters.push(`setpts=(PTS-STARTPTS)/${rate.toFixed(6)}${desloca}`);
   } else {
-    filters.push('setpts=PTS-STARTPTS');
+    filters.push(`setpts=PTS-STARTPTS${desloca}`);
   }
 
   filters.push(`fps=${frameRate}`);

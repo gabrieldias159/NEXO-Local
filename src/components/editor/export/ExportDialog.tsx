@@ -131,9 +131,10 @@ export function ExportDialog() {
   // Falha de reprodução do preview inline (mostra dica de Baixar/Abrir).
   const [previewError, setPreviewError] = useState(false);
   // Escolha manual do motor (sobrescreve a heurística automática).
-  const [engineChoice, setEngineChoice] = useState<'auto' | 'client' | 'cloud'>(
-    'auto',
-  );
+  // RENDER 100% LOCAL. O NEXO-Local existe para nao gastar nuvem: renderizar
+  // no servidor sairia do proposito. A escolha de motor foi removida da UI e
+  // o valor fica fixo em 'client' (FFmpeg.wasm no navegador).
+  const [engineChoice] = useState<'client'>('client');
 
   // Limpa estado quando o dialog fecha (mas mantém durante render).
   useEffect(() => {
@@ -270,11 +271,11 @@ export function ExportDialog() {
     }
     const eligibility = checkClientRenderEligibility(project, exportSettings);
     const browser = browserSupportsClientRender();
-    const autoStrategy: RenderStrategy =
-      eligibility.eligible && browser.supported ? 'client' : 'cloud';
-    const strategy: RenderStrategy =
-      engineChoice === 'auto' ? autoStrategy : (engineChoice as RenderStrategy);
-    return { strategy, autoStrategy, eligibility, browser };
+    // Sem fallback para nuvem: se o projeto passar dos limites do
+    // FFmpeg.wasm, avisamos o que reduzir em vez de mandar pro servidor
+    // pelas costas do usuario.
+    const strategy: RenderStrategy = 'client';
+    return { strategy, autoStrategy: strategy, eligibility, browser };
   }, [project, exportSettings, engineChoice]);
 
   const isCloudRendering = useMemo(() => {
@@ -304,7 +305,7 @@ export function ExportDialog() {
       return;
     }
 
-    const strategy = strategyInfo?.strategy ?? 'cloud';
+    const strategy: RenderStrategy = 'client';
 
     setSubmitting(true);
     try {
@@ -451,9 +452,9 @@ export function ExportDialog() {
         <DialogHeader>
           <DialogTitle>Exportar vídeo</DialogTitle>
           <DialogDescription>
-            Renderiza o projeto atual e disponibiliza para download. Vídeos
-            curtos rodam no seu navegador (mais rápido); vídeos longos usam
-            o servidor.
+            Renderiza o projeto no seu próprio navegador e disponibiliza para
+            download. Todo o processamento é local — nada é enviado para
+            servidor e não há custo de nuvem.
           </DialogDescription>
         </DialogHeader>
 
@@ -569,57 +570,20 @@ export function ExportDialog() {
               </div>
             </div>
 
-            <div className="grid gap-1.5">
-              <Label>Motor de renderização</Label>
-              <div className="grid grid-cols-3 gap-2">
-                {(
-                  [
-                    {
-                      v: 'auto' as const,
-                      label: 'Auto',
-                      hint: 'Decide pelo projeto',
-                    },
-                    {
-                      v: 'client' as const,
-                      label: 'Local',
-                      hint: 'No seu navegador (grátis)',
-                    },
-                    {
-                      v: 'cloud' as const,
-                      label: 'Nuvem',
-                      hint: 'No servidor (custa)',
-                    },
-                  ] as const
-                ).map(({ v, label, hint }) => (
-                  <button
-                    key={v}
-                    type="button"
-                    onClick={() => setEngineChoice(v)}
-                    className={
-                      'flex flex-col items-start gap-0.5 rounded-md border p-2 text-left text-xs transition-colors ' +
-                      (engineChoice === v
-                        ? 'border-primary bg-primary/5'
-                        : 'hover:bg-accent')
-                    }
-                  >
-                    <span className="font-medium">{label}</span>
-                    <span className="text-[10px] text-muted-foreground">
-                      {hint}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {strategyInfo && (
               <StrategyHint
                 strategy={strategyInfo.strategy}
                 reason={
-                  strategyInfo.strategy === 'cloud'
-                    ? strategyInfo.browser.supported
+                  // Sem fallback pra nuvem, o motivo de bloqueio TEM de
+                  // aparecer: e a unica forma de o usuario saber o que reduzir
+                  // (duracao, resolucao, numero de faixas) para conseguir
+                  // renderizar. Antes isso ficava escondido porque o projeto
+                  // simplesmente ia pro servidor.
+                  !strategyInfo.browser.supported
+                    ? strategyInfo.browser.reason ?? null
+                    : !strategyInfo.eligibility.eligible
                       ? strategyInfo.eligibility.exceedsLimits[0] ?? null
-                      : strategyInfo.browser.reason ?? null
-                    : null
+                      : null
                 }
                 durationSec={strategyInfo.eligibility.totalDurationSec}
               />

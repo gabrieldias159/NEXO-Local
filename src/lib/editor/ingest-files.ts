@@ -144,8 +144,15 @@ export function useIngestFiles() {
       const arr = Array.from(files);
       const created: MediaAsset[] = [];
 
-      for (const f of arr) {
-        const made = await fileToAsset(f);
+      // PARALELO, nao sequencial. `fileToAsset` chama `getMediaDuration`, que
+      // carrega o arquivo num <video preload=metadata> e espera o evento —
+      // uma espera de I/O, nao de CPU. Em serie, importar 5 arquivos fazia o
+      // usuario ver os itens aparecerem um a um; em paralelo, todos de uma vez.
+      const preparados = await Promise.all(
+        arr.map(async (f) => ({ f, made: await fileToAsset(f) })),
+      );
+
+      for (const { f, made } of preparados) {
         if (!made) continue;
         const { asset, localUrl } = made;
 

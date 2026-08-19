@@ -100,24 +100,41 @@ export function useAutoSave(): UseAutoSaveReturn {
       if (!project) return;
       if (project === prev.project) return;
 
-      // Throttle por conteúdo: ignora mudanças que não alteraram o JSON
-      // serializado (evita save por mudança apenas de UI que tenha ido
-      // pro project por engano).
-      const serialized = JSON.stringify({
-        id: project.id,
-        name: project.name,
-        duration: project.duration,
-        tracksLen: project.tracks.length,
-        captionsLen: project.captionTracks.length,
-        assetsLen: project.assets.length,
-        // Detalhes pesados ficam de fora — o JSON completo é caro pra
-        // serializar a cada keystroke. O save real envia tudo.
-      });
-      if (serialized === lastSerializedRef.current) {
-        // Mudou referência mas conteúdo "leve" é igual. Ainda assim
-        // agenda o debounce — pode ter mudado conteúdo de clip etc.
+      // PROGRESSO DE UPLOAD NAO E EDICAO.
+      //
+      // `setAssetUploadProgress` dispara dezenas de vezes por arquivo enquanto
+      // a midia sobe. Como cada mudanca no `project` reagendava o debounce de
+      // 5s, importar varios arquivos mantinha o save adiado ate o teto de 60s
+      // (MAX_FLUSH) — o rodape ficava com "Salvo as ..." velho e, se a aba
+      // fechasse antes, os assets recem-importados sumiam do documento.
+      //
+      // Aqui detectamos o caso em que SO o `uploadProgress` mudou e saimos sem
+      // reagendar. A comparacao usa igualdade REFERENCIAL nas partes pesadas
+      // (o immer troca a referencia so quando o conteudo muda), entao nao ha
+      // custo de serializar tracks/clips a cada tique.
+      const ant = prev.project;
+      if (ant) {
+        const soProgresso =
+          project.tracks === ant.tracks &&
+          project.captionTracks === ant.captionTracks &&
+          project.name === ant.name &&
+          project.duration === ant.duration &&
+          project.resolution === ant.resolution &&
+          project.audioMaster === ant.audioMaster &&
+          project.assets.length === ant.assets.length &&
+          project.assets.every((a, i) => {
+            const b = ant.assets[i];
+            if (a === b) return true;
+            return (
+              a.id === b.id &&
+              a.status === b.status &&
+              a.name === b.name &&
+              a.downloadUrl === b.downloadUrl &&
+              a.storagePath === b.storagePath
+            );
+          });
+        if (soProgresso) return;
       }
-      lastSerializedRef.current = serialized;
 
       // Marca timestamp da primeira edição "suja" desta janela.
       const now = Date.now();
