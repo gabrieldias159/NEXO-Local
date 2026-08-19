@@ -22,6 +22,17 @@ const nextConfig: NextConfig = {
         // Headers COOP/COEP escopados ao Estúdio de Vídeo (avançado).
         // Necessário para SharedArrayBuffer (FFmpeg.wasm multi-thread + WebCodecs).
         // NÃO aplicar globalmente — quebra popups de auth do Firebase.
+        //
+        // `credentialless`, NÃO `require-corp`: aqui tudo roda contra os
+        // EMULADORES, e o Firestore emulado vive em outra origem
+        // (127.0.0.1:8080 vs localhost:9002) sem mandar `Cross-Origin-Resource-Policy`.
+        // Sob `require-corp` o transporte WebChannel do SDK (que carrega via
+        // <script>, portanto no-cors) era barrado com
+        // ERR_BLOCKED_BY_RESPONSE.NotSameOriginAfterDefaultedToSameOriginByCoep
+        // e NENHUMA leitura/escrita de projeto funcionava. `credentialless`
+        // mantém o cross-origin isolation exigido pelo SharedArrayBuffer, mas
+        // dispensa o CORP em requisição no-cors (envia sem credencial — o que
+        // é irrelevante para o emulador local). Mesmo valor já usado no básico.
         source: '/apps/suite-editor-videos/:path*',
         headers: [
           {
@@ -30,7 +41,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Cross-Origin-Embedder-Policy',
-            value: 'require-corp',
+            value: 'credentialless',
           },
         ],
       },

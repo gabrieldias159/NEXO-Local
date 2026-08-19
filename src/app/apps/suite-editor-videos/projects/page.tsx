@@ -220,7 +220,7 @@ export default function VideoProjectsListPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto h-full w-full max-w-6xl space-y-6 overflow-y-auto p-6 md:p-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">

@@ -101,8 +101,8 @@ export default function VideoProjectPage() {
   }
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="min-h-0 flex-grow">
+    <div className="flex h-full min-h-0 flex-1 flex-col">
+      <div className="min-h-0 flex-1">
         <SuiteVideoEditor projectId={projectId} skipBootstrap />
       </div>
     </div>

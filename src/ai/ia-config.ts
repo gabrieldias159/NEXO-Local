@@ -185,13 +185,22 @@ export const PROVIDERS_REGISTRY: ProvedorRegistro[] = [
     protocolo: 'openai-compat',
     // 'streaming' é honesto (SSE OpenAI-compat) mas SEM driver ativo ainda (F6).
     capacidades: ['texto', 'json', 'streaming'],
-    ordemDefault: 1,
+    // REBAIXADO: o endpoint da NVIDIA nao responde desta rede — timeout
+    // consistente de 20s+ em todas as tentativas (19/08/2026). Mantido no
+    // registry porque as 5 chaves seguem validas e ele volta a servir de
+    // onde houver rota; mas em PRIMEIRO lugar ele fazia toda chamada de IA
+    // esperar o timeout antes do fallback.
+    ordemDefault: 4,
   },
   {
     nome: 'groq',
     label: 'Groq',
     base: 'https://api.groq.com/openai/v1',
-    modeloDefault: 'llama-3.3-70b-versatile',
+    // `llama-3.3-70b-versatile` foi DESCOMISSIONADO pela Groq (a API responde
+    // 404 "model does not exist"). Verificado em 19/08/2026 contra
+    // /v1/models: os vivos sao openai/gpt-oss-120b, openai/gpt-oss-20b e
+    // qwen/qwen3.6-27b. O 120b responde em ~480ms.
+    modeloDefault: 'openai/gpt-oss-120b',
     modelEnvVar: 'GROQ_MODEL',
     keyEnvVars: ['GROQ_API_KEY', 'GROQ_API_KEY_2'],
     protocolo: 'openai-compat',
@@ -200,7 +209,9 @@ export const PROVIDERS_REGISTRY: ProvedorRegistro[] = [
     capacidades: ['texto', 'json', 'streaming', 'audio'],
     protocoloPorCapacidade: { audio: 'whisper-multipart' },
     modeloPorCapacidade: { audio: 'whisper-large-v3' },
-    ordemDefault: 2,
+    // PRIMEIRO: unico provedor que responde rapido daqui (~300ms) e o que
+    // atende `audio` (whisper-large-v3) — o caminho das LEGENDAS.
+    ordemDefault: 1,
   },
   {
     nome: 'openrouter',
