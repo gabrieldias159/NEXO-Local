@@ -386,6 +386,41 @@ function ensureEven(d: { width: number; height: number }): {
   };
 }
 
+
+/**
+ * Sonda duração (s) e presença de áudio de um arquivo de mídia SEM ffprobe
+ * (o pacote @ffmpeg-installer não traz o binário do ffprobe): roda
+ * `ffmpeg -i arquivo` e parseia o stderr ("Duration: HH:MM:SS.cc" +
+ * "Stream ... Audio:"). Suficiente para timing de overlays/vinheta.
+ */
+export function probeMediaInfo(
+  filePath: string,
+): Promise<{ duration: number; hasAudio: boolean }> {
+  return new Promise((resolve, reject) => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { path: ffmpegPath } = require("@ffmpeg-installer/ffmpeg");
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { execFile } = require("child_process") as typeof import("child_process");
+    execFile(
+      ffmpegPath,
+      ["-hide_banner", "-i", filePath],
+      { timeout: 30_000 },
+      (_err: unknown, _stdout: string, stderr: string) => {
+        // `ffmpeg -i` sem output SEMPRE sai com erro — o que vale é o stderr.
+        const m = /Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)/.exec(stderr ?? "");
+        if (!m) {
+          reject(new Error(`probeMediaInfo: sem Duration no stderr de ${filePath}`));
+          return;
+        }
+        const duration =
+          Number(m[1]) * 3600 + Number(m[2]) * 60 + Number(m[3]);
+        const hasAudio = /Stream #\d+:\d+.*Audio:/.test(stderr ?? "");
+        resolve({ duration, hasAudio });
+      },
+    );
+  });
+}
+
 /**
  * Garante que o diretório existe e está vazio.
  */

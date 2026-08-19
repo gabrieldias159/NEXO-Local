@@ -252,7 +252,29 @@ export interface VideoProject {
   tracks: Track[];
   captionTracks: CaptionTrack[];
   audioMaster: { volume: number; muted: boolean };
+  /** Parâmetros da identidade visual (logo/rodapé/vinheta) — opcional. */
+  identity?: ProjectIdentity;
+  /** Fator acumulado de velocidade global (informativo). */
+  speechRate?: number;
 }
+
+/**
+ * Parâmetros da identidade do gabinete (espelha src/lib/editor/types.ts).
+ * O render usa estes valores em `applyOverlays`; ausência cai nos defaults.
+ */
+export interface ProjectIdentity {
+  logoWidthPct?: number;
+  footerWidthPct?: number;
+  endingTrimStart?: number;
+  endingAudioFadeIn?: number;
+}
+
+export const DEFAULT_IDENTITY: Required<ProjectIdentity> = {
+  logoWidthPct: 44,
+  footerWidthPct: 97,
+  endingTrimStart: 0,
+  endingAudioFadeIn: 0.6,
+};
 
 // ---- Render -----------------------------------------------------------------
 

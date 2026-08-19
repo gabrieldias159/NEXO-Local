@@ -153,6 +153,7 @@ const OPS: Record<string, Manipulador> = {
       if (patch[k] !== undefined) p[k] = patch[k];
     }
     if (patch.overlays) p.overlays = { ...(p.overlays ?? {}), ...(patch.overlays as object) };
+    if (patch.identity) p.identity = { ...(p.identity ?? {}), ...(patch.identity as object) };
     return { op: 'setProject', ok: true, id: p.id };
   },
 

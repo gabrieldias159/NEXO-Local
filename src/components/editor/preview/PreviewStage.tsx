@@ -41,6 +41,7 @@ import { doc } from 'firebase/firestore';
 import { getDownloadURL, ref as storageRef } from 'firebase/storage';
 import { cn } from '@/lib/utils';
 import type { Clip, MediaAsset, Track } from '@/lib/editor/types';
+import { DEFAULT_IDENTITY } from '@/lib/editor/types';
 import type { AppearanceConfig } from '@/lib/types';
 
 /** MIME usado pela biblioteca/MediaBin (mesmo da timeline). */
@@ -218,6 +219,11 @@ export function PreviewStage() {
     (s) => s.project?.stageBackground ?? '#000000',
   );
   const overlays = useEditorStore((s) => s.project?.overlays);
+  const identity = useEditorStore((s) => s.project?.identity);
+
+  // Duração da vinheta (pós-trim) reportada pelo EndingVideoLayer — usada
+  // para o fade final do rodapé no preview.
+  const [endingDuration, setEndingDuration] = useState(0);
 
   // Configs de aparência para os assets de sobreposição
   const firestore = useFirestore();
@@ -470,23 +476,41 @@ export function PreviewStage() {
         {/* Legendas (acima das mídias, abaixo do divisor). */}
         <CaptionsOverlay stageMode={stageMode} splitRatio={splitRatio} />
 
-        {/* Sobreposição: Logo (canto superior direito) */}
+        {/* Sobreposição: Logo (topo-direito, some em fade ANTES da vinheta) */}
         {overlays?.logo && logoUrl && (
           <img
             src={logoUrl}
             alt=""
             className="pointer-events-none absolute z-30"
-            style={{ top: '2%', right: '2%', maxHeight: '12%', maxWidth: '25%', objectFit: 'contain' }}
+            style={{
+              top: '1.5%',
+              right: '2%',
+              width: `${identity?.logoWidthPct ?? DEFAULT_IDENTITY.logoWidthPct}%`,
+              objectFit: 'contain',
+              // fade de 0,4s terminando 0,1s antes do fim do conteúdo —
+              // espelha o export (o logo NUNCA aparece sobre a vinheta).
+              opacity: logoOpacityAt(playhead, duration),
+            }}
           />
         )}
 
-        {/* Sobreposição: Rodapé (parte inferior) */}
+        {/* Sobreposição: Rodapé (atravessa a vinheta; fade só no fim) */}
         {overlays?.footer && footerUrl && (
           <img
             src={footerUrl}
             alt=""
-            className="pointer-events-none absolute z-30 bottom-0 left-0 w-full"
-            style={{ maxHeight: '15%', objectFit: 'contain', objectPosition: 'bottom' }}
+            className="pointer-events-none absolute z-30"
+            style={{
+              bottom: '1%',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: `${identity?.footerWidthPct ?? DEFAULT_IDENTITY.footerWidthPct}%`,
+              objectFit: 'contain',
+              opacity: footerOpacityAt(
+                playhead,
+                duration + (overlays?.ending ? endingDuration : 0),
+              ),
+            }}
           />
         )}
 
@@ -497,6 +521,8 @@ export function PreviewStage() {
             playhead={playhead}
             projectDuration={duration}
             isPlaying={isPlaying}
+            trimStart={identity?.endingTrimStart ?? 0}
+            onDurationChange={setEndingDuration}
           />
         )}
 
@@ -545,17 +571,23 @@ function EndingVideoLayer({
   playhead,
   projectDuration,
   isPlaying,
+  trimStart = 0,
+  onDurationChange,
 }: {
   src: string;
   playhead: number;
   projectDuration: number;
   isPlaying: boolean;
+  /** Segundos cortados do INÍCIO da vinheta (tela preta) — identidade. */
+  trimStart?: number;
+  /** Duração efetiva (pós-trim), reportada quando os metadados chegam. */
+  onDurationChange?: (dur: number) => void;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const isActive = playhead >= projectDuration;
-  const timeInEnding = Math.max(0, playhead - projectDuration);
+  const timeInEnding = Math.max(0, playhead - projectDuration) + trimStart;
 
-  // Seek ao tempo correto dentro da vinheta
+  // Seek ao tempo correto dentro da vinheta (offset do trim incluído)
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -572,9 +604,9 @@ function EndingVideoLayer({
       video.play().catch(() => {});
     } else {
       video.pause();
-      if (!isActive) video.currentTime = 0;
+      if (!isActive) video.currentTime = trimStart;
     }
-  }, [isPlaying, isActive]);
+  }, [isPlaying, isActive, trimStart]);
 
   return (
     <video
@@ -586,6 +618,36 @@ function EndingVideoLayer({
       )}
       playsInline
       preload="auto"
+      onLoadedMetadata={(e) => {
+        const d = e.currentTarget.duration;
+        if (Number.isFinite(d)) {
+          onDurationChange?.(Math.max(0.2, d - trimStart));
+        }
+      }}
     />
   );
+}
+
+/**
+ * Opacidade do LOGO no preview — espelha o export: fade alpha de 0,4s
+ * terminando 0,1s antes do fim do conteúdo principal (antes da vinheta).
+ */
+function logoOpacityAt(playhead: number, mainDuration: number): number {
+  if (mainDuration <= 0) return 1;
+  const fadeStart = mainDuration - 0.5;
+  if (playhead <= fadeStart) return 1;
+  const t = (playhead - fadeStart) / 0.4;
+  return Math.max(0, Math.min(1, 1 - t));
+}
+
+/**
+ * Opacidade do RODAPÉ — fade de 1s terminando 0,1s antes do fim TOTAL
+ * (conteúdo + vinheta). Sem vinheta, o fim total é o fim do conteúdo.
+ */
+function footerOpacityAt(playhead: number, totalDuration: number): number {
+  if (totalDuration <= 0) return 1;
+  const fadeStart = totalDuration - 1.1;
+  if (playhead <= fadeStart) return 1;
+  const t = (playhead - fadeStart) / 1.0;
+  return Math.max(0, Math.min(1, 1 - t));
 }

@@ -27,6 +27,7 @@ import { doc } from 'firebase/firestore';
 import { EditorIcons } from '../shared/EditorIcons';
 import { cn, formatTimecode } from '@/lib/utils';
 import type { AppearanceConfig } from '@/lib/types';
+import { DEFAULT_IDENTITY } from '@/lib/editor/types';
 
 // (formatTime removida — usa formatTimecode do utils, com frames.)
 
@@ -48,6 +49,9 @@ export function PreviewControls({ className }: PreviewControlsProps) {
 
   const overlays = useEditorStore((s) => s.project?.overlays);
   const setOverlays = useEditorStore((s) => s.setOverlays);
+  const identity = useEditorStore((s) => s.project?.identity);
+  const setIdentity = useEditorStore((s) => s.setIdentity);
+  const applyGabineteIdentity = useEditorStore((s) => s.applyGabineteIdentity);
 
   const firestore = useFirestore();
   const configRef = useMemoFirebase(
@@ -227,6 +231,70 @@ export function PreviewControls({ className }: PreviewControlsProps) {
               Assets não configurados são desabilitados. Configure em Aparência.
             </p>
           )}
+
+          {/* ---- Identidade do Gabinete ---------------------------------- */}
+          <div className="mt-3 space-y-2 border-t border-border pt-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-7 w-full gap-1 text-[11px]"
+              disabled={!hasLogo && !hasFooter && !hasEnding}
+              onClick={applyGabineteIdentity}
+              title="Liga logo + rodapé + vinheta com os parâmetros do gabinete (logo 44%, rodapé 97%, fade de áudio 0,6s)"
+            >
+              Identidade do Gabinete (1 clique)
+            </Button>
+
+            <IdentityNumberRow
+              id="idn-logo-w"
+              label="Logo — largura"
+              unit="%"
+              value={identity?.logoWidthPct ?? DEFAULT_IDENTITY.logoWidthPct}
+              min={10}
+              max={100}
+              step={1}
+              onChange={(v) => setIdentity({ logoWidthPct: v })}
+            />
+            <IdentityNumberRow
+              id="idn-footer-w"
+              label="Rodapé — largura"
+              unit="%"
+              value={identity?.footerWidthPct ?? DEFAULT_IDENTITY.footerWidthPct}
+              min={10}
+              max={100}
+              step={1}
+              onChange={(v) => setIdentity({ footerWidthPct: v })}
+            />
+            <IdentityNumberRow
+              id="idn-trim"
+              label="Vinheta — cortar início"
+              unit="s"
+              value={identity?.endingTrimStart ?? DEFAULT_IDENTITY.endingTrimStart}
+              min={0}
+              max={10}
+              step={0.1}
+              onChange={(v) => setIdentity({ endingTrimStart: v })}
+            />
+            <IdentityNumberRow
+              id="idn-afade"
+              label="Vinheta — fade-in do áudio"
+              unit="s"
+              badge="export"
+              value={
+                identity?.endingAudioFadeIn ?? DEFAULT_IDENTITY.endingAudioFadeIn
+              }
+              min={0}
+              max={3}
+              step={0.1}
+              onChange={(v) => setIdentity({ endingAudioFadeIn: v })}
+            />
+            <p className="text-[10px] leading-snug text-muted-foreground">
+              O logo some em fade ANTES da vinheta; o rodapé atravessa a
+              vinheta e some só no fim. Fades de emenda e áudio são aplicados
+              no export.
+            </p>
+          </div>
         </PopoverContent>
       </Popover>
 
@@ -285,6 +353,58 @@ export function PreviewControls({ className }: PreviewControlsProps) {
           </div>
         </PopoverContent>
       </Popover>
+    </div>
+  );
+}
+
+function IdentityNumberRow({
+  id,
+  label,
+  unit,
+  badge,
+  value,
+  min,
+  max,
+  step,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  unit: string;
+  /** "export" = só tem efeito no arquivo final (não no preview). */
+  badge?: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  onChange: (v: number) => void;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <Label htmlFor={id} className="flex items-center gap-1 text-[10px]">
+        {label}
+        {badge && (
+          <span className="rounded bg-muted px-1 py-px text-[8px] uppercase tracking-wide text-muted-foreground">
+            {badge}
+          </span>
+        )}
+      </Label>
+      <div className="flex items-center gap-1">
+        <input
+          id={id}
+          type="number"
+          value={value}
+          min={min}
+          max={max}
+          step={step}
+          onChange={(e) => {
+            const v = Number(e.target.value);
+            if (Number.isFinite(v)) onChange(Math.max(min, Math.min(max, v)));
+          }}
+          className="h-6 w-14 rounded border border-border bg-background px-1 text-right text-[11px] tabular-nums"
+        />
+        <span className="w-3 text-[10px] text-muted-foreground">{unit}</span>
+      </div>
     </div>
   );
 }

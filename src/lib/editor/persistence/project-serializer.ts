@@ -94,6 +94,10 @@ function serializeClip(clip: Clip): DocumentData {
     endInAsset: clip.endInAsset,
     slot: clip.slot,
     layer: clip.layer ?? 0,
+    // `fit` e `chromaKey` são aditivos — sem eles o save descartava o encaixe
+    // e o chroma key configurados (bug de retrocompat corrigido).
+    fit: clip.fit,
+    chromaKey: clip.chromaKey ? { ...clip.chromaKey } : undefined,
     playbackRate: clip.playbackRate,
     transform: { ...clip.transform },
     filters: { ...clip.filters },
@@ -133,6 +137,7 @@ function serializeCaptionTrack(track: CaptionTrack): DocumentData {
     visible: track.visible,
     locked: track.locked,
     language: track.language ?? null,
+    source: track.source,
     cues: track.cues.map((c) => ({
       id: c.id,
       startTime: c.startTime,
@@ -184,6 +189,12 @@ export function serializeProjectForFirestore(
   }
   if (project.overlays !== undefined) {
     data.overlays = { ...project.overlays };
+  }
+  if (project.identity !== undefined) {
+    data.identity = { ...project.identity };
+  }
+  if (project.speechRate !== undefined) {
+    data.speechRate = project.speechRate;
   }
   if (project.originRecorte !== undefined) {
     data.originRecorte = { ...project.originRecorte };
@@ -279,6 +290,7 @@ export function deserializeProjectFromFirestore(
         visible: tr.visible !== false,
         locked: !!tr.locked,
         language: tr.language ?? undefined,
+        source: tr.source ?? undefined,
         cues: Array.isArray(tr.cues) ? (tr.cues as CaptionTrack['cues']) : [],
       };
     }),
@@ -290,6 +302,12 @@ export function deserializeProjectFromFirestore(
   }
   if (data.overlays && typeof data.overlays === 'object') {
     project.overlays = data.overlays as VideoProject['overlays'];
+  }
+  if (data.identity && typeof data.identity === 'object') {
+    project.identity = data.identity as VideoProject['identity'];
+  }
+  if (typeof data.speechRate === 'number' && data.speechRate > 0) {
+    project.speechRate = data.speechRate;
   }
   if (data.originRecorte && typeof data.originRecorte === 'object') {
     project.originRecorte = data.originRecorte as VideoProject['originRecorte'];

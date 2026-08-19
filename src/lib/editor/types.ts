@@ -58,6 +58,28 @@ export interface VideoProject {
     ending: boolean;
   };
 
+  /**
+   * Parâmetros da IDENTIDADE VISUAL do gabinete (aditivo/opcional — projetos
+   * antigos sem o campo usam os defaults, ver `DEFAULT_IDENTITY`).
+   *
+   * Regras que o render aplica quando `overlays` está ligado:
+   * - logo no topo-direito, `logoWidthPct`% da largura, some em fade ANTES da
+   *   vinheta (fade de 0,4s terminando 0,1s antes do fim do conteúdo);
+   * - rodapé embaixo, `footerWidthPct`% da largura, ATRAVESSA a vinheta e some
+   *   em fade de 1s apenas no fim do vídeo completo;
+   * - vinheta: corta `endingTrimStart`s do início (tela preta) e aplica
+   *   fade-in de `endingAudioFadeIn`s no áudio dela (mata riser);
+   * - ordem Z: identidade fica ACIMA de tudo (mídia, overlays e legendas).
+   */
+  identity?: ProjectIdentity;
+
+  /**
+   * Fator ACUMULADO de velocidade global aplicado ao projeto (informativo).
+   * Ex.: 1.14 = a fala foi acelerada 14% via "Velocidade da fala".
+   * A vinheta de encerramento NUNCA acelera com este fator.
+   */
+  speechRate?: number;
+
   /** Modelo opcional `Stage` (doc 04 — fallback p/ split arbitrário). */
   stages?: Stage[];
 
@@ -82,6 +104,29 @@ export interface VideoProject {
     originalFilePath?: string;
   };
 }
+
+/**
+ * Parâmetros da identidade visual (logo/rodapé/vinheta) do projeto.
+ * Todos opcionais — ausência cai nos defaults do gabinete.
+ */
+export interface ProjectIdentity {
+  /** Largura do logo em % da largura do vídeo (default 44). */
+  logoWidthPct?: number;
+  /** Largura do rodapé em % da largura do vídeo (default 97). */
+  footerWidthPct?: number;
+  /** Segundos cortados do INÍCIO da vinheta (tela preta / riser). Default 0. */
+  endingTrimStart?: number;
+  /** Fade-in do ÁUDIO da vinheta, em segundos (default 0.6). */
+  endingAudioFadeIn?: number;
+}
+
+/** Defaults da identidade do gabinete (produção real ago/2026). */
+export const DEFAULT_IDENTITY: Required<ProjectIdentity> = {
+  logoWidthPct: 44,
+  footerWidthPct: 97,
+  endingTrimStart: 0,
+  endingAudioFadeIn: 0.6,
+};
 
 /**
  * Preset de resolução. Mantido como interface aberta para suportar

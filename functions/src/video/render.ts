@@ -23,13 +23,15 @@ import * as path from "path";
 import * as fs from "fs-extra";
 
 import { admin, bucket, db, ffmpeg } from "../shared/admin";
-import type { AppearanceConfig, ExportSettings, RenderJob, RenderTier, VideoProject } from "../shared/types";
+import type { AppearanceConfig, ExportSettings, ProjectIdentity, RenderJob, RenderTier, VideoProject } from "../shared/types";
+import { DEFAULT_IDENTITY } from "../shared/types";
 import { buildFilterComplex } from "../shared/ffmpeg-builder";
 import {
   crfFromExportQuality,
   downloadAssetsForProject,
   ensureCleanDir,
   generateAssFromCaptions,
+  probeMediaInfo,
   resolutionPresetToWH,
   uploadRender,
 } from "../shared/ffmpeg-utils";
@@ -281,6 +283,12 @@ async function processRenderJob(
           job.exportSettings,
           tmpDir,
           jobId,
+          {
+            width: outRes.width,
+            height: outRes.height,
+            frameRate: project.frameRate,
+            identity: project.identity,
+          },
         );
         await fs.move(overlayOutputPath, localOutputPath, { overwrite: true });
         logger.info("Sobreposições aplicadas.");
@@ -446,6 +454,27 @@ async function downloadOverlayAsset(
   }
 }
 
+interface OverlayContext {
+  width: number;
+  height: number;
+  frameRate: number;
+  identity?: ProjectIdentity;
+}
+
+/**
+ * Aplica a IDENTIDADE VISUAL do gabinete sobre o render principal.
+ * Port do pipeline aprovado em produção (`_compilar.mjs` do corte
+ * "Gusttavo Lima", ago/2026):
+ *
+ * - logo: topo-direito, `logoWidthPct`% da largura, some em FADE alpha de
+ *   0,4s terminando 0,1s antes do fim do conteúdo (ANTES da vinheta);
+ * - vinheta: corta `endingTrimStart`s do início (tela preta), fade de vídeo
+ *   0,35s/0,3s na emenda e FADE-IN de `endingAudioFadeIn`s no áudio (mata
+ *   riser); a vinheta nunca é acelerada;
+ * - rodapé: embaixo, `footerWidthPct`% da largura, aplicado DEPOIS do concat
+ *   — atravessa a vinheta e some em fade de 1s apenas no fim do vídeo;
+ * - ordem Z: identidade acima de TUDO (inclusive legendas queimadas).
+ */
 async function applyOverlays(
   inputPath: string,
   outputPath: string,
@@ -453,71 +482,131 @@ async function applyOverlays(
   settings: ExportSettings,
   tmpDir: string,
   jobId: string,
+  ctx: OverlayContext,
 ): Promise<void> {
   const downloadedAssets: string[] = [];
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let cmd: any = ffmpeg(inputPath);
-    const filterParts: string[] = [];
-    let videoStream = "[0:v]";
-    let audioStream = "[0:a]";
-    let overlayIndex = 1;
+    const { width: W, height: H, frameRate: FPS } = ctx;
+    const id = { ...DEFAULT_IDENTITY, ...(ctx.identity ?? {}) };
+    const F = (n: number) => Math.max(0, n).toFixed(3);
+    const AFMT =
+      "aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo";
 
     const localLogoPath = settings.includeLogo
       ? await downloadOverlayAsset(config.videoLogoUrl, path.join(tmpDir, `logo-${jobId}.png`))
       : null;
-    if (localLogoPath) {
-      cmd = cmd.addInput(localLogoPath);
-      downloadedAssets.push(localLogoPath);
-    }
-
     const localFooterPath = settings.includeFooter
       ? await downloadOverlayAsset(config.videoFooterUrl, path.join(tmpDir, `footer-${jobId}.png`))
       : null;
-    if (localFooterPath) {
-      cmd = cmd.addInput(localFooterPath);
-      downloadedAssets.push(localFooterPath);
-    }
-
     const localEndingPath = settings.includeEnding
       ? await downloadOverlayAsset(config.videoEncerramentoUrl, path.join(tmpDir, `ending-${jobId}.mp4`))
       : null;
-    if (localEndingPath) {
-      cmd = cmd.addInput(localEndingPath);
-      downloadedAssets.push(localEndingPath);
+    for (const p2 of [localLogoPath, localFooterPath, localEndingPath]) {
+      if (p2) downloadedAssets.push(p2);
     }
+    if (!localLogoPath && !localFooterPath && !localEndingPath) return;
+
+    // Durações reais — o timing dos fades depende delas.
+    const main = await probeMediaInfo(inputPath);
+    const mainDur = main.duration;
+    const trim = Math.max(0, id.endingTrimStart);
+    let endingInfo: { duration: number; hasAudio: boolean } | null = null;
+    if (localEndingPath) {
+      endingInfo = await probeMediaInfo(localEndingPath);
+    }
+    const endingDur = endingInfo ? Math.max(0.2, endingInfo.duration - trim) : 0;
+    const totalDur = mainDur + endingDur;
+
+    // ---- monta inputs -----------------------------------------------------
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let cmd: any = ffmpeg(inputPath);
+    let nextInput = 1;
+    let logoIdx = -1;
+    let footerIdx = -1;
+    let endingIdx = -1;
+    let silenceIdx = -1;
 
     if (localLogoPath) {
-      filterParts.push(`${videoStream}[${overlayIndex}:v]overlay=W-w-30:30[v_logo]`);
-      videoStream = "[v_logo]";
-      overlayIndex++;
+      logoIdx = nextInput++;
+      cmd = cmd
+        .addInput(localLogoPath)
+        .inputOptions(["-loop 1", `-framerate ${FPS}`, `-t ${F(mainDur)}`]);
     }
     if (localFooterPath) {
-      filterParts.push(`${videoStream}[${overlayIndex}:v]overlay=(W-w)/2:H-h[v_footer]`);
-      videoStream = "[v_footer]";
-      overlayIndex++;
+      footerIdx = nextInput++;
+      cmd = cmd
+        .addInput(localFooterPath)
+        .inputOptions(["-loop 1", `-framerate ${FPS}`, `-t ${F(totalDur)}`]);
     }
     if (localEndingPath) {
-      filterParts.push(`[${overlayIndex}:v]setpts=PTS-STARTPTS[v_ending]`);
-      filterParts.push(`[${overlayIndex}:a]asetpts=PTS-STARTPTS[a_ending]`);
-      filterParts.push(`${videoStream}[v_ending]concat=n=2:v=1:a=0[v_final]`);
-      filterParts.push(`${audioStream}[a_ending]concat=n=2:v=0:a=1[a_final]`);
-      videoStream = "[v_final]";
-      audioStream = "[a_final]";
+      endingIdx = nextInput++;
+      const opts = trim > 0 ? [`-ss ${F(trim)}`] : [];
+      cmd = cmd.addInput(localEndingPath).inputOptions(opts);
+      if (endingInfo && !endingInfo.hasAudio) {
+        // Vinheta muda: gera silêncio para o concat de áudio não quebrar.
+        silenceIdx = nextInput++;
+        cmd = cmd
+          .addInput("anullsrc=channel_layout=stereo:sample_rate=48000")
+          .inputOptions(["-f lavfi", `-t ${F(endingDur)}`]);
+      }
     }
 
-    if (filterParts.length === 0) return;
+    // ---- filter graph -----------------------------------------------------
+    const fc: string[] = [];
+    let v = "[0:v]";
 
-    cmd = cmd.complexFilter(filterParts);
+    if (logoIdx >= 0) {
+      const lw = Math.max(2, Math.round((W * id.logoWidthPct) / 100));
+      // Logo some ANTES da vinheta: fade alpha 0,4s terminando 0,1s antes
+      // do fim do conteúdo principal.
+      fc.push(
+        `[${logoIdx}:v]scale=${lw}:-1,format=rgba,fade=t=out:st=${F(mainDur - 0.5)}:d=0.4:alpha=1[lgo]`,
+      );
+      fc.push(`${v}[lgo]overlay=x=W-w-10:y=12:eof_action=pass[vlg]`);
+      v = "[vlg]";
+    }
+
+    let a = "";
+    if (endingIdx >= 0) {
+      // Emenda com fade: conteúdo sai em 0,35s; vinheta entra em 0,3s.
+      fc.push(`${v}fade=t=out:st=${F(mainDur - 0.35)}:d=0.35[v0]`);
+      fc.push(`[0:a]${AFMT},afade=t=out:st=${F(mainDur - 0.35)}:d=0.35[a0]`);
+      fc.push(
+        `[${endingIdx}:v]fps=${FPS},scale=${W}:${H}:force_original_aspect_ratio=increase,crop=${W}:${H},setsar=1,fade=t=in:st=0:d=0.3[v1]`,
+      );
+      const endingAudioLabel =
+        silenceIdx >= 0 ? `[${silenceIdx}:a]` : `[${endingIdx}:a]`;
+      fc.push(
+        `${endingAudioLabel}${AFMT},afade=t=in:st=0:d=${F(id.endingAudioFadeIn)}[a1]`,
+      );
+      fc.push(`[v0][a0][v1][a1]concat=n=2:v=1:a=1[vcat][acat]`);
+      v = "[vcat]";
+      a = "[acat]";
+    }
+
+    if (footerIdx >= 0) {
+      const fw = Math.max(2, Math.round((W * id.footerWidthPct) / 100));
+      // Rodapé atravessa a vinheta e some em fade de 1s SÓ no fim.
+      fc.push(
+        `[${footerIdx}:v]scale=${fw}:-1,format=rgba,fade=t=out:st=${F(totalDur - 1.1)}:d=1.0:alpha=1[rdp]`,
+      );
+      fc.push(`${v}[rdp]overlay=x=(W-w)/2:y=H-h-10:eof_action=pass[vfin]`);
+      v = "[vfin]";
+    }
+
+    cmd = cmd.complexFilter(fc.join(";"));
 
     await new Promise<void>((resolve, reject) => {
-      cmd
-        .map(videoStream)
-        .map(audioStream)
+      let out = cmd.map(v);
+      // Sem vinheta o áudio original passa direto (sem re-filtrar).
+      out = a ? out.map(a) : out.map("0:a");
+      out
         .outputOptions([
           "-c:v libx264",
           "-preset veryfast",
+          "-crf 20",
           "-pix_fmt yuv420p",
+          `-r ${FPS}`,
           "-c:a aac",
           "-b:a 192k",
           "-movflags +faststart",

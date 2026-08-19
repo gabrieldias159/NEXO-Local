@@ -28,6 +28,7 @@ import type { TemporalState } from 'zundo';
 
 import type {
   VideoProject,
+  ProjectIdentity,
   EditorUIState,
   MediaAsset,
   Track,
@@ -222,6 +223,14 @@ interface Actions {
   /** Clamp 0.1 - 0.9. */
   setSplitRatio: (ratio: number) => void;
   setOverlays: (patch: Partial<NonNullable<VideoProject['overlays']>>) => void;
+  /** Patch parcial dos parâmetros de identidade (logo/rodapé/vinheta). */
+  setIdentity: (patch: Partial<ProjectIdentity>) => void;
+  /**
+   * Preset "Identidade do Gabinete" em 1 clique: liga logo+rodapé+vinheta e
+   * aplica os parâmetros padrão do gabinete (logo 44%, rodapé 97%, fade de
+   * áudio 0,6s na vinheta). Não sobrescreve trim já configurado.
+   */
+  applyGabineteIdentity: () => void;
 
   // ---- 5.2 Assets --------------------------------------------------------
   /** Adiciona um asset já-pronto (upload/parse de arquivo é externo). */
@@ -681,6 +690,25 @@ export const useEditorStore = create<EditorStore>()(
               ending: false,
               ...s.project.overlays,
               ...patch,
+            };
+          }),
+
+        setIdentity: (patch) =>
+          set((s) => {
+            if (!s.project) return;
+            s.project.identity = { ...s.project.identity, ...patch };
+          }),
+
+        applyGabineteIdentity: () =>
+          set((s) => {
+            if (!s.project) return;
+            s.project.overlays = { logo: true, footer: true, ending: true };
+            s.project.identity = {
+              logoWidthPct: 44,
+              footerWidthPct: 97,
+              endingAudioFadeIn: 0.6,
+              // trim é do arquivo da vinheta em uso — preserva o já medido.
+              endingTrimStart: s.project.identity?.endingTrimStart ?? 0,
             };
           }),
 
