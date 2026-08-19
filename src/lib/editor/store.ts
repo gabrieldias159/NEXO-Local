@@ -233,6 +233,22 @@ interface Actions {
    * áudio 0,6s na vinheta). Não sobrescreve trim já configurado.
    */
   applyGabineteIdentity: () => void;
+  /**
+   * VELOCIDADE GLOBAL do projeto (velocidade da fala): re-encoda a base
+   * (playbackRate) e REMAPEIA a timeline inteira — port do algoritmo do
+   * `_prep_xfade.py` da produção real:
+   * - clips da track BASE (vídeo de menor index, camada 0): rate *= F e
+   *   tempos comprimidos por F;
+   * - imagens (qualquer camada): início/fim divididos por F (acompanham a
+   *   fala);
+   * - vídeos/áudios sobrepostos: só o INÍCIO desloca (/F); duração natural
+   *   preservada (não re-aceleram);
+   * - trilha (áudio cobrindo >=85% do projeto): comprime junto;
+   * - legendas e keyframes: tempos divididos por F.
+   * A vinheta de encerramento NUNCA acelera (é aplicada no export).
+   * Devolve false se não há projeto/base. F aceito: 0.5–2.0.
+   */
+  applyGlobalSpeed: (factor: number) => boolean;
 
   // ---- 5.2 Assets --------------------------------------------------------
   /** Adiciona um asset já-pronto (upload/parse de arquivo é externo). */
@@ -720,6 +736,112 @@ export const useEditorStore = create<EditorStore>()(
               endingTrimStart: s.project.identity?.endingTrimStart ?? 0,
             };
           }),
+
+        applyGlobalSpeed: (factor) => {
+          let ok = false;
+          const F = Number(factor);
+          if (!Number.isFinite(F) || F < 0.5 || F > 2 || Math.abs(F - 1) < 1e-6) {
+            return false;
+          }
+          set((s) => {
+            const p = s.project;
+            if (!p) return;
+            // Track BASE: a track de vídeo de MENOR index com clips.
+            const base = [...p.tracks]
+              .filter((t) => t.type === 'video' && t.clips.length > 0)
+              .sort((a, b) => a.index - b.index)[0];
+            if (!base) return;
+
+            const oldDuration =
+              p.duration ||
+              Math.max(
+                0,
+                ...p.tracks.flatMap((t) => t.clips.map((c) => c.endInTimeline)),
+              );
+            const assetTypeOf = (assetId: string) =>
+              p.assets.find((a) => a.id === assetId)?.type;
+            const r3 = (n: number) => Number(n.toFixed(3));
+
+            // Passo 1: remapeia a BASE (a fala). O fim dela trava tudo —
+            // nada pode alongar o vídeo além da fala (regra dura do dono).
+            let newBaseEnd = 0;
+            for (const clip of base.clips) {
+              if ((clip.layer ?? 0) !== 0) continue;
+              clip.playbackRate = r3((clip.playbackRate || 1) * F);
+              clip.startInTimeline = r3(clip.startInTimeline / F);
+              clip.endInTimeline = r3(
+                clip.startInTimeline +
+                  (clip.endInAsset - clip.startInAsset) / clip.playbackRate,
+              );
+              if (clip.endInTimeline > newBaseEnd) {
+                newBaseEnd = clip.endInTimeline;
+              }
+              if (clip.keyframes && clip.keyframes.length > 0) {
+                for (const kf of clip.keyframes) {
+                  kf.time = r3(kf.time / F);
+                }
+              }
+            }
+
+            // Passo 2: remapeia o resto.
+            for (const track of p.tracks) {
+              for (const clip of track.clips) {
+                const isBase =
+                  track.id === base.id &&
+                  (clip.layer ?? 0) === 0 &&
+                  track.type === 'video';
+                if (isBase) continue; // já remapeado no passo 1
+                const tipo = assetTypeOf(clip.assetId);
+                const oldStart = clip.startInTimeline;
+                const oldDur = clip.endInTimeline - clip.startInTimeline;
+
+                if (tipo === 'image') {
+                  // Imagem acompanha a fala: as duas pontas comprimem.
+                  clip.startInTimeline = r3(oldStart / F);
+                  clip.endInTimeline = r3((oldStart + oldDur) / F);
+                } else {
+                  // Vídeo/áudio sobreposto: desloca o início; mantém a
+                  // duração natural (meme/efeito não re-acelera). Exceção:
+                  // trilha (cobre quase o projeto todo) comprime junto.
+                  const ehTrilha =
+                    track.type === 'audio' &&
+                    oldDuration > 0 &&
+                    oldDur >= oldDuration * 0.85;
+                  clip.startInTimeline = r3(oldStart / F);
+                  clip.endInTimeline = ehTrilha
+                    ? r3((oldStart + oldDur) / F)
+                    : r3(clip.startInTimeline + oldDur);
+                  // Trava no fim da fala (nada alonga o vídeo).
+                  if (newBaseEnd > 0 && clip.endInTimeline > newBaseEnd) {
+                    clip.endInTimeline = r3(
+                      Math.max(clip.startInTimeline + 0.1, newBaseEnd),
+                    );
+                  }
+                }
+
+                if (clip.keyframes && clip.keyframes.length > 0) {
+                  for (const kf of clip.keyframes) {
+                    kf.time = r3(kf.time / F);
+                  }
+                }
+              }
+              // Reordena por início (o remap preserva a ordem, mas garante).
+              track.clips.sort((a, b) => a.startInTimeline - b.startInTimeline);
+            }
+
+            for (const ct of p.captionTracks) {
+              for (const cue of ct.cues) {
+                cue.startTime = r3(cue.startTime / F);
+                cue.endTime = r3(cue.endTime / F);
+              }
+            }
+
+            p.duration = computeProjectDuration(p);
+            p.speechRate = r3((p.speechRate ?? 1) * F);
+            ok = true;
+          });
+          return ok;
+        },
 
         // ===== 5.2 Assets =================================================
         addAsset: (asset) =>

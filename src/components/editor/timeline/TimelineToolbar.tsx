@@ -17,6 +17,7 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { useEditorStore } from '@/lib/editor/store';
 import { EditorIcons } from '../shared/EditorIcons';
+import { GlobalSpeedDialog } from './GlobalSpeedDialog';
 import { TransitionPicker } from '../transitions/TransitionPicker';
 import type { TransitionConfig } from '@/lib/editor/types';
 import { useCaptionsDrawer } from '../captions/useCaptionsDrawer';
@@ -54,6 +55,7 @@ export function TimelineToolbar() {
   const captionsOpen = useCaptionsDrawer((s) => s.open);
 
   const [pickerOpen, setPickerOpen] = React.useState(false);
+  const [speedOpen, setSpeedOpen] = React.useState(false);
 
   /**
    * Aplica a transição escolhida no picker. Estratégia:
@@ -219,6 +221,21 @@ export function TimelineToolbar() {
         onOpenChange={setPickerOpen}
         onSelect={handleSelectTransition}
       />
+
+      {/* Velocidade global do projeto (remap automatico) */}
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        className="h-7 gap-1 px-2 text-[11px]"
+        onClick={() => setSpeedOpen(true)}
+        title="Velocidade da fala: acelera a base e remapeia a timeline inteira"
+      >
+        <EditorIcons.Speed className="h-3.5 w-3.5" />
+        <span>Velocidade</span>
+      </Button>
+
+      <GlobalSpeedDialog open={speedOpen} onOpenChange={setSpeedOpen} />
 
       {/* Legendas — abre o drawer */}
       <Button
