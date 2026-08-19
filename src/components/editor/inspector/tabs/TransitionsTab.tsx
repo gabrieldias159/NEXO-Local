@@ -38,6 +38,7 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { ScrubbableInput } from '../controls/ScrubbableInput';
+import { TailTrimSection } from './TailTrimSection';
 import { InspectorSection } from '../controls/InspectorSection';
 import { pickCommonValue } from '../controls/useMixedValue';
 import { cn } from '@/lib/utils';
@@ -172,6 +173,9 @@ export function TransitionsTab({ clips }: TransitionsTabProps) {
           Aplicando em {clips.length} clips selecionados.
         </p>
       )}
+
+      {/* Aperto de tela (rabos) + xfade nas junções — só com 1 clip. */}
+      {clips.length === 1 && <TailTrimSection clip={clips[0]} />}
     </div>
   );
 }

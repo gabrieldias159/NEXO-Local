@@ -352,6 +352,21 @@ interface Actions {
   ) => void;
   /** Split em `atTime`. Retorna [idA, idB] ou null se inválido. */
   splitClip: (clipId: string, atTime: number) => [string, string] | null;
+  /**
+   * "Remover aperto de tela": corta `seconds` do FIM do clip e PUXA tudo
+   * que vem depois (todas as tracks + legendas) para trás — ripple delete
+   * do rabo. É o corte de junção do fluxo do gabinete (sempre depois da
+   * última palavra do bloco). Devolve false se o corte não couber.
+   */
+  trimClipTail: (clipId: string, seconds: number) => boolean;
+  /**
+   * Aplica XFADE nas JUNÇÕES da track: para cada par de clips consecutivos
+   * (camada 0), sobrepõe o par em `duration`s (puxando tudo que vem depois)
+   * e marca transitionOut/In como crossfade — no export vira xfade de vídeo
+   * + acrossfade de áudio, como na base do corte aprovado. Devolve o nº de
+   * junções tratadas.
+   */
+  applyCrossfadeAtJunctions: (trackId: string, duration?: number) => number;
   duplicateClip: (clipId: string) => string | null;
   /**
    * Copia o clip atualmente selecionado (primeiro de `selectedClipIds`)
@@ -1435,6 +1450,140 @@ export const useEditorStore = create<EditorStore>()(
             result = [clip.id, newId];
           });
           return result;
+        },
+
+        trimClipTail: (clipId, seconds) => {
+          let ok = false;
+          set((s) => {
+            if (!s.project) return;
+            const found = findClip(s.project, clipId);
+            if (!found || found.clip.locked || found.track.locked) return;
+            const { clip } = found;
+            const cut = Number(seconds);
+            const durAtual = clip.endInTimeline - clip.startInTimeline;
+            if (!Number.isFinite(cut) || cut <= 0 || cut >= durAtual - 0.1) {
+              return;
+            }
+            const oldEnd = clip.endInTimeline;
+            const newEnd = oldEnd - cut;
+            const rate = clip.playbackRate || 1;
+
+            clip.endInTimeline = Number(newEnd.toFixed(3));
+            clip.endInAsset = Number(
+              (clip.endInAsset - cut * rate).toFixed(3),
+            );
+
+            // Ripple: TUDO que começa depois do trecho removido puxa `cut`
+            // para trás; o que começava DENTRO do trecho encosta no corte.
+            const eps = 1e-3;
+            for (const track of s.project.tracks) {
+              for (const c of track.clips) {
+                if (c.id === clip.id) continue;
+                if (c.startInTimeline >= oldEnd - eps) {
+                  c.startInTimeline = Number(
+                    (c.startInTimeline - cut).toFixed(3),
+                  );
+                  c.endInTimeline = Number((c.endInTimeline - cut).toFixed(3));
+                } else if (c.startInTimeline > newEnd + eps) {
+                  const d = c.endInTimeline - c.startInTimeline;
+                  c.startInTimeline = Number(newEnd.toFixed(3));
+                  c.endInTimeline = Number((newEnd + d).toFixed(3));
+                }
+              }
+              track.clips.sort((a, b) => a.startInTimeline - b.startInTimeline);
+            }
+            for (const ct of s.project.captionTracks) {
+              for (const cue of ct.cues) {
+                if (cue.startTime >= oldEnd - eps) {
+                  cue.startTime = Number((cue.startTime - cut).toFixed(3));
+                  cue.endTime = Number((cue.endTime - cut).toFixed(3));
+                } else if (cue.startTime > newEnd + eps) {
+                  const d = cue.endTime - cue.startTime;
+                  cue.startTime = Number(newEnd.toFixed(3));
+                  cue.endTime = Number((newEnd + d).toFixed(3));
+                }
+              }
+            }
+            s.project.duration = computeProjectDuration(s.project);
+            ok = true;
+          });
+          return ok;
+        },
+
+        applyCrossfadeAtJunctions: (trackId, duration = 0.3) => {
+          let count = 0;
+          set((s) => {
+            if (!s.project) return;
+            const track = s.project.tracks.find((t) => t.id === trackId);
+            if (!track || track.type !== 'video' || track.locked) return;
+            const xf = clamp(duration, 0.1, 1);
+            const eps = 0.05;
+
+            // Junções: pares consecutivos ADJACENTES da camada 0.
+            const base = track.clips
+              .filter((c) => (c.layer ?? 0) === 0 && !c.hidden)
+              .sort((a, b) => a.startInTimeline - b.startInTimeline);
+
+            for (let i = 0; i + 1 < base.length; i += 1) {
+              const a = base[i];
+              const b = base[i + 1];
+              const durA = a.endInTimeline - a.startInTimeline;
+              const durB = b.endInTimeline - b.startInTimeline;
+              // Já sobrepostos (xfade aplicado antes) → só garante a marca.
+              const jaSobrepoe =
+                a.endInTimeline - b.startInTimeline > eps &&
+                a.endInTimeline - b.startInTimeline <= 1 + eps;
+              const adjacente =
+                Math.abs(a.endInTimeline - b.startInTimeline) < eps;
+              if (!adjacente && !jaSobrepoe) continue;
+              if (durA < xf * 2 || durB < xf * 2) continue;
+
+              if (adjacente) {
+                // Sobrepõe o par: B (e TUDO que começa a partir dele, em
+                // todas as tracks + legendas) puxa `xf` para trás.
+                const pivot = b.startInTimeline;
+                for (const t2 of s.project.tracks) {
+                  for (const c of t2.clips) {
+                    if (c.id === a.id) continue;
+                    if (c.startInTimeline >= pivot - 1e-3) {
+                      c.startInTimeline = Number(
+                        (c.startInTimeline - xf).toFixed(3),
+                      );
+                      c.endInTimeline = Number(
+                        (c.endInTimeline - xf).toFixed(3),
+                      );
+                    }
+                  }
+                }
+                for (const ct of s.project.captionTracks) {
+                  for (const cue of ct.cues) {
+                    if (cue.startTime >= pivot - 1e-3) {
+                      cue.startTime = Number((cue.startTime - xf).toFixed(3));
+                      cue.endTime = Number((cue.endTime - xf).toFixed(3));
+                    }
+                  }
+                }
+              }
+
+              const overlap = Number(
+                (a.endInTimeline - b.startInTimeline).toFixed(3),
+              );
+              const cfg: TransitionConfig = {
+                type: 'crossfade',
+                duration: overlap > 0 ? overlap : xf,
+                easing: 'linear',
+              };
+              a.transitionOut = { ...cfg };
+              b.transitionIn = { ...cfg };
+              count += 1;
+            }
+
+            for (const t2 of s.project.tracks) {
+              t2.clips.sort((x, y) => x.startInTimeline - y.startInTimeline);
+            }
+            s.project.duration = computeProjectDuration(s.project);
+          });
+          return count;
         },
 
         duplicateClip: (clipId) => {

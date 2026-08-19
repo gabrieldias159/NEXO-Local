@@ -226,23 +226,50 @@ export function buildFilterComplex(
     });
   });
 
-  // Detecta pares xfade ANTES de montar as chains: clips que participam de
-  // xfade não recebem alpha-fade individual (o blend do xfade já faz o papel).
+  // Detecta RUNS de xfade ANTES de montar as chains: sequências de clips da
+  // MESMA track/camada em que cada clip tem `transitionOut` e SOBREPÕE o
+  // próximo (overlap de até 1,5s — é o que `applyCrossfadeAtJunctions` cria).
+  // Um run vira UMA cadeia de xfades encadeados (algoritmo do `_prep_xfade.py`
+  // da produção real) + acrossfade no áudio. Clips de um run não recebem
+  // alpha-fade individual (o blend do xfade já faz o papel).
+  const XFADE_MAX_OVERLAP = 1.5;
+  const runOf: number[] = new Array(pending.length).fill(-1);
+  const runs: number[][] = [];
   for (let i = 0; i < pending.length; i += 1) {
-    const cur = pending[i];
-    if (!cur.clip.transitionOut) continue;
-    for (let j = i + 1; j < pending.length; j += 1) {
-      if (pending[j].track.id !== cur.track.id) continue;
-      if (areClipsAdjacent(cur.clip, pending[j].clip)) {
-        cur.fadeOutSuppressed = true;
-        pending[j].fadeInSuppressed = true;
-      }
-      break;
+    if (runOf[i] >= 0) continue;
+    const run = [i];
+    let k = i;
+    for (let j = k + 1; j < pending.length; j += 1) {
+      const a = pending[k];
+      const b = pending[j];
+      if (b.track.id !== a.track.id) break;
+      if ((b.clip.layer ?? 0) !== (a.clip.layer ?? 0)) break;
+      const overlap = a.clip.endInTimeline - b.clip.startInTimeline;
+      const encadeia =
+        a.clip.transitionOut !== undefined &&
+        overlap > 0.05 &&
+        overlap <= XFADE_MAX_OVERLAP;
+      if (!encadeia) break;
+      run.push(j);
+      k = j;
+    }
+    if (run.length > 1) {
+      const runIdx = runs.length;
+      runs.push(run);
+      run.forEach((idx, pos) => {
+        runOf[idx] = runIdx;
+        if (pos < run.length - 1) pending[idx].fadeOutSuppressed = true;
+        if (pos > 0) pending[idx].fadeInSuppressed = true;
+      });
     }
   }
 
-  // 2º passe: monta a chain de cada clip.
-  pending.forEach((p) => {
+  // 2º passe: monta a chain de cada clip. Clips FORA de run recebem o
+  // deslocamento de PTS para a posição na timeline (o overlay sincroniza por
+  // timestamp — sem isso, clip que não começa em 0s exibia o último frame
+  // congelado). Membros de run ficam com PTS a partir de 0 (o xfade exige) e
+  // o deslocamento é aplicado no RESULTADO do run.
+  pending.forEach((p, i) => {
     lines.push(
       buildVideoClipChain({
         inputIndex: p.inputIndex,
@@ -254,6 +281,7 @@ export function buildFilterComplex(
         frameRate: project.frameRate,
         fadeInSuppressed: p.fadeInSuppressed,
         fadeOutSuppressed: p.fadeOutSuppressed,
+        ptsOffset: runOf[i] >= 0 ? 0 : p.clip.startInTimeline,
       }),
     );
     clipNodes.push({
@@ -268,48 +296,54 @@ export function buildFilterComplex(
   // ---- 3. Composição em cima da base preta ---------------------------------
   let videoStream = `[${baseInputIndex}:v]`;
 
-  // Se houver clip "full" cobrindo o canvas completamente, ainda assim
-  // overlamos para preservar transparência onde aplicável.
-  clipNodes.forEach((node, i) => {
+  const OVERLAY_OPTS = ":eof_action=pass:repeatlast=0";
+  const emitted = new Set<number>();
+
+  for (let i = 0; i < clipNodes.length; i += 1) {
+    if (emitted.has(i)) continue;
+    const node = clipNodes[i];
     const inLabel = videoStream;
     const outLabel = `[v_overlay_${i}]`;
 
-    // Tenta detectar par xfade (clipA.transitionOut + próximo clip da mesma track)
-    const next = findNextClipInTrack(node, clipNodes, i);
-    if (
-      next &&
-      node.clip.transitionOut &&
-      areClipsAdjacent(node.clip, next.clip) &&
-      node.track.id === next.track.id
-    ) {
-      // xfade: substitui overlay simples por blend
-      const tDur = Math.max(0.1, node.clip.transitionOut.duration);
-      const xfadeName =
-        TRANSITION_TO_XFADE[node.clip.transitionOut.type] ?? "fade";
-      const xfadeOffset = Math.max(0, node.end - tDur);
-      const xfadeLabel = `[v_xfade_${i}]`;
+    const runIdx = runOf[i];
+    if (runIdx >= 0 && runs[runIdx][0] === i) {
+      // RUN de xfades encadeados: [c0][c1]xfade..[x1]; [x1][c2]xfade..[x2]…
+      // offset de cada junção = início do clip seguinte relativo ao início
+      // do run; duration = o overlap real do par.
+      const idxs = runs[runIdx];
+      const runStart = clipNodes[idxs[0]].start;
+      let acc = clipNodes[idxs[0]].label;
+      for (let m = 1; m < idxs.length; m += 1) {
+        const prev = clipNodes[idxs[m - 1]];
+        const cur = clipNodes[idxs[m]];
+        const overlap = Math.max(0.05, prev.end - cur.start);
+        const xfadeName =
+          TRANSITION_TO_XFADE[prev.clip.transitionOut?.type ?? "crossfade"] ??
+          "fade";
+        const outX = `[v_xr_${runIdx}_${m}]`;
+        lines.push(
+          `${acc}${cur.label}xfade=transition=${xfadeName}:duration=${overlap.toFixed(3)}:offset=${(cur.start - runStart).toFixed(3)}${outX}`,
+        );
+        acc = outX;
+      }
+      // Alinha o resultado do run à posição na timeline.
+      const shifted = `[v_xs_${runIdx}]`;
+      lines.push(`${acc}setpts=PTS+${runStart.toFixed(3)}/TB${shifted}`);
+      const runEnd = clipNodes[idxs[idxs.length - 1]].end;
       lines.push(
-        `${node.label}${next.label}xfade=transition=${xfadeName}:duration=${tDur.toFixed(3)}:offset=${xfadeOffset.toFixed(3)}${xfadeLabel}`,
-      );
-      // Overlay do resultado do xfade sobre a base, no intervalo combinado.
-      const combinedStart = node.start;
-      const combinedEnd = next.end;
-      lines.push(
-        `${inLabel}${xfadeLabel}overlay=enable='between(t,${combinedStart.toFixed(3)},${combinedEnd.toFixed(3)})'${outLabel}`,
+        `${inLabel}${shifted}overlay=enable='between(t,${runStart.toFixed(3)},${runEnd.toFixed(3)})'${OVERLAY_OPTS}${outLabel}`,
       );
       videoStream = outLabel;
-      // Marca o próximo como já consumido pelo xfade (skipNext).
-      (next as { _consumed?: boolean })._consumed = true;
-      return;
+      idxs.forEach((x) => emitted.add(x));
+      continue;
     }
 
-    if ((node as { _consumed?: boolean })._consumed) return;
-
     lines.push(
-      `${inLabel}${node.label}overlay=enable='between(t,${node.start.toFixed(3)},${node.end.toFixed(3)})'${outLabel}`,
+      `${inLabel}${node.label}overlay=enable='between(t,${node.start.toFixed(3)},${node.end.toFixed(3)})'${OVERLAY_OPTS}${outLabel}`,
     );
     videoStream = outLabel;
-  });
+    emitted.add(i);
+  }
 
   // ---- 4. Captions queimadas -----------------------------------------------
   if (captionsAssPath && input.exportSettings.burnCaptions) {
@@ -327,11 +361,71 @@ export function buildFilterComplex(
   const audioTracks = project.tracks.filter(
     (t) => t.type !== "video" || hasAudibleClip(t),
   );
+
+  // Runs de xfade com TODOS os membros audíveis viram acrossfade (áudio
+  // emenda com o mesmo dissolve do vídeo — junção do fluxo do gabinete).
+  const audioConsumed = new Set<string>();
+  runs.forEach((idxs, runIdx) => {
+    const track = pending[idxs[0]].track;
+    if (track.muted) return;
+    const members = idxs.map((i) => pending[i]);
+    const todosAudiveis = members.every(
+      (m) => !m.clip.hidden && !m.clip.audio.muted,
+    );
+    if (!todosAudiveis) return;
+
+    const memberLabels: string[] = [];
+    for (let m = 0; m < members.length; m += 1) {
+      const label = `a_xr_${runIdx}_${m}`;
+      const built = buildAudioClipChain({
+        inputIndex: members[m].inputIndex,
+        clip: members[m].clip,
+        track,
+        outLabel: label,
+        omitDelay: true,
+      });
+      if (!built) return; // sem áudio em algum membro → cai no caminho normal
+      lines.push(built);
+      memberLabels.push(`[${label}]`);
+    }
+
+    let acc = memberLabels[0];
+    for (let m = 1; m < members.length; m += 1) {
+      const prev = members[m - 1].clip;
+      const cur = members[m].clip;
+      const overlap = Math.max(
+        0.05,
+        Math.min(
+          prev.endInTimeline - cur.startInTimeline,
+          (prev.endInTimeline - prev.startInTimeline) / 2,
+          (cur.endInTimeline - cur.startInTimeline) / 2,
+        ),
+      );
+      const outX = `[a_xx_${runIdx}_${m}]`;
+      lines.push(
+        `${acc}${memberLabels[m]}acrossfade=d=${overlap.toFixed(3)}:c1=tri:c2=tri${outX}`,
+      );
+      acc = outX;
+    }
+
+    const runStart = members[0].clip.startInTimeline;
+    let finalLabel = acc;
+    if (runStart > 0) {
+      const ms = Math.round(runStart * 1000);
+      const delayed = `[a_xd_${runIdx}]`;
+      lines.push(`${acc}adelay=${ms}|${ms}${delayed}`);
+      finalLabel = delayed;
+    }
+    audioLabels.push(finalLabel);
+    members.forEach((m) => audioConsumed.add(m.clip.id));
+  });
+
   // Para tracks de vídeo, usamos o áudio embutido (mesmo input do vídeo).
   audioTracks.forEach((track) => {
     if (track.muted) return;
     track.clips.forEach((clip, ci) => {
       if (clip.hidden || clip.audio.muted) return;
+      if (audioConsumed.has(clip.id)) return; // já entrou via acrossfade
       const idx = assetIndex.get(clip.assetId);
       if (idx === undefined) return;
       const label = `a_${safe(track.id)}_${ci}`;
@@ -394,6 +488,12 @@ interface BuildVideoChainArgs {
   /** True quando o clip participa de um xfade (o blend substitui o fade). */
   fadeInSuppressed?: boolean;
   fadeOutSuppressed?: boolean;
+  /**
+   * Deslocamento final de PTS (s) — posição do clip na timeline. O overlay
+   * sincroniza por timestamp; membros de run de xfade usam 0 (o run inteiro
+   * é deslocado depois).
+   */
+  ptsOffset?: number;
 }
 
 function buildVideoClipChain(args: BuildVideoChainArgs): string {
@@ -407,6 +507,7 @@ function buildVideoClipChain(args: BuildVideoChainArgs): string {
     frameRate,
     fadeInSuppressed,
     fadeOutSuppressed,
+    ptsOffset,
   } = args;
   const { width: W, height: H } = outputResolution;
 
@@ -548,11 +649,17 @@ function buildVideoClipChain(args: BuildVideoChainArgs): string {
     );
   }
 
-  // 9. Ajusta PTS para a posição da timeline (offset por overlay enable=)
-  // O overlay externo já controla quando aparece; aqui só zeramos pts.
-  // Mas precisamos forçar a duração efetiva para evitar frame leak.
+  // 9. Trava a duração efetiva (evita frame leak) e ANCORA o PTS na posição
+  // da timeline — igual ao `setpts=PTS-STARTPTS+ini/TB` do pipeline real.
+  // Sem a âncora, o overlay (que sincroniza por timestamp) consumia os
+  // frames antes da janela `enable` e exibia o último frame congelado.
   filters.push(`trim=duration=${dur.toFixed(3)}`);
-  filters.push("setpts=PTS-STARTPTS");
+  const off = ptsOffset ?? 0;
+  filters.push(
+    off > 0
+      ? `setpts=PTS-STARTPTS+${off.toFixed(3)}/TB`
+      : "setpts=PTS-STARTPTS",
+  );
 
   return `[${inputIndex}:v]${filters.join(",")}[${outLabel}]`;
 }
@@ -563,10 +670,12 @@ interface BuildAudioChainArgs {
   /** Track dona — opções de TRILHA (gainPct/audioLeveling/autoFade). */
   track?: Track;
   outLabel: string;
+  /** True em membros de run de acrossfade (o adelay é aplicado no run). */
+  omitDelay?: boolean;
 }
 
 function buildAudioClipChain(args: BuildAudioChainArgs): string | null {
-  const { inputIndex, clip, track, outLabel } = args;
+  const { inputIndex, clip, track, outLabel, omitDelay } = args;
   const dur = Math.max(0.001, clipDurationOnTimeline(clip));
   const startTl = Math.max(0, clip.startInTimeline);
 
@@ -626,7 +735,7 @@ function buildAudioClipChain(args: BuildAudioChainArgs): string | null {
     );
   }
   // Posiciona no tempo da timeline com adelay
-  if (startTl > 0) {
+  if (startTl > 0 && !omitDelay) {
     const ms = Math.round(startTl * 1000);
     filters.push(`adelay=${ms}|${ms}`);
   }
@@ -651,22 +760,6 @@ function computeProjectDuration(project: VideoProject): number {
     }
   }
   return Math.max(0.1, max);
-}
-
-function findNextClipInTrack(
-  current: { track: Track; clip: Clip; end: number },
-  all: Array<{ track: Track; clip: Clip; start: number; end: number; label: string }>,
-  fromIndex: number,
-): { track: Track; clip: Clip; start: number; end: number; label: string } | null {
-  for (let i = fromIndex + 1; i < all.length; i += 1) {
-    if (all[i].track.id === current.track.id) return all[i];
-  }
-  return null;
-}
-
-function areClipsAdjacent(a: Clip, b: Clip): boolean {
-  // "Adjacente" = sem gap maior que 50ms.
-  return Math.abs(a.endInTimeline - b.startInTimeline) < 0.05;
 }
 
 function hasAudibleClip(track: Track): boolean {
