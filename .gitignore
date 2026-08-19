@@ -59,3 +59,4 @@ pubsub-debug.log
 # Material de caso da investigacao fiscal (PDFs/imagens, ~59 MB).
 # Fica no disco junto do NEXO, mas fora do git: e evidencia, nao produto.
 docs/fiscal-fontes/
+.nexo-emu-data.bak/
