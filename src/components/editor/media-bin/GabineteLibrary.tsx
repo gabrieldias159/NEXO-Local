@@ -19,31 +19,18 @@ import { listAll, ref as storageRef, getDownloadURL } from 'firebase/storage';
 import type { StorageReference } from 'firebase/storage';
 import { useStorage } from '@/firebase';
 import { useEditorStore } from '@/lib/editor/store';
-import { getMediaDuration } from '@/lib/editor/ingest-files';
+import {
+  assetDaBiblioteca,
+  tipoPeloNome,
+  BIBLIOTECA_DRAG_MIME,
+  type ItemBiblioteca,
+} from '@/lib/editor/acervo/biblioteca';
 import type { MediaAsset } from '@/lib/editor/types';
-import type { Timestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { EditorIcons } from '../shared/EditorIcons';
 import { cn } from '@/lib/utils';
 
-interface LibItem {
-  fullPath: string;
-  name: string;
-  categoria: string;
-  type: MediaAsset['type'];
-}
-
-function typeFromName(name: string): MediaAsset['type'] {
-  if (/\.(mp4|webm|mov)$/i.test(name)) return 'video';
-  if (/\.(mp3|wav|m4a|ogg)$/i.test(name)) return 'audio';
-  return 'image';
-}
-
-const MIME: Record<MediaAsset['type'], string> = {
-  video: 'video/mp4',
-  audio: 'audio/mpeg',
-  image: 'image/png',
-};
+type LibItem = ItemBiblioteca;
 
 export function GabineteLibrary() {
   const storage = useStorage();
@@ -64,6 +51,28 @@ export function GabineteLibrary() {
   const [items, setItems] = React.useState<LibItem[] | null>(null);
   const [erro, setErro] = React.useState<string | null>(null);
   const [importing, setImporting] = React.useState<string | null>(null);
+  const [tocando, setTocando] = React.useState<string | null>(null);
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
+
+  /** Pré-escuta de um som da biblioteca (recurso 16). */
+  const ouvir = async (item: LibItem) => {
+    if (!storage) return;
+    const el = audioRef.current;
+    if (!el) return;
+    if (tocando === item.fullPath) {
+      el.pause();
+      setTocando(null);
+      return;
+    }
+    try {
+      el.src = await getDownloadURL(storageRef(storage, item.fullPath));
+      el.volume = 0.8;
+      await el.play();
+      setTocando(item.fullPath);
+    } catch {
+      toast({ title: 'Não deu para tocar esse arquivo aqui' });
+    }
+  };
 
   const carregar = React.useCallback(async () => {
     if (!storage) return;
@@ -75,7 +84,7 @@ export function GabineteLibrary() {
         fullPath: i.fullPath,
         name: i.name,
         categoria: 'geral',
-        type: typeFromName(i.name),
+        type: tipoPeloNome(i.name),
       }));
       for (const sub of subRefs) {
         const lista = await listAll(sub);
@@ -84,7 +93,7 @@ export function GabineteLibrary() {
             fullPath: i.fullPath,
             name: i.name,
             categoria: sub.name,
-            type: typeFromName(i.name),
+            type: tipoPeloNome(i.name),
           });
         }
       }
@@ -106,24 +115,7 @@ export function GabineteLibrary() {
     if (!storage) return;
     setImporting(item.fullPath);
     try {
-      const url = await getDownloadURL(storageRef(storage, item.fullPath));
-      const duration = await getMediaDuration({ url, type: MIME[item.type] });
-      const now = {
-        seconds: Math.floor(Date.now() / 1000),
-        nanoseconds: 0,
-      } as unknown as Timestamp;
-      const asset: MediaAsset = {
-        id: `asset_${Math.random().toString(36).slice(2, 10)}_${Date.now().toString(36)}`,
-        name: item.name,
-        type: item.type,
-        source: 'firebase',
-        storagePath: item.fullPath,
-        downloadUrl: url,
-        size: 0,
-        duration,
-        status: 'ready',
-        createdAt: now,
-      };
+      const asset: MediaAsset = await assetDaBiblioteca(storage, item);
       addAsset(asset);
       toast({ title: `"${item.name}" adicionada ao projeto` });
     } catch (e) {
@@ -156,6 +148,8 @@ export function GabineteLibrary() {
         </span>
       </button>
 
+      <audio ref={audioRef} onEnded={() => setTocando(null)} className="hidden" />
+
       {open && (
         <div className="max-h-52 overflow-y-auto border-t border-border px-1 py-1">
           {items === null && (
@@ -184,9 +178,35 @@ export function GabineteLibrary() {
             return (
               <div
                 key={item.fullPath}
+                draggable
+                onDragStart={(e) => {
+                  // Arrastar direto pra timeline (recurso 16): a track importa
+                  // o item no drop e já encaixa o clip no ponto solto.
+                  e.dataTransfer.setData(
+                    BIBLIOTECA_DRAG_MIME,
+                    JSON.stringify(item),
+                  );
+                  e.dataTransfer.effectAllowed = 'copy';
+                }}
                 className="flex items-center gap-1.5 rounded px-1 py-0.5 hover:bg-muted"
+                title={
+                  item.type === 'audio'
+                    ? 'Arraste para uma track de áudio, ou clique no ▶ para ouvir'
+                    : 'Arraste direto para a timeline'
+                }
               >
-                <Icon className="h-3 w-3 shrink-0 text-muted-foreground" />
+                {item.type === 'audio' ? (
+                  <button
+                    type="button"
+                    onClick={() => ouvir(item)}
+                    className="shrink-0 rounded border border-border px-1 text-[9px] text-muted-foreground hover:bg-border hover:text-foreground"
+                    title="Ouvir antes de usar"
+                  >
+                    {tocando === item.fullPath ? '■' : '▶'}
+                  </button>
+                ) : (
+                  <Icon className="h-3 w-3 shrink-0 text-muted-foreground" />
+                )}
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-[10px] text-foreground">
                     {item.name}

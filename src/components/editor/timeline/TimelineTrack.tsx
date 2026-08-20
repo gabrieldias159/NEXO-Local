@@ -7,6 +7,9 @@
  * largura = duration * zoom).
  *
  * Aceita drop de assets (asset MIME) e cria clip via `addClipFromAsset`.
+ * Aceita também item do ACERVO e da BIBLIOTECA do gabinete (recurso 16):
+ * nesses dois o arquivo ainda não é asset do projeto, então a lane baixa/
+ * resolve na hora do drop e só depois encaixa o clip.
  *
  * O `<div>` da área de clips expõe `data-track-id` e `data-track-type` para
  * que `useClipDrag` consiga identificá-la via `document.elementsFromPoint`
@@ -22,6 +25,17 @@ import { useEditorStore } from '@/lib/editor/store';
 import { trackLayerCount, clipsInLayer } from '@/lib/editor/preview-utils';
 import { TRANSITION_DRAG_MIME } from '@/lib/editor/transitions';
 import { useIngestFiles, mediaTypeOf } from '@/lib/editor/ingest-files';
+import {
+  ACERVO_DRAG_MIME,
+  trazerDoAcervo,
+  type PedidoAcervo,
+} from '@/lib/editor/acervo/cliente';
+import {
+  BIBLIOTECA_DRAG_MIME,
+  assetDaBiblioteca,
+  type ItemBiblioteca,
+} from '@/lib/editor/acervo/biblioteca';
+import { useStorage } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { TrackHeader } from './TrackHeader';
 import { TimelineClip } from './TimelineClip';
@@ -107,6 +121,9 @@ function TrackLane({
   const setTransition = useEditorStore((s) => s.setTransition);
   const removeTransition = useEditorStore((s) => s.removeTransition);
   const ingest = useIngestFiles();
+  const storage = useStorage();
+  const addAsset = useEditorStore((s) => s.addAsset);
+  const projectId = useEditorStore((s) => s.project?.id ?? null);
   const { toast } = useToast();
 
   // Clips desta camada.
@@ -125,6 +142,8 @@ function TrackLane({
     const types = e.dataTransfer.types;
     return (
       types.includes(ASSET_MIME) ||
+      types.includes(ACERVO_DRAG_MIME) ||
+      types.includes(BIBLIOTECA_DRAG_MIME) ||
       types.includes(TRANSITION_DRAG_MIME) ||
       types.includes('Files')
     );
@@ -166,6 +185,82 @@ function TrackLane({
       try {
         const payload = JSON.parse(assetData) as { id: string };
         addClipFromAsset(payload.id, track.id, atTime, layer);
+      } catch {
+        // payload inválido — ignora
+      }
+      return;
+    }
+
+    // 1b) Drop de item do ACERVO (som/meme ainda não baixado): baixa só ele
+    //     e encaixa o clip no ponto onde foi solto (recurso 16).
+    const acervoData = e.dataTransfer.getData(ACERVO_DRAG_MIME);
+    if (acervoData) {
+      e.preventDefault();
+      try {
+        const pedido = JSON.parse(acervoData) as PedidoAcervo;
+        const querAudio = pedido.tipo === 'som';
+        if (querAudio !== (track.type === 'audio')) {
+          toast({
+            title: 'Track incompatível',
+            description: querAudio
+              ? 'Som do acervo vai numa track de áudio.'
+              : 'Meme/efeito vai numa track de vídeo.',
+            variant: 'destructive',
+          });
+          return;
+        }
+        if (!projectId) return;
+        toast({ title: `Trazendo "${pedido.nome}" do acervo…` });
+        void (async () => {
+          try {
+            const asset = await trazerDoAcervo(projectId, pedido);
+            addAsset(asset);
+            addClipFromAsset(asset.id, track.id, atTime, layer);
+          } catch (err) {
+            toast({
+              title: 'Não deu para trazer do acervo',
+              description: err instanceof Error ? err.message : String(err),
+              variant: 'destructive',
+            });
+          }
+        })();
+      } catch {
+        // payload inválido — ignora
+      }
+      return;
+    }
+
+    // 1c) Drop de item da BIBLIOTECA do gabinete (já no Storage).
+    const bibData = e.dataTransfer.getData(BIBLIOTECA_DRAG_MIME);
+    if (bibData) {
+      e.preventDefault();
+      try {
+        const item = JSON.parse(bibData) as ItemBiblioteca;
+        const querAudio = item.type === 'audio';
+        if (querAudio !== (track.type === 'audio')) {
+          toast({
+            title: 'Track incompatível',
+            description: querAudio
+              ? 'Áudio da biblioteca vai numa track de áudio.'
+              : 'Vídeo/imagem da biblioteca vai numa track de vídeo.',
+            variant: 'destructive',
+          });
+          return;
+        }
+        if (!storage) return;
+        void (async () => {
+          try {
+            const asset = await assetDaBiblioteca(storage, item);
+            addAsset(asset);
+            addClipFromAsset(asset.id, track.id, atTime, layer);
+          } catch (err) {
+            toast({
+              title: 'Não deu para usar o item da biblioteca',
+              description: err instanceof Error ? err.message : String(err),
+              variant: 'destructive',
+            });
+          }
+        })();
       } catch {
         // payload inválido — ignora
       }
