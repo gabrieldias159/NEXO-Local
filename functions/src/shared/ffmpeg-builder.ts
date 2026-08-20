@@ -135,6 +135,10 @@ function atempoFactors(rate: number): number[] {
   return factors;
 }
 
+function clampNum(n: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, n));
+}
+
 function safe(name: string): string {
   // Sanitiza id para ser válido como label do filter graph.
   return name.replace(/[^a-zA-Z0-9_]/g, "_");
@@ -576,6 +580,31 @@ function buildVideoClipChain(args: BuildVideoChainArgs): string {
     filters.push(
       `colorchannelmixer=rr=${rr}:rg=${rg}:rb=${rb}:gr=${gr}:gg=${gg}:gb=${gb}:br=${br}:bg=${bg}:bb=${bb}`,
     );
+  }
+
+  // 4.5 Chroma/Luma key (remoção de fundo) — aplicado no SOURCE, antes do
+  // scale. `luma` porta o `lumakey` do pipeline do gabinete (arte em fundo
+  // preto puro vazada sobre o vídeo); `chroma` usa o chromakey do ffmpeg.
+  const ck = clip.chromaKey;
+  if (ck?.enabled) {
+    if ((ck.mode ?? "chroma") === "luma") {
+      const thr = clampNum(ck.lumaThreshold ?? 0.05, 0, 1);
+      const tol = clampNum(ck.lumaTolerance ?? 0.12, 0, 1);
+      const soft = clampNum(ck.lumaSoftness ?? 0.08, 0, 1);
+      filters.push(
+        `format=rgba,lumakey=threshold=${thr.toFixed(3)}:tolerance=${tol.toFixed(3)}:softness=${soft.toFixed(3)}`,
+      );
+    } else {
+      const cor = `0x${(ck.color || "#00b140").replace("#", "")}`;
+      const sim = clampNum(ck.similarity ?? 0.4, 0.01, 1);
+      const blend = clampNum(ck.smoothness ?? 0.1, 0, 1);
+      filters.push(
+        `chromakey=${cor}:${sim.toFixed(3)}:${blend.toFixed(3)},format=rgba`,
+      );
+      if ((ck.spillSuppression ?? 0) > 0.05) {
+        filters.push("despill=type=green");
+      }
+    }
   }
 
   // 5. Transform (flip + rotação + escala)

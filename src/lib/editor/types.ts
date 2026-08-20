@@ -424,6 +424,20 @@ export interface ClipChromaKey {
   smoothness: number;
   spillSuppression: number;
   /**
+   * Modo de remoção (aditivo/opcional — ausente = `chroma`):
+   *  - `chroma`: por COR (verde/azul), controles color/similarity/smoothness.
+   *  - `luma`: por LUMINÂNCIA — derruba o quase-PRETO para alpha (arte em
+   *    fundo preto puro flutuando sobre o vídeo, o `efeito_tela`/`fundo_preto`
+   *    do pipeline do gabinete). Controles lumaThreshold/Tolerance/Softness.
+   */
+  mode?: 'chroma' | 'luma';
+  /** Luma alvo (0-1). Preto puro = 0; preset do gabinete usa 0.05. */
+  lumaThreshold?: number;
+  /** Faixa em torno do alvo que ainda é removida (0-1). Default 0.12. */
+  lumaTolerance?: number;
+  /** Suavização da borda (0-1). Default 0.08. */
+  lumaSoftness?: number;
+  /**
    * Motor de processamento:
    *  - `webgl`: GPU local em tempo real (default, fluido pra preview).
    *  - `canvas2d`: CPU local (fallback se WebGL indisponível).
@@ -440,6 +454,18 @@ export const DEFAULT_CHROMA_KEY: ClipChromaKey = {
   smoothness: 0.1,
   spillSuppression: 0.2,
   engine: 'webgl',
+};
+
+/**
+ * Preset 1-clique "fundo preto" (lumakey) — os valores exatos do render
+ * aprovado (`lumakey=threshold=0.05:tolerance=0.12:softness=0.08`).
+ */
+export const LUMA_BLACK_PRESET: Partial<ClipChromaKey> = {
+  enabled: true,
+  mode: 'luma',
+  lumaThreshold: 0.05,
+  lumaTolerance: 0.12,
+  lumaSoftness: 0.08,
 };
 
 /**

@@ -51,18 +51,28 @@ uniform vec3 u_keyColor;
 uniform float u_similarity;
 uniform float u_smoothness;
 uniform float u_spill;
+// Modo: 0.0 = chroma (por cor), 1.0 = luma (derruba o quase-preto — o
+// lumakey do pipeline do gabinete). u_luma = (threshold, tolerance, softness).
+uniform float u_mode;
+uniform vec3 u_luma;
 
 void main() {
   vec4 color = texture2D(u_image, v_uv);
-  float d = distance(color.rgb, u_keyColor);
-  float alpha = smoothstep(u_similarity, u_similarity + max(u_smoothness, 0.001), d);
-
+  float alpha;
   vec3 outRgb = color.rgb;
-  if (u_spill > 0.0) {
-    float maxRB = max(color.r, color.b);
-    if (color.g > maxRB) {
-      float excess = color.g - maxRB;
-      outRgb.g = color.g - excess * u_spill;
+  if (u_mode > 0.5) {
+    float luma = dot(color.rgb, vec3(0.299, 0.587, 0.114));
+    float edge = u_luma.x + u_luma.y;
+    alpha = smoothstep(edge, edge + max(u_luma.z, 0.001), luma);
+  } else {
+    float d = distance(color.rgb, u_keyColor);
+    alpha = smoothstep(u_similarity, u_similarity + max(u_smoothness, 0.001), d);
+    if (u_spill > 0.0) {
+      float maxRB = max(color.r, color.b);
+      if (color.g > maxRB) {
+        float excess = color.g - maxRB;
+        outRgb.g = color.g - excess * u_spill;
+      }
     }
   }
   gl_FragColor = vec4(outRgb, color.a * alpha);
@@ -118,6 +128,8 @@ export function ChromaKeyWebGL({ videoRef, chromaKey }: EngineProps) {
       smoothness: WebGLUniformLocation | null;
       spill: WebGLUniformLocation | null;
       image: WebGLUniformLocation | null;
+      mode: WebGLUniformLocation | null;
+      luma: WebGLUniformLocation | null;
     };
   } | null>(null);
 
@@ -171,6 +183,8 @@ export function ChromaKeyWebGL({ videoRef, chromaKey }: EngineProps) {
         similarity: gl.getUniformLocation(program, 'u_similarity'),
         smoothness: gl.getUniformLocation(program, 'u_smoothness'),
         spill: gl.getUniformLocation(program, 'u_spill'),
+        mode: gl.getUniformLocation(program, 'u_mode'),
+        luma: gl.getUniformLocation(program, 'u_luma'),
         image: gl.getUniformLocation(program, 'u_image'),
       },
     };
@@ -223,6 +237,13 @@ export function ChromaKeyWebGL({ videoRef, chromaKey }: EngineProps) {
         gl.uniform1f(uniforms.similarity, chromaKey.similarity);
         gl.uniform1f(uniforms.smoothness, chromaKey.smoothness);
         gl.uniform1f(uniforms.spill, chromaKey.spillSuppression);
+        gl.uniform1f(uniforms.mode, (chromaKey.mode ?? 'chroma') === 'luma' ? 1 : 0);
+        gl.uniform3f(
+          uniforms.luma,
+          chromaKey.lumaThreshold ?? 0.05,
+          chromaKey.lumaTolerance ?? 0.12,
+          chromaKey.lumaSoftness ?? 0.08,
+        );
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       }
       raf = requestAnimationFrame(tick);
@@ -232,6 +253,10 @@ export function ChromaKeyWebGL({ videoRef, chromaKey }: EngineProps) {
   }, [
     videoRef,
     chromaKey.color,
+    chromaKey.mode,
+    chromaKey.lumaThreshold,
+    chromaKey.lumaTolerance,
+    chromaKey.lumaSoftness,
     chromaKey.similarity,
     chromaKey.smoothness,
     chromaKey.spillSuppression,
@@ -310,6 +335,10 @@ export function ChromaKeyCanvas2D({ videoRef, chromaKey }: EngineProps) {
   }, [
     videoRef,
     chromaKey.color,
+    chromaKey.mode,
+    chromaKey.lumaThreshold,
+    chromaKey.lumaTolerance,
+    chromaKey.lumaSoftness,
     chromaKey.similarity,
     chromaKey.smoothness,
     chromaKey.spillSuppression,

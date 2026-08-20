@@ -13,6 +13,7 @@
 
 import * as React from 'react';
 import type { Clip, ClipChromaKey, ClipFilters } from '@/lib/editor/types';
+import { LUMA_BLACK_PRESET } from '@/lib/editor/types';
 import { useEditorStore } from '@/lib/editor/store';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
@@ -61,6 +62,10 @@ export function FiltersTab({ clips }: FiltersTabProps) {
   const chromaSmoothness = pickCommonValue(clips, (c) => c.chromaKey?.smoothness ?? 0.1);
   const chromaSpill = pickCommonValue(clips, (c) => c.chromaKey?.spillSuppression ?? 0.2);
   const chromaEngine = pickCommonValue(clips, (c) => c.chromaKey?.engine ?? 'webgl');
+  const chromaMode = pickCommonValue(clips, (c) => c.chromaKey?.mode ?? 'chroma');
+  const lumaThreshold = pickCommonValue(clips, (c) => c.chromaKey?.lumaThreshold ?? 0.05);
+  const lumaTolerance = pickCommonValue(clips, (c) => c.chromaKey?.lumaTolerance ?? 0.12);
+  const lumaSoftness = pickCommonValue(clips, (c) => c.chromaKey?.lumaSoftness ?? 0.08);
 
   const { toast } = useToast();
 
@@ -200,7 +205,86 @@ export function FiltersTab({ clips }: FiltersTabProps) {
             onCheckedChange={(v) => applyChroma({ enabled: v })}
           />
         </div>
+        {/* Preset do gabinete: arte em fundo PRETO puro vazada sobre o vídeo
+            (chuva de R$ etc.) — lumakey threshold 0,05 (efeito_tela). */}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="mb-2 h-7 w-full gap-1 text-[11px]"
+          onClick={() => applyChroma({ ...LUMA_BLACK_PRESET })}
+          title="Liga o modo luminância com os valores do render aprovado (threshold 0,05 / tolerância 0,12 / suavidade 0,08)"
+        >
+          Preset: fundo preto (lumakey)
+        </Button>
+
         <div className={cn(!chromaEnabled && 'pointer-events-none opacity-50')}>
+          {/* Modo: cor (chroma) × luminância (luma) */}
+          <div className="mb-2 grid grid-cols-2 gap-1">
+            {(['chroma', 'luma'] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => applyChroma({ mode: m })}
+                className={cn(
+                  'rounded-sm border px-2 py-1 text-[10px] transition-colors',
+                  chromaMode === m
+                    ? 'border-primary bg-primary/10 text-foreground'
+                    : 'border-border bg-card text-muted-foreground hover:bg-accent',
+                )}
+              >
+                {m === 'chroma' ? 'Por cor (verde)' : 'Fundo preto (luma)'}
+              </button>
+            ))}
+          </div>
+
+          {chromaMode === 'luma' && (
+            <>
+              <ScrubbableInput
+                label="Limiar (preto)"
+                value={lumaThreshold}
+                min={0}
+                max={0.5}
+                step={0.01}
+                resetValue={0.05}
+                unit="%"
+                displayScale={100}
+                precision={0}
+                onChange={(v) => applyChroma({ lumaThreshold: v })}
+              />
+              <ScrubbableInput
+                label="Tolerância"
+                value={lumaTolerance}
+                min={0}
+                max={0.5}
+                step={0.01}
+                resetValue={0.12}
+                unit="%"
+                displayScale={100}
+                precision={0}
+                onChange={(v) => applyChroma({ lumaTolerance: v })}
+              />
+              <ScrubbableInput
+                label="Suavidade"
+                value={lumaSoftness}
+                min={0}
+                max={0.5}
+                step={0.01}
+                resetValue={0.08}
+                unit="%"
+                displayScale={100}
+                precision={0}
+                onChange={(v) => applyChroma({ lumaSoftness: v })}
+              />
+              <p className="pb-1 pt-1 text-[10px] text-muted-foreground">
+                Derruba o quase-preto para transparente — arte com fundo preto
+                puro flutua sobre o vídeo. Limiar baixo não come texto escuro.
+              </p>
+            </>
+          )}
+
+          {chromaMode !== 'luma' && (
+          <>
           <div className="flex items-center justify-between gap-2 pb-2">
             <Label className="text-[11px] text-muted-foreground">Cor do fundo</Label>
             <div className="flex items-center gap-1">
@@ -258,6 +342,8 @@ export function FiltersTab({ clips }: FiltersTabProps) {
             precision={0}
             onChange={(v) => applyChroma({ spillSuppression: v })}
           />
+          </>
+          )}
           <div className="pt-3">
             <Label className="text-[11px] text-muted-foreground">Motor</Label>
             <div className="mt-1 grid grid-cols-3 gap-1">
@@ -296,10 +382,12 @@ export function FiltersTab({ clips }: FiltersTabProps) {
                   : 'GPU local em tempo real via WebGL shader (recomendado).'}
             </p>
           </div>
-          <p className="pt-2 text-[10px] text-muted-foreground">
-            Use a cor padrão verde (#00b140) ou o conta-gotas pra amostrar
-            a cor exata do fundo do seu vídeo.
-          </p>
+          {chromaMode !== 'luma' && (
+            <p className="pt-2 text-[10px] text-muted-foreground">
+              Use a cor padrão verde (#00b140) ou o conta-gotas pra amostrar
+              a cor exata do fundo do seu vídeo.
+            </p>
+          )}
         </div>
       </InspectorSection>
     </div>

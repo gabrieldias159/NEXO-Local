@@ -170,6 +170,19 @@ export interface Clip {
   transitionOut?: TransitionConfig;
   locked: boolean;
   hidden: boolean;
+  /** Chroma key (remoção de fundo) — espelha src/lib/editor/types.ts. */
+  chromaKey?: {
+    enabled: boolean;
+    color: string;
+    similarity: number;
+    smoothness: number;
+    spillSuppression: number;
+    mode?: "chroma" | "luma";
+    lumaThreshold?: number;
+    lumaTolerance?: number;
+    lumaSoftness?: number;
+    engine?: string;
+  };
 }
 
 export interface Track {
