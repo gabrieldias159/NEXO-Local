@@ -586,6 +586,14 @@ export interface CaptionTrack {
   source?: 'manual' | 'imported' | 'ai' | 'transcribed';
   /** ID do `CaptionGenerationJob` que gerou esta track (apenas se `source === 'ai'`). */
   aiJobId?: string;
+  /**
+   * ESTILO PADRÃO da faixa (aditivo/opcional): usado quando um cue novo é
+   * criado sem estilo próprio — botão "Novo cue", atalho `T`, transcrição.
+   * O assistente "Novo vídeo do gabinete" e o preset "Gabinete ≤5" gravam
+   * aqui o estilo amarelo do gabinete, então toda legenda criada depois já
+   * nasce no padrão. Faixas antigas sem o campo caem no default histórico.
+   */
+  defaultStyle?: CaptionStyle;
 }
 
 export interface CaptionCue {

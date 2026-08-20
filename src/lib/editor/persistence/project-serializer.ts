@@ -146,6 +146,8 @@ function serializeCaptionTrack(track: CaptionTrack): DocumentData {
     locked: track.locked,
     language: track.language ?? null,
     source: track.source,
+    // Estilo padrão da faixa (aditivo) — stripUndefined omite quando ausente.
+    defaultStyle: track.defaultStyle ? { ...track.defaultStyle } : undefined,
     cues: track.cues.map((c) => ({
       id: c.id,
       startTime: c.startTime,
@@ -307,6 +309,7 @@ export function deserializeProjectFromFirestore(
         locked: !!tr.locked,
         language: tr.language ?? undefined,
         source: tr.source ?? undefined,
+        defaultStyle: (tr.defaultStyle as CaptionTrack['defaultStyle']) ?? undefined,
         cues: Array.isArray(tr.cues) ? (tr.cues as CaptionTrack['cues']) : [],
       };
     }),

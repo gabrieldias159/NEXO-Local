@@ -51,6 +51,16 @@ export function GabineteLibrary() {
   const { toast } = useToast();
 
   const [open, setOpen] = React.useState(false);
+
+  // O assistente "Novo vídeo do gabinete" abre o editor com `?biblioteca=1`
+  // e a biblioteca já vem aberta. Lido do `location` (e não de
+  // `useSearchParams`) para não forçar Suspense no build estático.
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (new URLSearchParams(window.location.search).get('biblioteca') === '1') {
+      setOpen(true);
+    }
+  }, []);
   const [items, setItems] = React.useState<LibItem[] | null>(null);
   const [erro, setErro] = React.useState<string | null>(null);
   const [importing, setImporting] = React.useState<string | null>(null);

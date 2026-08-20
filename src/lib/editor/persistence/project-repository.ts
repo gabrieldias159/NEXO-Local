@@ -33,7 +33,14 @@ import {
   type StorageReference,
 } from 'firebase/storage';
 
-import type { ResolutionPreset, Track, VideoProject } from '../types';
+import type {
+  CaptionStyle,
+  ResolutionPreset,
+  Track,
+  VideoProject,
+} from '../types';
+import { DEFAULT_IDENTITY } from '../types';
+import { GABINETE_CAPTION_STYLE } from '../captions/presets';
 import {
   deserializeProjectFromFirestore,
   serializeProjectForFirestore,
@@ -177,6 +184,100 @@ export async function createNewProject(
   await saveProject(firestore, project);
   return project;
 }
+
+/**
+ * ASSISTENTE "Novo vídeo do gabinete" (recurso 15).
+ *
+ * Cria o projeto já pronto pro fluxo do gabinete — zero cliques de setup:
+ *  - 9:16 1080x1920 a 30 fps (Reels/Shorts/TikTok);
+ *  - identidade LIGADA (logo + rodapé + vinheta) com os parâmetros aprovados;
+ *  - as cinco faixas nomeadas do fluxo: V1 Féfin (a fala, base), V2 Criativos,
+ *    V3 Memes, A1 Efeitos e A2 Trilha;
+ *  - A2 já com o preset de trilha: 16% de volume, dinâmica nivelada, fades
+ *    automáticos, EQ que abre espaço pra voz e duck pela voz;
+ *  - faixa de legendas "Locução" com o estilo Gabinete como PADRÃO — toda
+ *    legenda criada depois nasce amarela, em caixa alta, no lugar certo.
+ */
+export async function createGabineteProject(
+  firestore: Firestore,
+  ownerUid: string,
+  name = 'Vídeo do gabinete',
+): Promise<VideoProject> {
+  const id = genProjectId();
+  const now = Timestamp.now();
+  const project: VideoProject = {
+    id,
+    name,
+    ownerUid,
+    createdAt: now,
+    updatedAt: now,
+    resolution: { width: 1080, height: 1920, label: 'Vertical 9:16 · 1080p' },
+    frameRate: 30,
+    duration: 0,
+    stageMode: 'single',
+    splitRatio: 0.5,
+    overlays: { logo: true, footer: true, ending: true },
+    identity: { ...DEFAULT_IDENTITY },
+    assets: [],
+    tracks: criarTracksDoGabinete(),
+    captionTracks: [
+      {
+        id: `captrk_${Math.random().toString(36).slice(2, 10)}`,
+        name: 'Locução',
+        index: 0,
+        visible: true,
+        locked: false,
+        language: 'pt-BR',
+        source: 'manual',
+        cues: [],
+        defaultStyle: {
+          ...DEFAULT_CAPTION_STYLE,
+          ...GABINETE_CAPTION_STYLE,
+        } as CaptionStyle,
+      },
+    ],
+    audioMaster: { volume: 1, muted: false },
+  };
+  await saveProject(firestore, project);
+  return project;
+}
+
+/**
+ * As faixas do fluxo do gabinete. Índice maior = mais em cima no palco, então
+ * a fala (V1) fica embaixo e memes (V3) por cima de tudo.
+ */
+function criarTracksDoGabinete(): Track[] {
+  return [
+    novaTrack({ type: 'video', name: 'V1 Féfin', index: 0 }),
+    novaTrack({ type: 'video', name: 'V2 Criativos', index: 1 }),
+    novaTrack({ type: 'video', name: 'V3 Memes', index: 2 }),
+    novaTrack({ type: 'audio', name: 'A1 Efeitos', index: 3 }),
+    novaTrack({
+      type: 'audio',
+      name: 'A2 Trilha',
+      index: 4,
+      gainPct: 16,
+      audioLeveling: true,
+      autoFade: true,
+      voiceEq: true,
+      voiceDuck: true,
+    }),
+  ];
+}
+
+/** Estilo base de legenda (mesmos campos obrigatórios do store). */
+const DEFAULT_CAPTION_STYLE: CaptionStyle = {
+  fontFamily: 'Inter',
+  fontSize: 36,
+  fontWeight: 600,
+  color: '#FFFFFF',
+  backgroundColor: '#000000B3',
+  align: 'center',
+  position: 'bottom',
+  paddingX: 12,
+  paddingY: 4,
+  borderRadius: 4,
+};
 
 /** Cria um id curto de track (mesmo formato do store). */
 function genTrackId(): string {

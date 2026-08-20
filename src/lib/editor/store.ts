@@ -2251,6 +2251,11 @@ export const useEditorStore = create<EditorStore>()(
             // próximo). O `legendas.py` roda a anticolisão logo depois — aqui
             // também, senão o preset já nasceria com colisão.
             track.cues = resolveCueCollisions(novos).cues;
+            // A faixa passa a ter o estilo do gabinete como PADRÃO: cue novo
+            // criado depois já nasce amarelo, sem repetir o preset.
+            track.defaultStyle = {
+              ...(track.cues[0]?.style ?? ({} as CaptionStyle)),
+            };
             count = track.cues.length;
           });
           return count;

@@ -187,7 +187,9 @@ export function CaptionsDrawer() {
       endTime: playhead + 4,
       text: '',
       slot: 'full',
-      style: defaultStyle(),
+      // Faixa com estilo padrão gravado (assistente do gabinete / preset
+      // Gabinete) faz o cue novo já nascer no padrão certo.
+      style: activeTrack?.defaultStyle ?? defaultStyle(),
     });
   };
 
@@ -692,12 +694,14 @@ function DefaultStyleSection({
 }) {
   // Toma o estilo do primeiro cue como base, ou um default.
   const baseStyle: CaptionStyle =
-    activeTrack.cues[0]?.style ?? defaultStyle();
+    activeTrack.cues[0]?.style ?? activeTrack.defaultStyle ?? defaultStyle();
   const [draft, setDraft] = React.useState<CaptionStyle>(baseStyle);
 
   React.useEffect(() => {
-    setDraft(activeTrack.cues[0]?.style ?? defaultStyle());
-  }, [activeTrack.id, activeTrack.cues]);
+    setDraft(
+      activeTrack.cues[0]?.style ?? activeTrack.defaultStyle ?? defaultStyle(),
+    );
+  }, [activeTrack.id, activeTrack.cues, activeTrack.defaultStyle]);
 
   const handleChange = (patch: Partial<CaptionStyle>) => {
     setDraft((prev) => ({ ...prev, ...patch }));

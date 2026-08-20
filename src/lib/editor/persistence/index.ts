@@ -13,6 +13,7 @@ export {
   listUserProjects,
   deleteProject,
   createNewProject,
+  createGabineteProject,
 } from './project-repository';
 
 export {

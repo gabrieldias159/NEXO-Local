@@ -36,7 +36,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Film, Loader2, Trash2, AlertTriangle } from 'lucide-react';
+import {
+  Plus,
+  Film,
+  Loader2,
+  Trash2,
+  AlertTriangle,
+  Landmark,
+} from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,6 +58,7 @@ import { useFirestore, useStorage } from '@/firebase/provider';
 import { useUser } from '@/firebase/auth/use-user';
 import { cn } from '@/lib/utils';
 import {
+  createGabineteProject,
   createNewProject,
   deleteProject,
   listUserProjects,
@@ -138,6 +146,7 @@ export default function VideoProjectsListPage() {
   const [newResKey, setNewResKey] = useState<string>('1080-landscape');
   const [newStageMode, setNewStageMode] = useState<'single' | 'split-vertical'>('single');
   const [creating, setCreating] = useState(false);
+  const [creatingGabinete, setCreatingGabinete] = useState(false);
 
   // Load lista.
   useEffect(() => {
@@ -196,6 +205,30 @@ export default function VideoProjectsListPage() {
     }
   };
 
+  /**
+   * Assistente "Novo vídeo do gabinete" (recurso 15): cria o projeto 9:16 já
+   * com identidade ligada, as cinco faixas nomeadas do fluxo, a trilha no
+   * preset do gabinete e a faixa de legendas no estilo Gabinete. Abre o
+   * editor com a Biblioteca do gabinete já aberta (`?biblioteca=1`).
+   */
+  const handleCreateGabinete = async () => {
+    if (!user) return;
+    setCreatingGabinete(true);
+    try {
+      const created = await createGabineteProject(firestore, user.uid);
+      router.push(`/apps/suite-editor-videos/${created.id}?biblioteca=1`);
+    } catch (err: unknown) {
+      console.error('[projects/create-gabinete] erro:', err);
+      toast({
+        variant: 'destructive',
+        title: 'Erro ao criar o vídeo do gabinete',
+        description: err instanceof Error ? err.message : 'Tente novamente.',
+      });
+    } finally {
+      setCreatingGabinete(false);
+    }
+  };
+
   const [projectToDelete, setProjectToDelete] = useState<VideoProject | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -232,6 +265,20 @@ export default function VideoProjectsListPage() {
         </div>
         <div className="flex items-center gap-2">
           <RenderJobsPanel triggerVariant="inline" triggerLabel="Renderizações" />
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={() => void handleCreateGabinete()}
+            disabled={creatingGabinete || !user}
+            title="Cria o projeto 9:16 já com identidade, as faixas V1 Féfin / V2 Criativos / V3 Memes / A1 Efeitos / A2 Trilha, a trilha no preset do gabinete e a legenda amarela — sem nenhum clique de configuração."
+          >
+            {creatingGabinete ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Landmark className="h-4 w-4" />
+            )}
+            Novo vídeo do gabinete
+          </Button>
           <Dialog open={createOpen} onOpenChange={setCreateOpen}>
             <DialogTrigger asChild>
               <Button className="gap-2">
