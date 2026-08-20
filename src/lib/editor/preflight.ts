@@ -20,6 +20,7 @@
  * Puro (sem React) — testável e utilizável fora do diálogo.
  */
 
+import { CUE_GAP_MIN } from './captions/utils';
 import type { MediaAsset, VideoProject } from './types';
 
 export type PreflightSeverity = 'erro' | 'aviso';
@@ -153,18 +154,24 @@ export function preflightProject(project: VideoProject): PreflightIssue[] {
     }
   }
 
-  // ---- 5. Legendas sobrepostas ----------------------------------------------
+  // ---- 5. Legendas colidindo (recurso 12) -----------------------------------
+  // Regra dura: duas legendas NUNCA dividem o mesmo milissegundo — precisa de
+  // 30 ms de folga entre uma e outra. O botão "Colisões" na gaveta de legendas
+  // resolve sozinho (encurta a anterior, empurra a seguinte).
   for (const ct of project.captionTracks) {
     const sorted = [...ct.cues].sort((a, b) => a.startTime - b.startTime);
     for (let i = 0; i + 1 < sorted.length; i += 1) {
-      if (sorted[i + 1].startTime < sorted[i].endTime - 0.02) {
-        issues.push({
-          severity: 'aviso',
-          code: 'legendas-sobrepostas',
-          message: `Duas legendas ao mesmo tempo em ${sorted[i + 1].startTime.toFixed(2)}s ("${sorted[i].text.slice(0, 18)}…" e "${sorted[i + 1].text.slice(0, 18)}…").`,
-          at: sorted[i + 1].startTime,
-        });
-      }
+      const folga = sorted[i + 1].startTime - sorted[i].endTime;
+      if (folga >= CUE_GAP_MIN - 1e-6) continue;
+      const encostadas = folga >= 0;
+      issues.push({
+        severity: 'aviso',
+        code: 'legendas-sobrepostas',
+        message: encostadas
+          ? `Legendas encostadas em ${sorted[i + 1].startTime.toFixed(2)}s (${Math.round(folga * 1000)} ms de folga, mínimo 30 ms). Use "Colisões" na gaveta de legendas.`
+          : `Duas legendas ao mesmo tempo em ${sorted[i + 1].startTime.toFixed(2)}s ("${sorted[i].text.slice(0, 18)}…" e "${sorted[i + 1].text.slice(0, 18)}…"). Use "Colisões" na gaveta de legendas.`,
+        at: sorted[i + 1].startTime,
+      });
     }
   }
 

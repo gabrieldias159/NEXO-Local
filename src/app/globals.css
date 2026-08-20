@@ -305,3 +305,47 @@
     break-inside: avoid;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Animação de entrada das LEGENDAS no preview do editor (recurso 12).
+   Espelha o que o export queima no ASS: `fade` = {\fad(100,60)};
+   `pop` = o mesmo fade com crescimento de 70% para 100% em 140 ms.
+   --------------------------------------------------------------------------- */
+@keyframes editor-cue-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes editor-cue-pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.editor-cue-fade {
+  animation: editor-cue-fade-in 100ms ease-out both;
+}
+
+.editor-cue-pop {
+  animation: editor-cue-pop-in 140ms ease-out both;
+  transform-origin: center bottom;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editor-cue-fade,
+  .editor-cue-pop {
+    animation: none;
+  }
+}

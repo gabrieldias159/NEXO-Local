@@ -48,6 +48,7 @@ import {
   splitCueAt,
   findNextCue,
   findPrevCue,
+  countCueCollisions,
 } from '@/lib/editor/captions/utils';
 import {
   parseSubtitleFile,
@@ -72,6 +73,7 @@ import {
   Sparkles,
   Captions,
   Landmark,
+  Wand2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -122,6 +124,12 @@ export function CaptionsDrawer() {
 
   const activeCue =
     activeTrack && findActiveCue(activeTrack.cues, playhead);
+
+  /** Colisões AO VIVO na track ativa (recurso 12) — alimenta o botão. */
+  const colisoes = React.useMemo(
+    () => (activeTrack ? countCueCollisions(activeTrack.cues) : 0),
+    [activeTrack],
+  );
 
   const [importOpen, setImportOpen] = React.useState(false);
   const [styleEditorOpen, setStyleEditorOpen] = React.useState(false);
@@ -234,6 +242,27 @@ export function CaptionsDrawer() {
       description:
         n > 0
           ? 'Estilo amarelo do gabinete + quebra em até 5 palavras por cue.'
+          : undefined,
+    });
+  };
+
+  /**
+   * Anticolisão (recurso 12): duas legendas nunca no mesmo milissegundo.
+   * Encurta a anterior deixando 30 ms de folga; se não couber, empurra a
+   * seguinte — o algoritmo do `legendas.py` da produção real.
+   */
+  const handleAnticolisao = () => {
+    if (!activeTrack) return;
+    const resolver = useEditorStore.getState().resolverColisoesLegendas;
+    const n = resolver(activeTrack.id);
+    toast({
+      title:
+        n > 0
+          ? `Anticolisão — ${n} legenda(s) ajustada(s)`
+          : 'Nenhuma colisão: as legendas já estão separadas',
+      description:
+        n > 0
+          ? 'Encurtei a anterior com 30 ms de folga; onde não coube, empurrei a seguinte.'
           : undefined,
     });
   };
@@ -437,9 +466,20 @@ export function CaptionsDrawer() {
             <ToolbarBtn
               icon={<Landmark className="h-3.5 w-3.5" />}
               label="Gabinete ≤5"
+              title="Aplica o estilo amarelo do gabinete, quebra cada fala em até 5 palavras e separa os tempos."
               onClick={handleGabinete}
               disabled={!activeTrack || activeTrack.cues.length === 0}
               accent
+            />
+            <ToolbarBtn
+              icon={<Wand2 className="h-3.5 w-3.5" />}
+              label={
+                colisoes > 0 ? `Colisões (${colisoes})` : 'Sem colisões'
+              }
+              title="Duas legendas nunca podem dividir o mesmo milissegundo: encurta a anterior com 30 ms de folga e, se não couber, empurra a seguinte."
+              onClick={handleAnticolisao}
+              disabled={!activeTrack || activeTrack.cues.length < 2}
+              alerta={colisoes > 0}
             />
 
             <div className="ml-auto">
@@ -605,26 +645,33 @@ function ToolbarBtn({
   onClick,
   disabled,
   accent,
+  alerta,
+  title,
 }: {
   icon: React.ReactNode;
   label: string;
   onClick: () => void;
   disabled?: boolean;
   accent?: boolean;
+  /** Destaca em vermelho (há algo pendente — ex.: legendas colidindo). */
+  alerta?: boolean;
+  /** Tooltip de 1 linha explicando o efeito prático. Default: o rótulo. */
+  title?: string;
 }) {
   return (
     <Button
       type="button"
-      variant={accent ? 'outline' : 'ghost'}
+      variant={accent || alerta ? 'outline' : 'ghost'}
       size="sm"
       className={cn(
         'h-7 gap-1 px-2 text-[10px]',
         accent &&
           'border-[var(--editor-accent-strong,theme(colors.violet.500))] text-[var(--editor-accent-strong,theme(colors.violet.500))] hover:bg-[var(--editor-accent-soft,theme(colors.violet.500))]/10',
+        alerta && 'border-red-500/60 text-red-400 hover:bg-red-500/10',
       )}
       onClick={onClick}
       disabled={disabled}
-      title={label}
+      title={title ?? label}
     >
       {icon}
       <span className="hidden sm:inline">{label}</span>

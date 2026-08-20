@@ -643,6 +643,16 @@ export interface CaptionStyle {
   lineHeight?: number;
   /** Largura máxima da caixa de legenda em % da largura do palco (10-100). Default 88. */
   maxWidthPct?: number;
+  /**
+   * ANIMAÇÃO de entrada/saída do cue (recurso 12):
+   *  - `none`: aparece e some seco (comportamento histórico);
+   *  - `fade`: fade-in de 100 ms e fade-out de 60 ms — o `{ad(100,60)}` do
+   *    `legendas.py` aprovado, animação sutil que não atrapalha a leitura;
+   *  - `pop`: entra crescendo de 70% para 100% em 140 ms (com o mesmo fade).
+   *
+   * Ausente = `none` (retrocompat: cues antigos não têm o campo).
+   */
+  animation?: 'none' | 'fade' | 'pop';
 }
 
 // ============================================================================

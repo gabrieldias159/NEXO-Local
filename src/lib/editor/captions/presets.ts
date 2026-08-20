@@ -39,6 +39,7 @@ export const GABINETE_CAPTION_STYLE: Partial<CaptionStyle> = {
   textTransform: 'uppercase',
   letterSpacing: 0,
   maxWidthPct: 96,
+  animation: 'fade',
 };
 
 export interface CaptionPreset {

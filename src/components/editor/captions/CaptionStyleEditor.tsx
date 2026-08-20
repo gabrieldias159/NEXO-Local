@@ -30,7 +30,41 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { CAPTION_PRESETS } from '@/lib/editor/captions/presets';
 
-const FONT_FAMILIES = ['Inter', 'Arial', 'Roboto', 'Impact', 'Georgia'];
+/**
+ * Fontes oferecidas na legenda. As cinco primeiras são as APROVADAS no fluxo
+ * do gabinete (recurso 12) — todas existem no Windows, então o ffmpeg acha
+ * cada uma na hora de queimar o ASS. As demais ficam por compatibilidade com
+ * projetos antigos.
+ */
+const FONT_FAMILIES = [
+  'Arial',
+  'Arial Black',
+  'Impact',
+  'Bahnschrift',
+  'Segoe UI',
+  'Inter',
+  'Roboto',
+  'Georgia',
+];
+
+/** Animação de entrada do cue (recurso 12). */
+const ANIMATIONS: Array<{
+  value: NonNullable<CaptionStyle['animation']>;
+  label: string;
+  hint: string;
+}> = [
+  { value: 'none', label: 'Seca', hint: 'Aparece e some sem transição.' },
+  {
+    value: 'fade',
+    label: 'Fade 100/60 ms',
+    hint: 'Entrada de 100 ms e saída de 60 ms — o padrão do gabinete.',
+  },
+  {
+    value: 'pop',
+    label: 'Pop',
+    hint: 'Entra crescendo de 70% para 100% em 140 ms, junto com o fade.',
+  },
+];
 
 const TRANSFORM_LABELS: Record<'none' | 'uppercase', string> = {
   none: 'Normal',
@@ -192,6 +226,34 @@ export function CaptionStyleEditor({
             step={1}
             onValueChange={([v]) => onChange({ fontSize: v })}
           />
+        </Field>
+
+        <Field label="Animação de entrada">
+          <Select
+            value={style.animation ?? 'none'}
+            onValueChange={(v) =>
+              onChange({ animation: v as CaptionStyle['animation'] })
+            }
+          >
+            <SelectTrigger
+              className="h-7 text-[11px]"
+              title="Como a legenda entra na tela. Vale no preview e no vídeo exportado."
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {ANIMATIONS.map((a) => (
+                <SelectItem
+                  key={a.value}
+                  value={a.value}
+                  className="text-[11px]"
+                  title={a.hint}
+                >
+                  {a.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </Field>
 
         <Field label="Peso">

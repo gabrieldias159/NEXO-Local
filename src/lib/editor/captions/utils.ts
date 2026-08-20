@@ -67,6 +67,91 @@ export function splitCueByWords(
 }
 
 // ============================================================================
+// Anticolisão (recurso 12 — algoritmo do legendas.py aprovado)
+// ============================================================================
+
+/** Espaço mínimo entre o fim de um cue e o começo do próximo (segundos). */
+export const CUE_GAP_MIN = 0.03;
+/** Duração mínima que um cue pode ficar depois de ser encurtado (segundos). */
+export const CUE_DUR_MIN = 0.2;
+/**
+ * Tolerância de ponto flutuante. Sem ela, `4.15 > 4.18 - 0.03` dá `true` em
+ * binário (4.1499999999999995) e a mesma legenda voltava a "colidir" logo
+ * depois de ser ajustada.
+ */
+const EPS = 1e-6;
+
+export interface ColisaoResolvida {
+  /** Cues já ordenados e sem sobreposição. */
+  cues: CaptionCue[];
+  /** Quantos cues tiveram tempo alterado. */
+  ajustados: number;
+}
+
+/**
+ * Garante que DUAS LEGENDAS NUNCA dividam o mesmo milissegundo.
+ *
+ * Regra (idêntica ao `legendas.py` da produção real):
+ *  1. ordena por início;
+ *  2. se o cue anterior termina depois de `inicio - 30ms`, ENCURTA o anterior
+ *     para `max(inicioDoAnterior + 0,20s, inicio - 30ms)`;
+ *  3. se mesmo assim ainda colide (o anterior é curto demais para encurtar),
+ *     EMPURRA o seguinte para `novoFim + 30ms`, mantendo 0,20s de duração
+ *     mínima.
+ *
+ * Puro: devolve cues novos, não muta a entrada.
+ */
+export function resolveCueCollisions(
+  cues: CaptionCue[],
+  gap = CUE_GAP_MIN,
+  minDur = CUE_DUR_MIN,
+): ColisaoResolvida {
+  const out = [...cues]
+    .sort((a, b) => a.startTime - b.startTime)
+    .map((c) => ({ ...c }));
+  const mudou = new Set<string>();
+  const round = (n: number) => Number(n.toFixed(3));
+
+  for (let i = 1; i < out.length; i += 1) {
+    const ant = out[i - 1];
+    const cur = out[i];
+    const limite = round(cur.startTime - gap);
+    if (ant.endTime <= limite + EPS) continue;
+
+    const novoFim = round(Math.max(ant.startTime + minDur, limite));
+    if (novoFim > limite + EPS) {
+      // Não coube: empurra o seguinte para depois do fim encurtado.
+      const novoInicio = round(novoFim + gap);
+      cur.endTime = round(Math.max(cur.endTime, novoInicio + minDur));
+      cur.startTime = round(novoInicio);
+      mudou.add(cur.id);
+    }
+    if (novoFim !== round(ant.endTime)) {
+      ant.endTime = novoFim;
+      mudou.add(ant.id);
+    }
+  }
+
+  return { cues: out, ajustados: mudou.size };
+}
+
+/**
+ * Só CONTA as colisões (sem alterar) — usado pelo verificador pré-export e
+ * pelo aviso ao vivo na gaveta de legendas.
+ */
+export function countCueCollisions(
+  cues: CaptionCue[],
+  gap = CUE_GAP_MIN,
+): number {
+  const sorted = [...cues].sort((a, b) => a.startTime - b.startTime);
+  let n = 0;
+  for (let i = 1; i < sorted.length; i += 1) {
+    if (sorted[i - 1].endTime > sorted[i].startTime - gap + EPS) n += 1;
+  }
+  return n;
+}
+
+// ============================================================================
 // Active cue
 // ============================================================================
 

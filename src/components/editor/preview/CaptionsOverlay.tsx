@@ -153,6 +153,11 @@ function CueView({ cue, scale, stageMode, splitRatio }: CueViewProps) {
       }}
     >
       <div
+        // `key` no id do cue: trocar de cue remonta o nó e a animação de
+        // entrada roda de novo (senão o CSS só animaria a primeira legenda).
+        key={cue.id}
+        data-anim={style.animation ?? 'none'}
+        className={animClassName(style.animation)}
         style={cssForCueText(style, scale)}
         // Multi-line: \n vira <br/> via CSS white-space pre-line.
       >
@@ -165,6 +170,17 @@ function CueView({ cue, scale, stageMode, splitRatio }: CueViewProps) {
       </div>
     </div>
   );
+}
+
+/**
+ * Classe da ANIMAÇÃO de entrada no preview (recurso 12). Espelha o que o
+ * export queima no ASS: `fade` = fade-in de 100 ms; `pop` = o mesmo fade
+ * com um crescimento de 70% para 100% em 140 ms.
+ */
+function animClassName(anim: CaptionStyle['animation']): string | undefined {
+  if (anim === 'fade') return 'editor-cue-fade';
+  if (anim === 'pop') return 'editor-cue-pop';
+  return undefined;
 }
 
 function computeSlotStyle(

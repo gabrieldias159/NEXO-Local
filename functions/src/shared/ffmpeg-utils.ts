@@ -156,6 +156,7 @@ function styleSignature(style: CaptionStyle | null): string {
     style.textTransform ?? "none",
     style.letterSpacing ?? 0,
     style.maxWidthPct ?? "",
+    style.animation ?? "none",
   ].join("|");
 }
 
@@ -282,7 +283,21 @@ function eventLineFromCue(styleName: string, cue: CaptionCue): string {
   const upper = cue.style?.textTransform === "uppercase";
   const bruto = upper ? cue.text.toLocaleUpperCase("pt-BR") : cue.text;
   const text = bruto.replace(/\r?\n/g, "\\N").replace(/,/g, "\\,");
-  return `Dialogue: 0,${start},${end},${styleName},,0,0,0,,${text}`;
+  return `Dialogue: 0,${start},${end},${styleName},,0,0,0,,${animationTag(cue)}${text}`;
+}
+
+/**
+ * Override de ANIMAÇÃO por cue (recurso 12). `fade` é o `{\fad(100,60)}` do
+ * `legendas.py` aprovado — fade-in de 100 ms e fade-out de 60 ms; `pop`
+ * acrescenta um crescimento de 70% para 100% nos primeiros 140 ms.
+ */
+function animationTag(cue: CaptionCue): string {
+  const anim = cue.style?.animation ?? "none";
+  if (anim === "fade") return "{\\fad(100,60)}";
+  if (anim === "pop") {
+    return "{\\fad(100,60)\\fscx70\\fscy70\\t(0,140,\\fscx100\\fscy100)}";
+  }
+  return "";
 }
 
 function secondsToAssTime(s: number): string {

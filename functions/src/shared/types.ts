@@ -237,6 +237,8 @@ export interface CaptionStyle {
   letterSpacing?: number;
   lineHeight?: number;
   maxWidthPct?: number;
+  /** Animação de entrada do cue: none | fade (fad 100/60) | pop. */
+  animation?: "none" | "fade" | "pop";
 }
 
 export interface CaptionCue {

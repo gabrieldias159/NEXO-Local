@@ -27,7 +27,7 @@ import { temporal } from 'zundo';
 import type { TemporalState } from 'zundo';
 
 import { GABINETE_CAPTION_STYLE } from './captions/presets';
-import { splitCueByWords } from './captions/utils';
+import { resolveCueCollisions, splitCueByWords } from './captions/utils';
 import type {
   VideoProject,
   ProjectIdentity,
@@ -490,6 +490,12 @@ interface Actions {
    * Devolve o número de cues resultante (0 = track não encontrada/vazia).
    */
   applyGabineteCaptions: (trackId: string, maxWords?: number) => number;
+  /**
+   * ANTICOLISÃO (recurso 12): garante que duas legendas nunca dividam o mesmo
+   * milissegundo — encurta a anterior deixando 30 ms de folga e, quando não
+   * couber, empurra a seguinte. Devolve quantos cues tiveram tempo mexido.
+   */
+  resolverColisoesLegendas: (trackId: string) => number;
   setCaptionSlot: (cueId: string, slot: 'full' | 'top' | 'bottom') => void;
   /** Importa .srt — parser injetado pelo caller (mantém store puro). */
   importSrt: (
@@ -2241,10 +2247,26 @@ export const useEditorStore = create<EditorStore>()(
                 novos.push({ id: genId('cue'), ...parte });
               }
             }
-            track.cues = novos;
-            count = novos.length;
+            // O corte em pedaços cria cues encostados (fim == início do
+            // próximo). O `legendas.py` roda a anticolisão logo depois — aqui
+            // também, senão o preset já nasceria com colisão.
+            track.cues = resolveCueCollisions(novos).cues;
+            count = track.cues.length;
           });
           return count;
+        },
+
+        resolverColisoesLegendas: (trackId) => {
+          let ajustados = 0;
+          set((s) => {
+            if (!s.project) return;
+            const track = s.project.captionTracks.find((t) => t.id === trackId);
+            if (!track || track.cues.length < 2) return;
+            const r = resolveCueCollisions(track.cues);
+            track.cues = r.cues;
+            ajustados = r.ajustados;
+          });
+          return ajustados;
         },
 
         setCaptionSlot: (cueId, slot) =>
