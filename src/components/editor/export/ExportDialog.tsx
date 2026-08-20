@@ -55,6 +55,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useEditorStore } from '@/lib/editor/store';
+import { preflightProject } from '@/lib/editor/preflight';
 import { useCollection, useFirestore, useMemoFirebase, useStorage, useUser } from '@/firebase';
 import {
   browserSupportsClientRender,
@@ -460,6 +461,8 @@ export function ExportDialog() {
 
         {!isRendering && !isComplete && (
           <div className="grid gap-4 py-2">
+            {/* Verificador pré-export (recurso 10 do fluxo do gabinete) */}
+            <PreflightPanel />
             <div className="grid gap-1.5">
               <Label htmlFor="export-resolution">Resolução</Label>
               <Select
@@ -891,4 +894,62 @@ function estimateCloudTime(durationSec: number): string {
   const sec = 60 + Math.round(durationSec * 0.5);
   if (sec < 60) return `~${sec}s`;
   return `~${Math.round(sec / 60)}min`;
+}
+
+// ============================================================================
+// Verificador pré-export
+// ============================================================================
+
+/**
+ * Roda `preflightProject` quando o diálogo abre e lista os achados.
+ * Nada é bloqueado — a decisão é humana; erros aparecem em vermelho.
+ */
+function PreflightPanel() {
+  const project = useEditorStore((s) => s.project);
+  const issues = useMemo(
+    () => (project ? preflightProject(project) : []),
+    [project],
+  );
+  const [expandido, setExpandido] = useState(false);
+  if (!project || issues.length === 0) {
+    return (
+      <p className="rounded border border-border bg-muted/40 px-2 py-1.5 text-[11px] text-muted-foreground">
+        ✓ Verificador: nenhum problema encontrado (fala travada, overlays e
+        legendas ok).
+      </p>
+    );
+  }
+  const erros = issues.filter((i) => i.severity === 'erro').length;
+  const mostrar = expandido ? issues : issues.slice(0, 4);
+  return (
+    <div className="rounded border border-border bg-muted/40 px-2 py-1.5">
+      <p className="mb-1 text-[11px] font-semibold">
+        Verificador: {issues.length} apontamento(s)
+        {erros > 0 ? ` — ${erros} erro(s)` : ''}
+      </p>
+      <ul className="space-y-0.5">
+        {mostrar.map((i, idx) => (
+          <li
+            key={idx}
+            className={
+              i.severity === 'erro'
+                ? 'text-[10px] leading-snug text-red-400'
+                : 'text-[10px] leading-snug text-amber-400'
+            }
+          >
+            {i.severity === 'erro' ? '✕' : '⚠'} {i.message}
+          </li>
+        ))}
+      </ul>
+      {issues.length > 4 && (
+        <button
+          type="button"
+          onClick={() => setExpandido((v) => !v)}
+          className="mt-1 text-[10px] text-muted-foreground underline"
+        >
+          {expandido ? 'mostrar menos' : `mostrar todos (${issues.length})`}
+        </button>
+      )}
+    </div>
+  );
 }
