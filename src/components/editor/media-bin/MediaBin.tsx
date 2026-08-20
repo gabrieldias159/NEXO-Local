@@ -22,6 +22,8 @@ import { AssetItem } from './AssetItem';
 import { ImportUrlDialog } from './ImportUrlDialog';
 import { TextClipDialog } from './TextClipDialog';
 import { GabineteLibrary } from './GabineteLibrary';
+import { AcervoSons } from './AcervoSons';
+import { AcervoMemes } from './AcervoMemes';
 import { AiStageGenerator } from '../ai/AiStageGenerator';
 import { EditorIcons } from '../shared/EditorIcons';
 import { cn } from '@/lib/utils';
@@ -118,6 +120,8 @@ export function MediaBin() {
           )}
         </Button>
         <GabineteLibrary />
+        <AcervoSons />
+        <AcervoMemes />
       </div>
       <ImportUrlDialog open={urlOpen} onOpenChange={setUrlOpen} />
       <TextClipDialog open={textOpen} onOpenChange={setTextOpen} />
