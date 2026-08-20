@@ -410,6 +410,14 @@ interface Actions {
   /** Aplica/atualiza chroma key do clip. */
   setClipChromaKey: (clipId: string, partial: Partial<ClipChromaKey>) => void;
   /**
+   * Substitui as janelas de BLUR DE FUNDO do clip (s da timeline, dentro
+   * do intervalo do clip). Lista vazia remove o efeito.
+   */
+  setClipBlurWindows: (
+    clipId: string,
+    windows: Array<{ start: number; end: number }>,
+  ) => void;
+  /**
    * Separa o áudio de um clip de vídeo. Cria uma cópia "virtual" do asset
    * marcada como audio, garante existir uma track de áudio, adiciona um
    * clip novo nessa track (mesmo timing) e silencia o áudio do clip de
@@ -805,6 +813,12 @@ export const useEditorStore = create<EditorStore>()(
                   kf.time = r3(kf.time / F);
                 }
               }
+              if (clip.blurWindows) {
+                for (const w of clip.blurWindows) {
+                  w.start = r3(w.start / F);
+                  w.end = r3(w.end / F);
+                }
+              }
             }
 
             // Passo 2: remapeia o resto.
@@ -846,6 +860,12 @@ export const useEditorStore = create<EditorStore>()(
                 if (clip.keyframes && clip.keyframes.length > 0) {
                   for (const kf of clip.keyframes) {
                     kf.time = r3(kf.time / F);
+                  }
+                }
+                if (clip.blurWindows) {
+                  for (const w of clip.blurWindows) {
+                    w.start = r3(w.start / F);
+                    w.end = r3(w.end / F);
                   }
                 }
               }
@@ -1488,6 +1508,12 @@ export const useEditorStore = create<EditorStore>()(
                 );
                 c.startInTimeline = ns;
                 c.endInTimeline = ne;
+                if (c.blurWindows) {
+                  for (const w of c.blurWindows) {
+                    w.start = Number(mapT(w.start).toFixed(3));
+                    w.end = Number(mapT(w.end).toFixed(3));
+                  }
+                }
               }
               track.clips.sort((a, b) => a.startInTimeline - b.startInTimeline);
             }
@@ -1825,6 +1851,33 @@ export const useEditorStore = create<EditorStore>()(
               engine: 'webgl',
             };
             found.clip.chromaKey = { ...current, ...partial };
+          }),
+
+        setClipBlurWindows: (clipId, windows) =>
+          set((s) => {
+            if (!s.project) return;
+            const found = findClip(s.project, clipId);
+            if (!found) return;
+            const { clip } = found;
+            const limpas = windows
+              .map((w) => ({
+                start: Number(
+                  clamp(
+                    Math.min(w.start, w.end),
+                    clip.startInTimeline,
+                    clip.endInTimeline,
+                  ).toFixed(3),
+                ),
+                end: Number(
+                  clamp(
+                    Math.max(w.start, w.end),
+                    clip.startInTimeline,
+                    clip.endInTimeline,
+                  ).toFixed(3),
+                ),
+              }))
+              .filter((w) => w.end - w.start > 0.05);
+            clip.blurWindows = limpas.length > 0 ? limpas : undefined;
           }),
 
         splitAudioFromVideoClip: (clipId) => {

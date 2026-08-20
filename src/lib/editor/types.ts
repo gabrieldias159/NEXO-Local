@@ -361,6 +361,14 @@ export interface Clip {
   transitionIn?: TransitionConfig;
   transitionOut?: TransitionConfig;
 
+  /**
+   * Janelas de BLUR DE FUNDO (boxblur=10 + brilho −6%) em segundos da
+   * TIMELINE — o efeito do pipeline do gabinete usado sob as palavras
+   * empilhadas. Aditivo/opcional; remapeadas junto com o clip pela
+   * velocidade global e pelos cortes de rabo.
+   */
+  blurWindows?: Array<{ start: number; end: number }>;
+
   keyframes?: Keyframe[];
 
   /** Bloqueia edição do clip. */

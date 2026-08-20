@@ -582,6 +582,27 @@ function buildVideoClipChain(args: BuildVideoChainArgs): string {
     );
   }
 
+  // 4.4 Blur de FUNDO por janela (pipeline do gabinete: boxblur=10 +
+  // brilho −6% entre t1..t2, sob as palavras). Janelas chegam em tempo de
+  // TIMELINE; aqui viram tempo LOCAL do clip (a chain está com PTS zerado
+  // nesta altura — a âncora da timeline só entra no fim da chain).
+  const windows = (clip.blurWindows ?? [])
+    .map((w) => ({
+      ini: Math.max(0, Math.min(w.start, w.end) - clip.startInTimeline),
+      fim: Math.min(
+        clipDurationOnTimeline(clip),
+        Math.max(w.start, w.end) - clip.startInTimeline,
+      ),
+    }))
+    .filter((w) => w.fim - w.ini > 0.05);
+  if (windows.length > 0) {
+    const enable = windows
+      .map((w) => `between(t,${w.ini.toFixed(3)},${w.fim.toFixed(3)})`)
+      .join("+");
+    filters.push(`boxblur=10:1:enable='${enable}'`);
+    filters.push(`eq=brightness=-0.06:enable='${enable}'`);
+  }
+
   // 4.5 Chroma/Luma key (remoção de fundo) — aplicado no SOURCE, antes do
   // scale. `luma` porta o `lumakey` do pipeline do gabinete (arte em fundo
   // preto puro vazada sobre o vídeo); `chroma` usa o chromakey do ffmpeg.

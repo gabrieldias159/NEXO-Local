@@ -194,6 +194,10 @@ export function FiltersTab({ clips }: FiltersTabProps) {
         />
       </InspectorSection>
 
+      <InspectorSection title="Blur de fundo por janela">
+        <BlurWindowsSection clips={clips} />
+      </InspectorSection>
+
       <InspectorSection title="Chroma Key (remover fundo)">
         <div className="flex items-center justify-between pb-1">
           <Label htmlFor="chroma-enabled" className="text-[11px] text-muted-foreground">
@@ -390,6 +394,94 @@ export function FiltersTab({ clips }: FiltersTabProps) {
           )}
         </div>
       </InspectorSection>
+    </div>
+  );
+}
+
+// ============================================================================
+// Blur de fundo por janela (recurso 7 do fluxo do gabinete)
+// ============================================================================
+
+/**
+ * Janelas de blur do PRIMEIRO clip selecionado: boxblur=10 + brilho −6%
+ * entre t1..t2 — usado sob as palavras empilhadas. O preview aplica um blur
+ * CSS equivalente quando o playhead está dentro da janela.
+ */
+function BlurWindowsSection({ clips }: { clips: Clip[] }) {
+  const clip = clips[0];
+  const playhead = useEditorStore((s) => s.ui.playhead);
+  const setClipBlurWindows = useEditorStore((s) => s.setClipBlurWindows);
+  if (!clip) return null;
+  const windows = clip.blurWindows ?? [];
+
+  const update = (
+    idx: number,
+    campo: 'start' | 'end',
+    valor: number,
+  ) => {
+    const next = windows.map((w, i) =>
+      i === idx ? { ...w, [campo]: valor } : w,
+    );
+    setClipBlurWindows(clip.id, next);
+  };
+
+  return (
+    <div className="space-y-1.5">
+      {windows.map((w, i) => (
+        <div key={i} className="flex items-center gap-1">
+          <Input
+            type="number"
+            value={w.start}
+            step={0.1}
+            onChange={(e) => update(i, 'start', Number(e.target.value) || 0)}
+            className="h-6 flex-1 text-[11px] tabular-nums"
+            title="Início (s da timeline)"
+          />
+          <span className="text-[10px] text-muted-foreground">→</span>
+          <Input
+            type="number"
+            value={w.end}
+            step={0.1}
+            onChange={(e) => update(i, 'end', Number(e.target.value) || 0)}
+            className="h-6 flex-1 text-[11px] tabular-nums"
+            title="Fim (s da timeline)"
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6"
+            onClick={() =>
+              setClipBlurWindows(
+                clip.id,
+                windows.filter((_, j) => j !== i),
+              )
+            }
+            title="Remover janela"
+          >
+            ×
+          </Button>
+        </div>
+      ))}
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="h-7 w-full text-[11px]"
+        onClick={() =>
+          setClipBlurWindows(clip.id, [
+            ...windows,
+            { start: playhead, end: playhead + 2 },
+          ])
+        }
+        title="boxblur=10 + brilho −6% entre as janelas (o preset das palavras empilhadas)"
+      >
+        Adicionar janela no playhead (+2s)
+      </Button>
+      <p className="text-[10px] text-muted-foreground">
+        Desfoca e escurece o clip nos trechos marcados — o fundo das palavras
+        empilhadas. Preview aproximado; o export usa boxblur=10 exato.
+      </p>
     </div>
   );
 }

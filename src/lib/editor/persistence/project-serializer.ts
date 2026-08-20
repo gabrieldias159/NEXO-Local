@@ -105,6 +105,7 @@ function serializeClip(clip: Clip): DocumentData {
     audio: { ...clip.audio },
     transitionIn: clip.transitionIn ?? null,
     transitionOut: clip.transitionOut ?? null,
+    blurWindows: clip.blurWindows?.map((w) => ({ ...w })),
     keyframes: clip.keyframes ?? [],
     locked: clip.locked,
     hidden: clip.hidden,

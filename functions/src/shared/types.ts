@@ -170,6 +170,8 @@ export interface Clip {
   transitionOut?: TransitionConfig;
   locked: boolean;
   hidden: boolean;
+  /** Janelas de blur de fundo (s da timeline) — boxblur=10 + brilho −6%. */
+  blurWindows?: Array<{ start: number; end: number }>;
   /** Chroma key (remoção de fundo) — espelha src/lib/editor/types.ts. */
   chromaKey?: {
     enabled: boolean;

@@ -162,6 +162,13 @@ export function VideoLayer({
   //  - `innerStyle`: o transform do usuário (translate/scale/rotate), filtros,
   //    opacidade e clip-path de transição — aplicados DENTRO da banda.
   // A mídia (`<video>`) usa `object-fit` (`clip.fit`) para encaixar na caixa.
+  // Blur de fundo por janela (F7 do gabinete): quando o playhead está
+  // dentro de uma janela do clip, o preview aplica boxblur+escurecida via
+  // CSS — espelho visual do boxblur=10 + eq brightness −0.06 do export.
+  const emJanelaDeBlur = (clip.blurWindows ?? []).some(
+    (w) => playheadSec >= w.start && playheadSec < w.end,
+  );
+
   const { outerStyle, innerStyle } = useMemo(() => {
     const t = clip.transform;
     const baseTransform = buildTransform(t);
@@ -188,7 +195,9 @@ export function VideoLayer({
       opacity: finalOpacity,
       transform: finalTransform,
       transformOrigin: `${t.anchorX * 100}% ${t.anchorY * 100}%`,
-      filter: buildFilter(clip.filters),
+      filter:
+        buildFilter(clip.filters) +
+        (emJanelaDeBlur ? ' blur(7px) brightness(0.94)' : ''),
       // clipPath: só transição (wipe/circle). O recorte do slot é a própria
       // caixa da banda (outer + overflow:hidden), não mais um clip-path.
       clipPath: transitionState?.clipPath,
@@ -199,6 +208,7 @@ export function VideoLayer({
   }, [
     clip.transform,
     clip.filters,
+    emJanelaDeBlur,
     zIndex,
     active,
     isInSlot,
