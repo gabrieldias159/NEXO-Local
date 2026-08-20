@@ -104,6 +104,14 @@ service firebase.storage {
        allow read, write: if request.auth != null;
     }
 
+    // Biblioteca do GABINETE (identidade, sons aprovados, memes VM*,
+    // cards gerados) — acervo fixo que o MediaBin lista. Leitura
+    // autenticada; escrita só por seed/admin (nada de upload pela UI aqui).
+    match /biblioteca/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
     // --- Suite Editor de Vídeos ---
     // Assets de projeto. Idealmente cross-reference com o doc do projeto
     // no Firestore (ownerUid), mas começamos simples: apenas autenticado.

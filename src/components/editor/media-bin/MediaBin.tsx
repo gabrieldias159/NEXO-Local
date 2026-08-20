@@ -21,6 +21,7 @@ import { AssetUploader } from './AssetUploader';
 import { AssetItem } from './AssetItem';
 import { ImportUrlDialog } from './ImportUrlDialog';
 import { TextClipDialog } from './TextClipDialog';
+import { GabineteLibrary } from './GabineteLibrary';
 import { AiStageGenerator } from '../ai/AiStageGenerator';
 import { EditorIcons } from '../shared/EditorIcons';
 import { cn } from '@/lib/utils';
@@ -116,6 +117,7 @@ export function MediaBin() {
             <span className="ml-auto text-[10px] opacity-80">palco 2</span>
           )}
         </Button>
+        <GabineteLibrary />
       </div>
       <ImportUrlDialog open={urlOpen} onOpenChange={setUrlOpen} />
       <TextClipDialog open={textOpen} onOpenChange={setTextOpen} />
