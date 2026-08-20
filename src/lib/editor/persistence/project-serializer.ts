@@ -131,6 +131,8 @@ function serializeTrack(track: Track): DocumentData {
     gainPct: track.gainPct,
     audioLeveling: track.audioLeveling,
     autoFade: track.autoFade,
+    voiceEq: track.voiceEq,
+    voiceDuck: track.voiceDuck,
     clips: track.clips.map(serializeClip),
   });
 }
@@ -280,6 +282,9 @@ export function deserializeProjectFromFirestore(
         audioLeveling:
           typeof tr.audioLeveling === 'boolean' ? tr.audioLeveling : undefined,
         autoFade: typeof tr.autoFade === 'boolean' ? tr.autoFade : undefined,
+        voiceEq: typeof tr.voiceEq === 'boolean' ? tr.voiceEq : undefined,
+        voiceDuck:
+          typeof tr.voiceDuck === 'boolean' ? tr.voiceDuck : undefined,
         clips: Array.isArray(tr.clips)
           ? (tr.clips as DocumentData[]).map((c) => {
               return {

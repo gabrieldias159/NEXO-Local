@@ -206,6 +206,10 @@ export interface Track {
   audioLeveling?: boolean;
   /** Fades automáticos no export (in 1,2s / out 2,5s por clip). */
   autoFade?: boolean;
+  /** Abre espaço pra voz: highpass 130 Hz + dip de -3,5 dB em 2,8 kHz. */
+  voiceEq?: boolean;
+  /** Duck por sidechain: a trilha abaixa quando a voz (track base) fala. */
+  voiceDuck?: boolean;
 }
 
 // ---- Captions ---------------------------------------------------------------

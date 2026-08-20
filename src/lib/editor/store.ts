@@ -278,12 +278,18 @@ interface Actions {
   setTrackHeight: (trackId: string, px: number) => void;
   /**
    * Opções de TRILHA de uma track de áudio: volume em % (gainPct),
-   * nivelamento de dinâmica (audioLeveling, export) e fades automáticos
-   * (autoFade, export). Patch parcial.
+   * nivelamento de dinâmica (audioLeveling, export), fades automáticos
+   * (autoFade, export) e a mixagem VOZ-PRIMEIRO (voiceEq / voiceDuck,
+   * export). Patch parcial.
    */
   setTrackAudioOptions: (
     trackId: string,
-    patch: Partial<Pick<Track, 'gainPct' | 'audioLeveling' | 'autoFade'>>,
+    patch: Partial<
+      Pick<
+        Track,
+        'gainPct' | 'audioLeveling' | 'autoFade' | 'voiceEq' | 'voiceDuck'
+      >
+    >,
   ) => void;
 
   // ---- 5.3b Subtracks / Camadas (só tracks de vídeo) ---------------------
@@ -1094,6 +1100,12 @@ export const useEditorStore = create<EditorStore>()(
             }
             if (patch.autoFade !== undefined) {
               track.autoFade = patch.autoFade;
+            }
+            if (patch.voiceEq !== undefined) {
+              track.voiceEq = patch.voiceEq;
+            }
+            if (patch.voiceDuck !== undefined) {
+              track.voiceDuck = patch.voiceDuck;
             }
           }),
 

@@ -71,3 +71,52 @@ não referenciada; duração final ≠ soma da base (nada pode alongar a fala).
 - Export nunca alonga a fala: duração travada pela base.
 - Vinheta nunca acelera com a velocidade global.
 - Texto de valor sem documento → template já vem com "?" ("PODE CHEGAR A...").
+
+## P3 — segunda leva (pedidos de 20/08, já validados no pipeline manual)
+
+### 11. Voz na frente da música (mixagem)
+Na trilha: highpass 130 Hz + equalizer -3,5 dB @2,8 kHz (abre espaço pro grave e
+pra dicção da voz) + duck por sidechain com a voz de chave (threshold 0.02,
+ratio 5, attack 25 ms, release 380 ms). Já implementado no compilar.mjs de
+referência — portar pro export.
+
+### 12. Legendas: fontes, animação e anticolisão
+Seletor de fonte (Arial/Arial Black/Impact/Bahnschrift/Segoe UI), animação de
+entrada (fade 100/60 ms; pop opcional) e validação dura: duas cues nunca no mesmo
+milissegundo — editor encurta/empurra automaticamente e o verificador acusa.
+
+### 13. Catálogo de sons (myinstants) sem download em massa
+Painel de busca no catálogo (`ACERVO_GABINETE/sons/catalogo.json`), preview por
+streaming e botão "trazer pro projeto" que baixa SÓ o som escolhido.
+
+### 14. Acervo de memes/efeitos em vídeo
+Aba no MediaBin espelhando `ACERVO_GABINETE/memes_video/` + fontes online
+catalogadas (FONTES.md) com busca e download unitário.
+
+## P4 — polimento de UI/UX (fluxo do gabinete de ponta a ponta)
+
+### 15. Assistente "Novo vídeo do gabinete"
+Botão na lista de projetos: cria projeto 9:16 30fps já com identidade ativada,
+preset de legenda Gabinete, tracks nomeadas (V1 Féfin / V2 Criativos / V3 Memes /
+A1 Efeitos / A2 Trilha) e a Biblioteca do gabinete aberta. Zero cliques de setup.
+
+### 16. Biblioteca: arrastar pra timeline + pré-escuta
+Drag & drop dos itens da Biblioteca do gabinete direto na track certa (som → A1,
+meme → V3...). Sons com botão de pré-escuta no hover; vídeos com thumbnail animada.
+
+### 17. Preview rápido de trecho
+Selecionar um intervalo na régua e "renderizar só isso" em resolução baixa —
+conferir um ajuste em segundos sem exportar o vídeo inteiro.
+
+### 18. Alerta de flash na régua
+Badge vermelho na timeline onde a base aparece por <0,5 s entre dois overlays
+(a regra anti-"pisca" do dono). Clicou, playhead vai pro ponto. Complementa o
+verificador do export, mas AO VIVO durante a edição.
+
+### 19. Tooltips e rótulos pt-BR
+Todos os recursos novos (velocidade, duck, aperto de tela, lumakey, blur) com
+tooltip de 1 linha explicando o efeito prático. Nada de jargão em inglês solto.
+
+### 20. Atalhos de edição
+Conferir/completar: espaço play-pause, J/K/L, S = corte no playhead, setas =
+frame a frame, Shift+setas = 1 s, Del = remover clip selecionado.

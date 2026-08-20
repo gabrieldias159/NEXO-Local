@@ -216,6 +216,34 @@ const OPS: Record<string, Manipulador> = {
     return { op: 'addTrack', ok: true, id: track.id as string };
   },
 
+  /**
+   * Ajusta uma track existente. Só o que a interface também ajusta:
+   * nome, mute/lock/visível e as opções de TRILHA (volume %, nivelar,
+   * fades automáticos, EQ de voz e duck). Campos ausentes ficam como estão.
+   */
+  updateTrack: (p, o) => {
+    const id = String(o.trackId ?? '');
+    const track = (p.tracks ?? []).find((t: any) => t.id === id);
+    if (!track) erro(`track '${id}' nao existe`);
+    const patch = (o.patch ?? {}) as Record<string, unknown>;
+    const num = (v: unknown) => (typeof v === 'number' ? v : undefined);
+    const bool = (v: unknown) => (typeof v === 'boolean' ? v : undefined);
+    if (typeof patch.nome === 'string') track.name = patch.nome;
+    if (bool(patch.muted) !== undefined) track.muted = patch.muted;
+    if (bool(patch.locked) !== undefined) track.locked = patch.locked;
+    if (bool(patch.visible) !== undefined) track.visible = patch.visible;
+    if (num(patch.gainPct) !== undefined) {
+      track.gainPct = Math.max(0, Math.min(200, patch.gainPct as number));
+    }
+    if (bool(patch.audioLeveling) !== undefined) {
+      track.audioLeveling = patch.audioLeveling;
+    }
+    if (bool(patch.autoFade) !== undefined) track.autoFade = patch.autoFade;
+    if (bool(patch.voiceEq) !== undefined) track.voiceEq = patch.voiceEq;
+    if (bool(patch.voiceDuck) !== undefined) track.voiceDuck = patch.voiceDuck;
+    return { op: 'updateTrack', ok: true, id };
+  },
+
   removeTrack: (p, o) => {
     const id = String(o.trackId ?? '');
     p.tracks = (p.tracks ?? []).filter((t: any) => t.id !== id);

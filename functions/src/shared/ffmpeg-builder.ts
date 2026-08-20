@@ -69,6 +69,37 @@ const TRANSITION_TO_XFADE: Record<TransitionConfig["type"], string> = {
 };
 
 // ============================================================================
+// Mixagem VOZ-PRIMEIRO (recurso 11 — portado do compilar.mjs aprovado)
+// ============================================================================
+
+/**
+ * Formato canônico de todo áudio antes de mixar. Sem ele, `amix` e
+ * `sidechaincompress` recebem streams de layout/taxa diferentes e o ffmpeg
+ * insere conversões implícitas (ou falha). Mesmo `AFMT` do pipeline manual.
+ */
+const AFMT =
+  "aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo";
+
+/**
+ * EQ que abre espaço pra voz na trilha: corta o grave que casa com a voz do
+ * vereador e abaixa a presença (2,8 kHz) que mascara a dicção.
+ */
+const VOICE_EQ = "highpass=f=130,equalizer=f=2800:t=q:w=1.2:g=-3.5";
+
+/** Duck por sidechain — valores exatos da produção real. */
+const SIDECHAIN_DUCK =
+  "sidechaincompress=threshold=0.02:ratio=5:attack=25:release=380:makeup=1";
+
+/**
+ * Junta N labels de áudio num só. Um label = `anull` (amix com 1 input é
+ * inválido); vários = `amix normalize=0` (ninguém abaixa por estar junto).
+ */
+function mixToLabel(labels: string[], outLabel: string): string {
+  if (labels.length === 1) return `${labels[0]}anull[${outLabel}]`;
+  return `${labels.join("")}amix=inputs=${labels.length}:duration=longest:dropout_transition=0:normalize=0[${outLabel}]`;
+}
+
+// ============================================================================
 // Tipos
 // ============================================================================
 
@@ -351,7 +382,10 @@ export function buildFilterComplex(
   videoStream = `[v_final]`;
 
   // ---- 6. Áudio ------------------------------------------------------------
-  const audioLabels: string[] = [];
+  // Cada entrada guarda a TRACK dona — o duck (recurso 11) precisa mixar por
+  // track antes de comprimir, e a voz precisa ser identificada no meio do
+  // monte de labels.
+  const audioEntries: Array<{ trackId: string; label: string }> = [];
   const audioTracks = project.tracks.filter(
     (t) => t.type !== "video" || hasAudibleClip(t),
   );
@@ -416,7 +450,7 @@ export function buildFilterComplex(
       lines.push(`${acc}adelay=${ms}|${ms}${delayed}`);
       finalLabel = delayed;
     }
-    audioLabels.push(finalLabel);
+    audioEntries.push({ trackId: track.id, label: finalLabel });
     members.forEach((m) => audioConsumed.add(m.clip.id));
   });
 
@@ -438,9 +472,62 @@ export function buildFilterComplex(
       });
       if (!built) return;
       lines.push(built);
-      audioLabels.push(`[${label}]`);
+      audioEntries.push({ trackId: track.id, label: `[${label}]` });
     });
   });
+
+  // ---- 6b. Duck: a trilha abaixa quando a VOZ fala (recurso 11) ------------
+  // A chave é a track de VOZ = track de VÍDEO de menor `index` com áudio
+  // audível (a "base" do fluxo do gabinete, mesma definição do verificador).
+  // Espelha o `compilar.mjs`: `[0:a]asplit` gera a voz do mix e a chave do
+  // sidechain; cada trilha marcada é comprimida por essa chave.
+  const duckTrackIds = project.tracks
+    .filter((t) => t.voiceDuck && !t.muted)
+    .map((t) => t.id)
+    .filter((id) => audioEntries.some((e) => e.trackId === id));
+
+  const voiceTrack = project.tracks
+    .filter((t) => t.type === "video" && !t.muted && hasAudibleClip(t))
+    .filter((t) => audioEntries.some((e) => e.trackId === t.id))
+    .sort((a, b) => a.index - b.index)[0];
+
+  const audioLabels: string[] = [];
+  if (duckTrackIds.length > 0 && voiceTrack && !duckTrackIds.includes(voiceTrack.id)) {
+    const vozLabels = audioEntries
+      .filter((e) => e.trackId === voiceTrack.id)
+      .map((e) => e.label);
+    lines.push(mixToLabel(vozLabels, "a_voz_pre"));
+    // asplit: 1 saída pro mix + 1 chave por trilha que abaixa.
+    const saidas = [`[a_voz]`, ...duckTrackIds.map((_, i) => `[a_key_raw_${i}]`)];
+    lines.push(
+      `[a_voz_pre]asplit=${saidas.length}${saidas.join("")}`,
+    );
+    audioLabels.push(`[a_voz]`);
+
+    duckTrackIds.forEach((tid, i) => {
+      const labels = audioEntries
+        .filter((e) => e.trackId === tid)
+        .map((e) => e.label);
+      lines.push(mixToLabel(labels, `a_duck_pre_${i}`));
+      // A chave precisa durar o projeto inteiro: se a voz acabasse antes, o
+      // sidechaincompress cortaria a trilha junto (EOF do 2º input).
+      lines.push(
+        `[a_key_raw_${i}]apad=whole_dur=${projectDuration.toFixed(3)}[a_key_${i}]`,
+      );
+      lines.push(
+        `[a_duck_pre_${i}][a_key_${i}]${SIDECHAIN_DUCK}[a_duck_${i}]`,
+      );
+      audioLabels.push(`[a_duck_${i}]`);
+    });
+
+    const jaUsadas = new Set<string>([voiceTrack.id, ...duckTrackIds]);
+    for (const e of audioEntries) {
+      if (jaUsadas.has(e.trackId)) continue;
+      audioLabels.push(e.label);
+    }
+  } else {
+    for (const e of audioEntries) audioLabels.push(e.label);
+  }
 
   let audioStream: string;
   if (audioLabels.length === 0) {
@@ -728,6 +815,8 @@ function buildAudioClipChain(args: BuildAudioChainArgs): string | null {
 
   const rate = clip.playbackRate && clip.playbackRate > 0 ? clip.playbackRate : 1;
   const filters: string[] = [];
+  // Formato canônico antes de tudo: o mix (e o duck) exigem streams iguais.
+  filters.push(AFMT);
   filters.push(
     `atrim=start=${clip.startInAsset.toFixed(3)}:end=${clip.endInAsset.toFixed(3)}`,
   );
@@ -750,6 +839,12 @@ function buildAudioClipChain(args: BuildAudioChainArgs): string | null {
   // preset da produção real do gabinete.
   if (track?.audioLeveling) {
     filters.push("dynaudnorm=f=200:g=15:p=0.85");
+  }
+
+  // Voz na frente: EQ da trilha DEPOIS do nivelamento e ANTES do volume —
+  // a mesma ordem do `compilar.mjs`.
+  if (track?.voiceEq) {
+    filters.push(VOICE_EQ);
   }
 
   // Fades automáticos da trilha (in 1,2s / out 2,5s) quando o clip não tem

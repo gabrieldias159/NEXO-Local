@@ -117,7 +117,7 @@ export function TrackHeader({ track, selected }: TrackHeaderProps) {
               <button
                 type="button"
                 onClick={(e) => e.stopPropagation()}
-                title="Trilha: volume %, nivelar dinâmica e fades automáticos"
+                title="Trilha: volume %, nivelar dinâmica, fades automáticos e voz na frente (EQ + duck)"
                 className={cn(
                   'w-fit rounded-[var(--editor-radius-sm)] px-0.5 text-left text-[9px] tabular-nums',
                   (track.gainPct ?? 100) !== 100 ||
@@ -131,6 +131,8 @@ export function TrackHeader({ track, selected }: TrackHeaderProps) {
                 {Math.round(track.gainPct ?? 100)}%
                 {track.audioLeveling ? ' · niv' : ''}
                 {track.autoFade ? ' · fade' : ''}
+                {track.voiceEq ? ' · eq' : ''}
+                {track.voiceDuck ? ' · duck' : ''}
               </button>
             </PopoverTrigger>
             <PopoverContent
@@ -212,6 +214,65 @@ export function TrackHeader({ track, selected }: TrackHeaderProps) {
                     }
                   />
                 </label>
+
+                <div className="space-y-2 rounded-[var(--editor-radius-sm)] border border-border p-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    Voz na frente
+                  </p>
+
+                  <label
+                    className="flex items-center justify-between gap-2 text-[11px]"
+                    title="Corta o grave (abaixo de 130 Hz) e abaixa 3,5 dB em 2,8 kHz na música: a fala fica inteligível sem precisar baixar a trilha."
+                  >
+                    <span>
+                      Abrir espaço pra voz (EQ){' '}
+                      <span className="rounded bg-muted px-1 text-[8px] uppercase text-muted-foreground">
+                        export
+                      </span>
+                    </span>
+                    <Switch
+                      checked={track.voiceEq ?? false}
+                      onCheckedChange={(v) =>
+                        setTrackAudioOptions(track.id, { voiceEq: v })
+                      }
+                    />
+                  </label>
+
+                  <label
+                    className="flex items-center justify-between gap-2 text-[11px]"
+                    title="A música abaixa sozinha enquanto ele fala e volta ~0,4 s depois da última palavra (duck por sidechain, com a voz da faixa base como gatilho)."
+                  >
+                    <span>
+                      Abaixar quando ele fala (duck){' '}
+                      <span className="rounded bg-muted px-1 text-[8px] uppercase text-muted-foreground">
+                        export
+                      </span>
+                    </span>
+                    <Switch
+                      checked={track.voiceDuck ?? false}
+                      onCheckedChange={(v) =>
+                        setTrackAudioOptions(track.id, { voiceDuck: v })
+                      }
+                    />
+                  </label>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setTrackAudioOptions(track.id, {
+                        gainPct: 16,
+                        audioLeveling: true,
+                        autoFade: true,
+                        voiceEq: true,
+                        voiceDuck: true,
+                      })
+                    }
+                    className="w-full rounded border border-border px-1.5 py-1 text-[10px] hover:bg-muted"
+                    title="Aplica o preset da produção real: 16%, nivelada, fades, EQ e duck."
+                  >
+                    Preset trilha do gabinete
+                  </button>
+                </div>
 
                 <p className="text-[10px] leading-snug text-muted-foreground">
                   A voz nunca abaixa: o export mixa sem atenuar (normalize=0)

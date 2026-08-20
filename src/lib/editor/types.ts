@@ -294,6 +294,21 @@ export interface Track {
    * seu). Não tem efeito no preview.
    */
   autoFade?: boolean;
+  /**
+   * ABRE ESPAÇO PRA VOZ no EXPORT (recurso 11): `highpass=f=130` tira o grave
+   * da música que disputa com a voz + `equalizer=f=2800:t=q:w=1.2:g=-3.5`
+   * abaixa a região de presença que mascara a dicção. Valores exatos do
+   * `compilar.mjs` aprovado. Sem efeito no preview.
+   */
+  voiceEq?: boolean;
+  /**
+   * DUCK no EXPORT (recurso 11): a trilha abaixa sozinha enquanto a voz fala
+   * (`sidechaincompress=threshold=0.02:ratio=5:attack=25:release=380:makeup=1`),
+   * usando a track de VOZ como chave — a track de vídeo base (menor `index`
+   * com áudio audível), a mesma que o verificador chama de base.
+   * Sem efeito no preview.
+   */
+  voiceDuck?: boolean;
 }
 
 // ============================================================================
