@@ -737,6 +737,13 @@ export interface ExportSettings {
   includeFooter?: boolean;
   /** Concatena vinheta de encerramento ao final (usa videoEncerramentoUrl de configs/main). */
   includeEnding?: boolean;
+  /**
+   * PRÉVIA DE TRECHO (recurso 17): renderiza SÓ o intervalo marcado na régua,
+   * em segundos da timeline. Serve para conferir um ajuste em segundos, sem
+   * exportar o vídeo inteiro — por isso a vinheta/identidade não entram nesse
+   * render. Ausente = vídeo completo (comportamento normal).
+   */
+  trecho?: { start: number; end: number };
 }
 
 // ============================================================================

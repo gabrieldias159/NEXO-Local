@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { useEditorStore } from '@/lib/editor/store';
 import { EditorIcons } from '../shared/EditorIcons';
 import { GlobalSpeedDialog } from './GlobalSpeedDialog';
+import { PreviewTrechoButton } from './PreviewTrechoButton';
 import { TransitionPicker } from '../transitions/TransitionPicker';
 import type { TransitionConfig } from '@/lib/editor/types';
 import { useCaptionsDrawer } from '../captions/useCaptionsDrawer';
@@ -260,6 +261,9 @@ export function TimelineToolbar() {
         />
         <span>Legendas</span>
       </Button>
+
+      {/* Prévia do trecho marcado na régua (recurso 17). */}
+      <PreviewTrechoButton />
 
       <div className="ml-auto flex items-center gap-1">
         {/* Zoom */}

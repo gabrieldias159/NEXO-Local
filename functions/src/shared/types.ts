@@ -314,6 +314,8 @@ export interface ExportSettings {
   includeLogo?: boolean;
   includeFooter?: boolean;
   includeEnding?: boolean;
+  /** Prévia de trecho: renderiza só este intervalo (s da timeline). */
+  trecho?: { start: number; end: number };
 }
 
 export type RenderTier = "low" | "medium" | "high";

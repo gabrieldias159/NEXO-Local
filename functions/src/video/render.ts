@@ -209,6 +209,15 @@ async function processRenderJob(
         `-sc_threshold 0`,
       ];
       if (outputFmt === "mp4") baseOpts.push("-movflags +faststart");
+
+      // PRÉVIA DE TRECHO (recurso 17): corta a saída no intervalo pedido. O
+      // `-ss` aqui é de SAÍDA (depois do filter_complex), então o recorte cai
+      // exatamente no tempo da timeline que o usuário marcou na régua.
+      const trecho = job.exportSettings.trecho;
+      if (trecho && trecho.end > trecho.start) {
+        baseOpts.push(`-ss ${Math.max(0, trecho.start).toFixed(3)}`);
+        baseOpts.push(`-t ${(trecho.end - trecho.start).toFixed(3)}`);
+      }
       if (job.exportSettings.bitrate) {
         baseOpts.push(`-b:v ${job.exportSettings.bitrate}k`);
       }
@@ -265,10 +274,13 @@ async function processRenderJob(
       }
 
       // ---- 7. Sobreposições (logo/rodapé/vinheta) — passo extra ------------
+      // Numa prévia de trecho a identidade não entra: a vinheta grudaria no
+      // fim do pedaço e o preview sairia mais longo que o trecho pedido.
       const needsOverlay =
-        job.exportSettings.includeLogo ||
-        job.exportSettings.includeFooter ||
-        job.exportSettings.includeEnding;
+        !job.exportSettings.trecho &&
+        (job.exportSettings.includeLogo ||
+          job.exportSettings.includeFooter ||
+          job.exportSettings.includeEnding);
 
       if (needsOverlay) {
         if (await checkCancelled()) {

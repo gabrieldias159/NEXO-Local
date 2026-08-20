@@ -5,6 +5,9 @@
  *
  * - Mostra ticks principais a cada 1s, 2s, 5s, 10s, 30s ou 60s, conforme zoom.
  * - Click → setPlayhead(t).
+ * - SHIFT + arrastar → marca um TRECHO na régua (recurso 17). O trecho vira
+ *   o `loopRange` do editor: o play repete só ele e o botão "Prévia do
+ *   trecho" renderiza só ele em 480p. O × na faixa desmarca.
  * - AVISO DE FLASH (recurso 18): marca em vermelho todo buraco de menos de
  *   0,5s entre dois overlays vizinhos — o ponto onde a base aparece só um
  *   instante e o vídeo "pisca". Clicar leva o playhead até lá. É a mesma
@@ -66,6 +69,18 @@ export function TimelineRuler({ contentWidth, duration, zoom }: TimelineRulerPro
   const [scrubbing, setScrubbing] = useState(false);
   const pointerIdRef = useRef<number | null>(null);
 
+  // Marcação de TRECHO (Shift + arrastar).
+  const setLoopRange = useEditorStore((s) => s.setLoopRange);
+  const loopRange = useEditorStore((s) => s.ui.loopRange);
+  const [marcando, setMarcando] = useState<number | null>(null);
+
+  const tempoEm = (clientX: number): number => {
+    const el = ref.current;
+    if (!el) return 0;
+    const rect = el.getBoundingClientRect();
+    return Math.max(0, Math.min(duration, (clientX - rect.left) / zoom));
+  };
+
   const seekFromClient = (clientX: number) => {
     const el = ref.current;
     if (!el) return;
@@ -76,6 +91,19 @@ export function TimelineRuler({ contentWidth, duration, zoom }: TimelineRulerPro
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     e.preventDefault();
+    // Shift + arrastar marca o trecho em vez de mover o playhead.
+    if (e.shiftKey) {
+      const t = tempoEm(e.clientX);
+      setMarcando(t);
+      setLoopRange({ start: t, end: t });
+      try {
+        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+      } catch {
+        /* ignore */
+      }
+      pointerIdRef.current = e.pointerId;
+      return;
+    }
     pointerIdRef.current = e.pointerId;
     try {
       (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -85,6 +113,34 @@ export function TimelineRuler({ contentWidth, duration, zoom }: TimelineRulerPro
     setScrubbing(true);
     seekFromClient(e.clientX);
   };
+
+  // Arrasto da marcação de trecho.
+  useEffect(() => {
+    if (marcando === null) return;
+    const handleMove = (e: PointerEvent) => {
+      const t = tempoEm(e.clientX);
+      setLoopRange({
+        start: Math.min(marcando, t),
+        end: Math.max(marcando, t),
+      });
+    };
+    const handleUp = (e: PointerEvent) => {
+      const t = tempoEm(e.clientX);
+      const start = Math.min(marcando, t);
+      const end = Math.max(marcando, t);
+      // Shift+clique sem arrastar = desmarca (não deixa trecho de 0s).
+      setLoopRange(end - start < 0.05 ? null : { start, end });
+      setMarcando(null);
+      pointerIdRef.current = null;
+    };
+    window.addEventListener('pointermove', handleMove);
+    window.addEventListener('pointerup', handleUp);
+    return () => {
+      window.removeEventListener('pointermove', handleMove);
+      window.removeEventListener('pointerup', handleUp);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [marcando, zoom, duration]);
 
   useEffect(() => {
     if (!scrubbing) return;
@@ -151,6 +207,31 @@ export function TimelineRuler({ contentWidth, duration, zoom }: TimelineRulerPro
           </div>
         );
       })}
+
+      {/* TRECHO marcado (recurso 17): faixa translúcida + botão de desmarcar. */}
+      {loopRange && loopRange.end > loopRange.start && (
+        <div
+          className="pointer-events-none absolute bottom-0 top-0 border-x border-[var(--editor-accent)] bg-[var(--editor-accent)]/20"
+          style={{
+            left: loopRange.start * zoom,
+            width: (loopRange.end - loopRange.start) * zoom,
+          }}
+          title={`Trecho marcado: ${(loopRange.end - loopRange.start).toFixed(1)}s`}
+        >
+          <button
+            type="button"
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              setLoopRange(null);
+            }}
+            className="pointer-events-auto absolute right-0 top-0 px-1 text-[9px] leading-4 text-[var(--editor-accent)] hover:text-foreground"
+            title="Desmarcar o trecho"
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {/* Avisos de FLASH: a base pisca entre dois overlays (recurso 18). */}
       {flashes.map((f) => (
