@@ -201,7 +201,9 @@ timestamps) e alimente os `cues` com o resultado.
 
 ### Outras
 
-`setProject` (nome, resolução, fps, `stageMode`, `stageBackground`, `overlays`),
+`setProject` (nome, resolução, fps, `stageMode`, `stageBackground`, `overlays`,
+`identity` — logo/rodapé/vinheta do gabinete: `logoWidthPct`, `footerWidthPct`,
+`endingTrimStart`, `endingAudioFadeIn`),
 `removeClip`, `removeTrack`, `removeAsset`.
 
 ---
