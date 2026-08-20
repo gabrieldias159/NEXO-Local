@@ -1473,35 +1473,32 @@ export const useEditorStore = create<EditorStore>()(
               (clip.endInAsset - cut * rate).toFixed(3),
             );
 
-            // Ripple: TUDO que começa depois do trecho removido puxa `cut`
-            // para trás; o que começava DENTRO do trecho encosta no corte.
-            const eps = 1e-3;
+            // Ripple por REMAP DE TEMPO: o intervalo [newEnd, oldEnd) deixa
+            // de existir. Cada ponta (início E fim) de clip/cue mapeia
+            // independente — quem atravessava o trecho removido encurta, em
+            // vez de ganhar sobreposição com o vizinho.
+            const mapT = (t: number): number =>
+              t <= newEnd ? t : t >= oldEnd ? t - cut : newEnd;
             for (const track of s.project.tracks) {
               for (const c of track.clips) {
                 if (c.id === clip.id) continue;
-                if (c.startInTimeline >= oldEnd - eps) {
-                  c.startInTimeline = Number(
-                    (c.startInTimeline - cut).toFixed(3),
-                  );
-                  c.endInTimeline = Number((c.endInTimeline - cut).toFixed(3));
-                } else if (c.startInTimeline > newEnd + eps) {
-                  const d = c.endInTimeline - c.startInTimeline;
-                  c.startInTimeline = Number(newEnd.toFixed(3));
-                  c.endInTimeline = Number((newEnd + d).toFixed(3));
-                }
+                const ns = Number(mapT(c.startInTimeline).toFixed(3));
+                const ne = Number(
+                  Math.max(mapT(c.endInTimeline), ns + 0.1).toFixed(3),
+                );
+                c.startInTimeline = ns;
+                c.endInTimeline = ne;
               }
               track.clips.sort((a, b) => a.startInTimeline - b.startInTimeline);
             }
             for (const ct of s.project.captionTracks) {
               for (const cue of ct.cues) {
-                if (cue.startTime >= oldEnd - eps) {
-                  cue.startTime = Number((cue.startTime - cut).toFixed(3));
-                  cue.endTime = Number((cue.endTime - cut).toFixed(3));
-                } else if (cue.startTime > newEnd + eps) {
-                  const d = cue.endTime - cue.startTime;
-                  cue.startTime = Number(newEnd.toFixed(3));
-                  cue.endTime = Number((newEnd + d).toFixed(3));
-                }
+                const ns = Number(mapT(cue.startTime).toFixed(3));
+                const ne = Number(
+                  Math.max(mapT(cue.endTime), ns + 0.1).toFixed(3),
+                );
+                cue.startTime = ns;
+                cue.endTime = ne;
               }
             }
             s.project.duration = computeProjectDuration(s.project);
@@ -1539,28 +1536,32 @@ export const useEditorStore = create<EditorStore>()(
               if (durA < xf * 2 || durB < xf * 2) continue;
 
               if (adjacente) {
-                // Sobrepõe o par: B (e TUDO que começa a partir dele, em
-                // todas as tracks + legendas) puxa `xf` para trás.
+                // Sobrepõe o par: tudo que fica a partir da junção (em todas
+                // as tracks + legendas) puxa `xf` para trás. Pontas que
+                // CRUZAM a junção também encurtam (senão ganhavam overlap
+                // com o vizinho — ex.: legendas duplas na emenda).
                 const pivot = b.startInTimeline;
+                const mapT = (t: number): number =>
+                  t < pivot - 1e-3 ? t : Math.max(pivot - xf, t - xf);
                 for (const t2 of s.project.tracks) {
                   for (const c of t2.clips) {
                     if (c.id === a.id) continue;
-                    if (c.startInTimeline >= pivot - 1e-3) {
-                      c.startInTimeline = Number(
-                        (c.startInTimeline - xf).toFixed(3),
-                      );
-                      c.endInTimeline = Number(
-                        (c.endInTimeline - xf).toFixed(3),
-                      );
-                    }
+                    const ns = Number(mapT(c.startInTimeline).toFixed(3));
+                    const ne = Number(
+                      Math.max(mapT(c.endInTimeline), ns + 0.1).toFixed(3),
+                    );
+                    c.startInTimeline = ns;
+                    c.endInTimeline = ne;
                   }
                 }
                 for (const ct of s.project.captionTracks) {
                   for (const cue of ct.cues) {
-                    if (cue.startTime >= pivot - 1e-3) {
-                      cue.startTime = Number((cue.startTime - xf).toFixed(3));
-                      cue.endTime = Number((cue.endTime - xf).toFixed(3));
-                    }
+                    const ns = Number(mapT(cue.startTime).toFixed(3));
+                    const ne = Number(
+                      Math.max(mapT(cue.endTime), ns + 0.1).toFixed(3),
+                    );
+                    cue.startTime = ns;
+                    cue.endTime = ne;
                   }
                 }
               }

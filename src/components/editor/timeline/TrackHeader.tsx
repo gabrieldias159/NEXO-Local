@@ -269,7 +269,9 @@ export function TrackHeader({ track, selected }: TrackHeaderProps) {
         )}
       </div>
 
-      <div className="flex items-center gap-0.5">
+      {/* Grade 2x2: 4 botões de 20px estouravam os 96px do header e
+          cobriam os controles da coluna do nome (camadas / trilha %). */}
+      <div className="grid shrink-0 grid-cols-2 gap-0.5">
         {/* Adicionar mídia direto nesta track (atalho de inclusão). */}
         <input
           ref={fileInputRef}

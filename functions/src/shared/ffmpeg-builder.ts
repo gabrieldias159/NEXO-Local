@@ -155,26 +155,13 @@ export function buildFilterComplex(
   const assetIndex = new Map<string, number>();
   for (const a of inputAssets) assetIndex.set(a.assetId, a.index);
 
-  // ---- 1. Inputs sintéticos (base preta, silêncio) -------------------------
+  // ---- 1. Fontes sintéticas (base preta, silêncio) --------------------------
+  // Entram como SOURCE FILTERS dentro do próprio filter_complex (`color=`,
+  // `anullsrc=`), não como inputs `-f lavfi`: o fluent-ffmpeg valida `-f`
+  // contra a lista de formatos e não reconhece o demuxer-device `lavfi` na
+  // saída de 3 colunas do ffmpeg moderno ("Input formats lavfi are not
+  // available"). Como fonte no graph, nenhuma validação de formato acontece.
   const syntheticInputs: SyntheticInput[] = [];
-
-  // base preta sempre presente
-  const baseInputIndex = inputAssets.length;
-  syntheticInputs.push({
-    url: `color=c=black:s=${W}x${H}:r=${project.frameRate}:d=${projectDuration}`,
-    options: ["-f", "lavfi"],
-    index: baseInputIndex,
-    kind: "color",
-  });
-
-  // silêncio (usado se nenhum clip de áudio for emitido)
-  const silenceInputIndex = inputAssets.length + 1;
-  syntheticInputs.push({
-    url: `anullsrc=channel_layout=stereo:sample_rate=48000`,
-    options: ["-f", "lavfi"],
-    index: silenceInputIndex,
-    kind: "anullsrc",
-  });
 
   // ---- 2. Pipeline de vídeo ------------------------------------------------
   const lines: string[] = [];
@@ -294,7 +281,10 @@ export function buildFilterComplex(
   });
 
   // ---- 3. Composição em cima da base preta ---------------------------------
-  let videoStream = `[${baseInputIndex}:v]`;
+  lines.push(
+    `color=c=black:s=${W}x${H}:r=${project.frameRate}:d=${projectDuration.toFixed(3)}[v_basesrc]`,
+  );
+  let videoStream = `[v_basesrc]`;
 
   const OVERLAY_OPTS = ":eof_action=pass:repeatlast=0";
   const emitted = new Set<number>();
@@ -362,6 +352,12 @@ export function buildFilterComplex(
     (t) => t.type !== "video" || hasAudibleClip(t),
   );
 
+  // Tipo de cada asset: IMAGEM não tem stream de áudio — referenciar
+  // `[idx:a]` de um PNG derruba o ffmpeg inteiro ("matches no streams").
+  const assetType = new Map<string, string>();
+  for (const a of project.assets) assetType.set(a.id, a.type);
+  const isImageClip = (clip: Clip) => assetType.get(clip.assetId) === "image";
+
   // Runs de xfade com TODOS os membros audíveis viram acrossfade (áudio
   // emenda com o mesmo dissolve do vídeo — junção do fluxo do gabinete).
   const audioConsumed = new Set<string>();
@@ -370,7 +366,7 @@ export function buildFilterComplex(
     if (track.muted) return;
     const members = idxs.map((i) => pending[i]);
     const todosAudiveis = members.every(
-      (m) => !m.clip.hidden && !m.clip.audio.muted,
+      (m) => !m.clip.hidden && !m.clip.audio.muted && !isImageClip(m.clip),
     );
     if (!todosAudiveis) return;
 
@@ -425,6 +421,7 @@ export function buildFilterComplex(
     if (track.muted) return;
     track.clips.forEach((clip, ci) => {
       if (clip.hidden || clip.audio.muted) return;
+      if (isImageClip(clip)) return; // imagem não tem áudio
       if (audioConsumed.has(clip.id)) return; // já entrou via acrossfade
       const idx = assetIndex.get(clip.assetId);
       if (idx === undefined) return;
@@ -445,7 +442,7 @@ export function buildFilterComplex(
   if (audioLabels.length === 0) {
     // Usa silêncio sintético (tem que casar com a duração do vídeo).
     lines.push(
-      `[${silenceInputIndex}:a]atrim=duration=${projectDuration.toFixed(3)},asetpts=PTS-STARTPTS[a_final]`,
+      `anullsrc=channel_layout=stereo:sample_rate=48000,atrim=duration=${projectDuration.toFixed(3)},asetpts=PTS-STARTPTS[a_final]`,
     );
     audioStream = `[a_final]`;
   } else if (audioLabels.length === 1) {
@@ -692,6 +689,12 @@ function buildAudioClipChain(args: BuildAudioChainArgs): string | null {
       filters.push(`atempo=${fAtempo.toFixed(6)}`);
     }
   }
+
+  // Trava o áudio na JANELA do clip na timeline. Sem isso, um clip de trilha
+  // com mais mídia que janela (ex.: 12s de música num clip de 9,8s) vazava
+  // além do fim do vídeo — e o amix duration=longest esticava o arquivo.
+  filters.push(`atrim=duration=${dur.toFixed(3)}`);
+  filters.push("asetpts=PTS-STARTPTS");
 
   // Trilha nivelada (track de música): dynaudnorm ANTES do volume, com o
   // preset da produção real do gabinete.

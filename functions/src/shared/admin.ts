@@ -47,12 +47,49 @@ export const bucket = new Proxy(
 
 export { admin };
 
+let _ffmpegPath: string | null = null;
+/**
+ * Caminho do binário do ffmpeg usado pelas functions de vídeo.
+ *
+ * O `@ffmpeg-installer/ffmpeg` embute um build de 2018 (pré-4.1) — sem
+ * `xfade`, `amix normalize`, `lumakey`... No EMULADOR local, preferimos um
+ * ffmpeg moderno: `FFMPEG_PATH` explícito ou o primeiro `ffmpeg` do PATH do
+ * sistema. Fora do emulador (produção) mantém o binário embutido.
+ */
+export function ffmpegBinaryPath(): string {
+  if (_ffmpegPath) return _ffmpegPath;
+  const fs = require("fs") as typeof import("fs");
+  const envPath = process.env.FFMPEG_PATH;
+  if (envPath && fs.existsSync(envPath)) {
+    _ffmpegPath = envPath;
+    return _ffmpegPath;
+  }
+  if (process.env.FUNCTIONS_EMULATOR) {
+    try {
+      const { execSync } = require("child_process") as typeof import("child_process");
+      const cmd = process.platform === "win32" ? "where ffmpeg" : "which ffmpeg";
+      const found = execSync(cmd, { encoding: "utf8" })
+        .split(/\r?\n/)
+        .map((l: string) => l.trim())
+        .filter(Boolean)[0];
+      if (found && fs.existsSync(found)) {
+        _ffmpegPath = found;
+        return _ffmpegPath;
+      }
+    } catch {
+      // sem ffmpeg no PATH — cai no embutido
+    }
+  }
+  const { path: bundled } = require("@ffmpeg-installer/ffmpeg");
+  _ffmpegPath = bundled as string;
+  return _ffmpegPath;
+}
+
 let _ffmpegLib: any;
 function getFFmpeg() {
   if (!_ffmpegLib) {
     const fluentFfmpeg = require("fluent-ffmpeg");
-    const { path: ffmpegPath } = require("@ffmpeg-installer/ffmpeg");
-    fluentFfmpeg.setFfmpegPath(ffmpegPath);
+    fluentFfmpeg.setFfmpegPath(ffmpegBinaryPath());
     _ffmpegLib = fluentFfmpeg;
   }
   return _ffmpegLib;

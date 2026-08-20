@@ -178,6 +178,12 @@ async function processRenderJob(
       let cmd: any = ffmpeg();
       for (const asset of inputAssets) {
         cmd = cmd.addInput(asset.localPath);
+        if (asset.type === "image") {
+          // PNG/JPG é um stream de UM frame — sem loop, o overlay do clip
+          // mostraria a imagem por 1/30s e sumiria (eof_action=pass). O
+          // `trim=duration=` da chain limita o loop infinito.
+          cmd = cmd.inputOptions(["-loop 1", `-framerate ${project.frameRate}`]);
+        }
       }
       for (const synth of built.syntheticInputs) {
         cmd = cmd.addInput(synth.url).inputOptions(synth.options);
@@ -524,7 +530,6 @@ async function applyOverlays(
     let logoIdx = -1;
     let footerIdx = -1;
     let endingIdx = -1;
-    let silenceIdx = -1;
 
     if (localLogoPath) {
       logoIdx = nextInput++;
@@ -542,13 +547,8 @@ async function applyOverlays(
       endingIdx = nextInput++;
       const opts = trim > 0 ? [`-ss ${F(trim)}`] : [];
       cmd = cmd.addInput(localEndingPath).inputOptions(opts);
-      if (endingInfo && !endingInfo.hasAudio) {
-        // Vinheta muda: gera silêncio para o concat de áudio não quebrar.
-        silenceIdx = nextInput++;
-        cmd = cmd
-          .addInput("anullsrc=channel_layout=stereo:sample_rate=48000")
-          .inputOptions(["-f lavfi", `-t ${F(endingDur)}`]);
-      }
+      // Vinheta muda: o silêncio entra como SOURCE no graph (não `-f lavfi`;
+      // ver comentário no ffmpeg-builder).
     }
 
     // ---- filter graph -----------------------------------------------------
@@ -574,11 +574,15 @@ async function applyOverlays(
       fc.push(
         `[${endingIdx}:v]fps=${FPS},scale=${W}:${H}:force_original_aspect_ratio=increase,crop=${W}:${H},setsar=1,fade=t=in:st=0:d=0.3[v1]`,
       );
-      const endingAudioLabel =
-        silenceIdx >= 0 ? `[${silenceIdx}:a]` : `[${endingIdx}:a]`;
-      fc.push(
-        `${endingAudioLabel}${AFMT},afade=t=in:st=0:d=${F(id.endingAudioFadeIn)}[a1]`,
-      );
+      if (endingInfo && !endingInfo.hasAudio) {
+        fc.push(
+          `anullsrc=channel_layout=stereo:sample_rate=48000,atrim=duration=${F(endingDur)},${AFMT}[a1]`,
+        );
+      } else {
+        fc.push(
+          `[${endingIdx}:a]${AFMT},afade=t=in:st=0:d=${F(id.endingAudioFadeIn)}[a1]`,
+        );
+      }
       fc.push(`[v0][a0][v1][a1]concat=n=2:v=1:a=1[vcat][acat]`);
       v = "[vcat]";
       a = "[acat]";

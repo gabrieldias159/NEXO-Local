@@ -31,6 +31,8 @@ export interface DownloadedAsset {
   localPath: string;
   /** Index na lista de inputs do FFmpeg. */
   index: number;
+  /** Tipo do asset — imagem precisa entrar com `-loop 1` (ver render.ts). */
+  type: "video" | "image" | "audio";
 }
 
 /**
@@ -70,7 +72,7 @@ export async function downloadAssetsForProject(
 
     try {
       await bucket.file(asset.storagePath).download({ destination: localPath });
-      downloaded.push({ assetId: asset.id, localPath, index });
+      downloaded.push({ assetId: asset.id, localPath, index, type: asset.type });
       index += 1;
     } catch (e) {
       logger.error(
@@ -404,11 +406,11 @@ export function probeMediaInfo(
 ): Promise<{ duration: number; hasAudio: boolean }> {
   return new Promise((resolve, reject) => {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { path: ffmpegPath } = require("@ffmpeg-installer/ffmpeg");
+    const { ffmpegBinaryPath } = require("./admin") as typeof import("./admin");
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { execFile } = require("child_process") as typeof import("child_process");
     execFile(
-      ffmpegPath,
+      ffmpegBinaryPath(),
       ["-hide_banner", "-i", filePath],
       { timeout: 30_000 },
       (_err: unknown, _stdout: string, stderr: string) => {
