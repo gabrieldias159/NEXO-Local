@@ -217,7 +217,7 @@ export function FiltersTab({ clips }: FiltersTabProps) {
           size="sm"
           className="mb-2 h-7 w-full gap-1 text-[11px]"
           onClick={() => applyChroma({ ...LUMA_BLACK_PRESET })}
-          title="Liga o modo luminância com os valores do render aprovado (threshold 0,05 / tolerância 0,12 / suavidade 0,08)"
+          title="Some com o fundo preto da arte e deixa só o efeito por cima do vídeo — é assim que a chuva de R$ cai na frente dele. Valores do render aprovado."
         >
           Preset: fundo preto (lumakey)
         </Button>
@@ -474,7 +474,7 @@ function BlurWindowsSection({ clips }: { clips: Clip[] }) {
             { start: playhead, end: playhead + 2 },
           ])
         }
-        title="boxblur=10 + brilho −6% entre as janelas (o preset das palavras empilhadas)"
+        title="Desfoca e escurece o fundo só nesse trecho, pra palavra empilhada por cima ficar legível."
       >
         Adicionar janela no playhead (+2s)
       </Button>

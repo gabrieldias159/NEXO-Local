@@ -18,7 +18,9 @@
  * - `Delete`/`Backspace`  → removeClip(selectedClipId) ou removeCaption(selectedCueId)
  * - `V`                   → tool = select
  * - `C`                   → tool = blade
- * - `Ctrl/Cmd+B`          → splitClip(selected, playhead)
+ * - `S` ou `Ctrl/Cmd+B`   → CORTA no playhead: os clips selecionados; sem
+ *                           seleção, os clips da track selecionada; sem track
+ *                           selecionada, todos os clips sob o playhead
  * - `Shift+L`             → toggle CaptionsDrawer
  * - `T`                   → cria novo caption no playhead atual (4s default)
  *
@@ -154,16 +156,10 @@ export function KeyboardShortcuts() {
         return;
       }
 
-      // Ctrl/Cmd+B → split clip selecionado no playhead atual.
+      // Ctrl/Cmd+B → corta no playhead (mesma ação do `S`).
       if (meta && (e.key === 'b' || e.key === 'B')) {
         e.preventDefault();
-        const state = useEditorStore.getState();
-        const { selectedClipIds, playhead } = state.ui;
-        if (selectedClipIds.length > 0) {
-          for (const id of selectedClipIds) {
-            splitClip(id, playhead);
-          }
-        }
+        cortarNoPlayhead(splitClip);
         return;
       }
 
@@ -227,6 +223,12 @@ export function KeyboardShortcuts() {
         if (e.key === 'c' || e.key === 'C') {
           e.preventDefault();
           setTool('blade');
+          return;
+        }
+        // S → corta no playhead (atalho clássico de lâmina).
+        if (e.key === 's' || e.key === 'S') {
+          e.preventDefault();
+          cortarNoPlayhead(splitClip);
           return;
         }
         // M → toggle mute do(s) clip(s) selecionado(s)
@@ -306,6 +308,44 @@ export function KeyboardShortcuts() {
 // ============================================================================
 // Helpers de atalhos (Fase 6)
 // ============================================================================
+
+/**
+ * CORTA no playhead (recurso 20). Ordem de alvo, do mais específico pro mais
+ * amplo — é o que faz o `S` ser útil sem exigir seleção:
+ *   1. clips SELECIONADOS;
+ *   2. sem seleção, os clips da TRACK selecionada que estão sob o playhead;
+ *   3. sem track selecionada, todos os clips sob o playhead (tracks
+ *      destravadas) — a lâmina "corta tudo".
+ *
+ * Clip travado nunca é cortado. Um `undo` desfaz o corte inteiro.
+ */
+function cortarNoPlayhead(
+  splitClip: (clipId: string, atTime: number) => unknown,
+): void {
+  const state = useEditorStore.getState();
+  const project = state.project;
+  if (!project) return;
+  const { selectedClipIds, playhead, selectedTrackId } = state.ui;
+
+  if (selectedClipIds.length > 0) {
+    for (const id of selectedClipIds) splitClip(id, playhead);
+    return;
+  }
+
+  const tracks = selectedTrackId
+    ? project.tracks.filter((t) => t.id === selectedTrackId)
+    : project.tracks;
+  const alvos = tracks
+    .filter((t) => !t.locked)
+    .flatMap((t) => t.clips)
+    .filter(
+      (c) =>
+        !c.locked &&
+        playhead > c.startInTimeline + 0.02 &&
+        playhead < c.endInTimeline - 0.02,
+    );
+  for (const c of alvos) splitClip(c.id, playhead);
+}
 
 /**
  * Navega para o clip anterior/próximo dentro da mesma track do clip

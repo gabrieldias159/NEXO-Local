@@ -241,7 +241,7 @@ export function PreviewControls({ className }: PreviewControlsProps) {
               className="h-7 w-full gap-1 text-[11px]"
               disabled={!hasLogo && !hasFooter && !hasEnding}
               onClick={applyGabineteIdentity}
-              title="Liga logo + rodapé + vinheta com os parâmetros do gabinete (logo 44%, rodapé 97%, fade de áudio 0,6s)"
+              title="Põe a marca do gabinete no vídeo de uma vez: logo em cima, rodapé embaixo e a vinheta no fim, já nos tamanhos aprovados."
             >
               Identidade do Gabinete (1 clique)
             </Button>
@@ -255,6 +255,7 @@ export function PreviewControls({ className }: PreviewControlsProps) {
               max={100}
               step={1}
               onChange={(v) => setIdentity({ logoWidthPct: v })}
+              title="Tamanho do logo no topo, em % da largura do vídeo. O padrão do gabinete é 44%."
             />
             <IdentityNumberRow
               id="idn-footer-w"
@@ -265,6 +266,7 @@ export function PreviewControls({ className }: PreviewControlsProps) {
               max={100}
               step={1}
               onChange={(v) => setIdentity({ footerWidthPct: v })}
+              title="Largura da faixa de rodapé, em % da largura do vídeo. O padrão do gabinete é 97%, quase de ponta a ponta."
             />
             <IdentityNumberRow
               id="idn-trim"
@@ -275,6 +277,7 @@ export function PreviewControls({ className }: PreviewControlsProps) {
               max={10}
               step={0.1}
               onChange={(v) => setIdentity({ endingTrimStart: v })}
+              title="Pula os primeiros segundos da vinheta — serve pra cortar a tela preta que ela tem no começo."
             />
             <IdentityNumberRow
               id="idn-afade"
@@ -288,6 +291,7 @@ export function PreviewControls({ className }: PreviewControlsProps) {
               max={3}
               step={0.1}
               onChange={(v) => setIdentity({ endingAudioFadeIn: v })}
+              title="Sobe o som da vinheta aos poucos, em vez de estourar o riser de uma vez no ouvido de quem assiste."
             />
             <p className="text-[10px] leading-snug text-muted-foreground">
               O logo some em fade ANTES da vinheta; o rodapé atravessa a
@@ -367,12 +371,15 @@ function IdentityNumberRow({
   max,
   step,
   onChange,
+  title,
 }: {
   id: string;
   label: string;
   unit: string;
   /** "export" = só tem efeito no arquivo final (não no preview). */
   badge?: string;
+  /** Tooltip de uma linha explicando o efeito prático (recurso 19). */
+  title?: string;
   value: number;
   min: number;
   max: number;
@@ -380,7 +387,7 @@ function IdentityNumberRow({
   onChange: (v: number) => void;
 }) {
   return (
-    <div className="flex items-center justify-between gap-2">
+    <div className="flex items-center justify-between gap-2" title={title}>
       <Label htmlFor={id} className="flex items-center gap-1 text-[10px]">
         {label}
         {badge && (

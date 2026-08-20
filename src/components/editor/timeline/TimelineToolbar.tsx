@@ -31,7 +31,11 @@ interface ToolDef {
 
 const TOOLS: ToolDef[] = [
   { value: 'select', icon: EditorIcons.Select, title: 'Selecionar (V)' },
-  { value: 'blade', icon: EditorIcons.Blade, title: 'Cortar (C)' },
+  {
+    value: 'blade',
+    icon: EditorIcons.Blade,
+    title: 'Lâmina (C) — clique num clip pra cortar. S corta no playhead.',
+  },
   { value: 'hand', icon: EditorIcons.Hand, title: 'Mão (H)' },
 ];
 
@@ -229,7 +233,7 @@ export function TimelineToolbar() {
         size="sm"
         className="h-7 gap-1 px-2 text-[11px]"
         onClick={() => setSpeedOpen(true)}
-        title="Velocidade da fala: acelera a base e remapeia a timeline inteira"
+        title="Acelera a fala e remapeia a timeline inteira junto — imagens, sons e legendas acompanham. A vinheta nunca acelera."
       >
         <EditorIcons.Speed className="h-3.5 w-3.5" />
         <span>Velocidade</span>

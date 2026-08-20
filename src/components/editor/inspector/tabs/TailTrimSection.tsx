@@ -102,7 +102,7 @@ export function TailTrimSection({ clip }: { clip: Clip }) {
             className="h-7 gap-1 text-[11px]"
             onClick={handleCut}
             disabled={clip.locked}
-            title="Corta o rabo do clip e puxa tudo que vem depois (todas as faixas + legendas)"
+            title="Tira o rabo do clipe — o apertozinho de tela do fim — e puxa tudo que vem depois, sem deixar buraco."
           >
             <Scissors className="h-3 w-3" />
             Cortar e puxar
@@ -115,7 +115,7 @@ export function TailTrimSection({ clip }: { clip: Clip }) {
           size="sm"
           className="h-7 w-full gap-1 text-[11px]"
           onClick={handleXfade}
-          title="Sobrepõe cada junção em 0,3s e aplica dissolve (vídeo + áudio no export)"
+          title="Emenda os cortes com um dissolve de 0,3 s na imagem e no som — some com o pulo seco entre um trecho e outro."
         >
           <Blend className="h-3 w-3" />
           Xfade 0,3s nas junções da faixa
