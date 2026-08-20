@@ -5,6 +5,10 @@
  *
  * - Mostra ticks principais a cada 1s, 2s, 5s, 10s, 30s ou 60s, conforme zoom.
  * - Click → setPlayhead(t).
+ * - AVISO DE FLASH (recurso 18): marca em vermelho todo buraco de menos de
+ *   0,5s entre dois overlays vizinhos — o ponto onde a base aparece só um
+ *   instante e o vídeo "pisca". Clicar leva o playhead até lá. É a mesma
+ *   regra que o verificador pré-export aplica, só que AO VIVO.
  * - PointerDown + Move → scrubbing contínuo (atualiza playhead enquanto
  *   arrasta).
  *
@@ -12,8 +16,9 @@
  * playback (com `frameRate`).
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useEditorStore } from '@/lib/editor/store';
+import { detectFlashes } from '@/lib/editor/preflight';
 import { cn } from '@/lib/utils';
 
 interface TimelineRulerProps {
@@ -43,7 +48,14 @@ function formatTick(seconds: number): string {
 
 export function TimelineRuler({ contentWidth, duration, zoom }: TimelineRulerProps) {
   const setPlayhead = useEditorStore((s) => s.setPlayhead);
+  const tracks = useEditorStore((s) => s.project?.tracks);
   const tickEvery = pickTickInterval(zoom);
+
+  // Flashes AO VIVO (recurso 18). Recalcula só quando as tracks mudam.
+  const flashes = useMemo(
+    () => (tracks ? detectFlashes({ tracks }) : []),
+    [tracks],
+  );
 
   const ticks: number[] = [];
   for (let t = 0; t <= duration; t += tickEvery) {
@@ -139,6 +151,28 @@ export function TimelineRuler({ contentWidth, duration, zoom }: TimelineRulerPro
           </div>
         );
       })}
+
+      {/* Avisos de FLASH: a base pisca entre dois overlays (recurso 18). */}
+      {flashes.map((f) => (
+        <button
+          key={`flash_${f.at.toFixed(3)}`}
+          type="button"
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            setPlayhead(Math.max(0, f.at));
+          }}
+          title={`A base pisca aqui: ${(f.gap * 1000).toFixed(0)} ms de buraco entre dois criativos. Feche o buraco ou espace de vez. Clique para ir ao ponto.`}
+          className={cn(
+            'absolute top-0 z-10 flex h-4 min-w-[14px] -translate-x-1/2 items-center justify-center',
+            'rounded-b-[3px] bg-red-600 px-0.5 text-[8px] font-bold leading-none text-white',
+            'hover:bg-red-500',
+          )}
+          style={{ left: f.at * zoom }}
+        >
+          !
+        </button>
+      ))}
     </div>
   );
 }

@@ -452,7 +452,7 @@ export default function VideoProjectsListPage() {
             <AlertDialogDescription>
               O projeto{' '}
               <span className="font-semibold text-foreground">
-                "{projectToDelete?.name}"
+                &quot;{projectToDelete?.name}&quot;
               </span>{' '}
               será excluído permanentemente. Esta ação não pode ser desfeita —
               tracks, clips, recortes de áudio e qualquer trabalho não exportado

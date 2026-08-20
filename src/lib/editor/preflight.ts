@@ -38,6 +38,71 @@ export interface PreflightIssue {
 /** Fração média da altura da fonte que um caractere ocupa (heurística). */
 const CHAR_WIDTH_RATIO = 0.58;
 
+/**
+ * Só as tracks bastam para as regras de flash/overlay — assim a régua da
+ * timeline chama sem montar um `VideoProject` inteiro.
+ */
+type ProjetoComTracks = Pick<VideoProject, 'tracks'>;
+
+/** Duração máxima do buraco que ainda "pisca" (segundos). */
+export const FLASH_MAX_GAP = 0.5;
+/** Buracos menores que isto são encostados, não piscam. */
+const FLASH_MIN_GAP = 0.02;
+
+export interface FlashDeBase {
+  /** Instante do buraco na timeline (fim do overlay anterior). */
+  at: number;
+  /** Tamanho do buraco em segundos. */
+  gap: number;
+}
+
+/**
+ * Track de BASE: a track de vídeo de menor `index` que tem clips — é a faixa
+ * da fala do vereador no fluxo do gabinete.
+ */
+export function baseTrackOf(project: ProjetoComTracks) {
+  return [...project.tracks]
+    .filter((t) => t.type === 'video' && t.clips.length > 0)
+    .sort((a, b) => a.index - b.index)[0];
+}
+
+/**
+ * OVERLAYS = clips visuais fora da camada 0 da base (camadas de cima e tracks
+ * de vídeo acima), em ordem cronológica.
+ */
+export function overlayClips(project: ProjetoComTracks) {
+  const base = baseTrackOf(project);
+  return project.tracks
+    .filter((t) => t.type === 'video')
+    .flatMap((t) =>
+      t.clips.filter(
+        (c) => !c.hidden && !(t.id === base?.id && (c.layer ?? 0) === 0),
+      ),
+    )
+    .sort((a, b) => a.startInTimeline - b.startInTimeline);
+}
+
+/**
+ * FLASH DE BASE (recurso 18): buraco curto (<0,5 s) entre dois overlays
+ * vizinhos — a base aparece por um instante e o vídeo "pisca". Regra dura do
+ * dono: ou fecha o buraco, ou espaça de vez.
+ *
+ * Puro e barato — a régua da timeline chama isto a cada mudança do projeto
+ * para desenhar os avisos AO VIVO, e o verificador pré-export usa o mesmo
+ * cálculo (uma regra só, dois lugares).
+ */
+export function detectFlashes(project: ProjetoComTracks): FlashDeBase[] {
+  const overlays = overlayClips(project);
+  const out: FlashDeBase[] = [];
+  for (let i = 0; i + 1 < overlays.length; i += 1) {
+    const gap = overlays[i + 1].startInTimeline - overlays[i].endInTimeline;
+    if (gap > FLASH_MIN_GAP && gap < FLASH_MAX_GAP) {
+      out.push({ at: overlays[i].endInTimeline, gap });
+    }
+  }
+  return out;
+}
+
 export function preflightProject(project: VideoProject): PreflightIssue[] {
   const issues: PreflightIssue[] = [];
   const assetById = new Map<string, MediaAsset>(
@@ -45,9 +110,7 @@ export function preflightProject(project: VideoProject): PreflightIssue[] {
   );
 
   // ---- base = track de vídeo de menor index com clips ----------------------
-  const baseTrack = [...project.tracks]
-    .filter((t) => t.type === 'video' && t.clips.length > 0)
-    .sort((a, b) => a.index - b.index)[0];
+  const baseTrack = baseTrackOf(project);
   const baseClips = baseTrack
     ? baseTrack.clips
         .filter((c) => (c.layer ?? 0) === 0 && !c.hidden)
@@ -87,29 +150,16 @@ export function preflightProject(project: VideoProject): PreflightIssue[] {
   }
 
   // ---- 2. Flash de base <0,5s entre overlays vizinhos ----------------------
-  // Overlays = clips visuais fora da camada 0 da base (camadas de cima e
-  // tracks de vídeo acima). Buraco curto entre eles pisca o vídeo cru.
-  const overlays = project.tracks
-    .filter((t) => t.type === 'video')
-    .flatMap((t) =>
-      t.clips.filter(
-        (c) =>
-          !c.hidden &&
-          !(t.id === baseTrack?.id && (c.layer ?? 0) === 0),
-      ),
-    )
-    .sort((a, b) => a.startInTimeline - b.startInTimeline);
-  for (let i = 0; i + 1 < overlays.length; i += 1) {
-    const gap = overlays[i + 1].startInTimeline - overlays[i].endInTimeline;
-    if (gap > 0.02 && gap < 0.5) {
-      issues.push({
-        severity: 'aviso',
-        code: 'flash-de-base',
-        message: `Buraco de ${gap.toFixed(2)}s entre overlays em ${overlays[i].endInTimeline.toFixed(2)}s — a base pisca. Feche o buraco ou espace de vez.`,
-        at: overlays[i].endInTimeline,
-      });
-    }
+  for (const flash of detectFlashes(project)) {
+    issues.push({
+      severity: 'aviso',
+      code: 'flash-de-base',
+      message: `Buraco de ${flash.gap.toFixed(2)}s entre overlays em ${flash.at.toFixed(2)}s — a base pisca. Feche o buraco ou espace de vez.`,
+      at: flash.at,
+    });
   }
+
+  const overlays = overlayClips(project);
 
   // ---- 3. Overlay opaco tela cheia >3s --------------------------------------
   for (const clip of overlays) {
