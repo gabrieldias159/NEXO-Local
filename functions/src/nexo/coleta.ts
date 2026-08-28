@@ -81,7 +81,11 @@ export const MODULOS: ModuloSpec[] = [
   { nome: "publicidade", colecao: "nexo_publicidade", chave: "despesas_de_pagamentos", visao: "publicidade", maxPag: 20 },
   { nome: "publicidade_digital", colecao: "nexo_publicidade_digital", chave: "seguranca", visao: "publicidadedigital", maxPag: 15 },
   { nome: "passagens", colecao: "nexo_passagens", chave: "despesa_viagem", visao: "passagenslocomocao", maxPag: 25 },
-  { nome: "patrimonio", colecao: "nexo_patrimonio", chave: "patrimonio_mobiliario", visao: "patrimonio", maxPag: 100 },
+  // 2026: a fonte devolve 307 paginas (~153.500 bens). O teto de 100 cortava
+  // em 50.000 e marcava `truncado: true` — dois tercos do inventario ficavam
+  // de fora, e qualquer contagem de bens por tipo saia errada para menos.
+  // 360 da folga para o crescimento do patrimonio sem novo corte.
+  { nome: "patrimonio", colecao: "nexo_patrimonio", chave: "patrimonio_mobiliario", visao: "patrimonio", maxPag: 360 },
   { nome: "covid", colecao: "nexo_covid", chave: "despesa_covid", visao: "despesacovid", maxPag: 15 },
 ];
 
