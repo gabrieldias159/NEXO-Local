@@ -23,6 +23,7 @@ import * as path from "path";
 import * as fs from "fs-extra";
 
 import { admin, bucket, db, ffmpeg } from "../shared/admin";
+import { borrarRostos } from "./blur-faces";
 import type { AppearanceConfig, ExportSettings, ProjectIdentity, RenderJob, RenderTier, VideoProject } from "../shared/types";
 import { DEFAULT_IDENTITY } from "../shared/types";
 import { buildFilterComplex } from "../shared/ffmpeg-builder";
@@ -271,6 +272,43 @@ async function processRenderJob(
 
       if (cancelRequested) {
         throw new Error("Job cancelled by user.");
+      }
+
+      // ---- 6b. Borrão de rostos (opcional) ---------------------------------
+      // Antes das sobreposições de propósito: logo e rodapé entrariam na
+      // análise como se fossem cena, e a vinheta de encerramento não tem gente.
+      if (job.exportSettings.blurFaces) {
+        if (await checkCancelled()) {
+          cancelRequested = true;
+          throw new Error("Job cancelled by user.");
+        }
+        await setProgressSafe(80);
+        logger.info(`Borrando rostos no render ${jobId}...`);
+        const borradoPath = path.join(tmpDir, `output-blur.mp4`);
+        const r = await borrarRostos(localOutputPath, borradoPath, {
+          preservarRostoEm: job.exportSettings.blurFacesPreservarEm,
+        });
+        if (r.aplicado) {
+          await fs.move(borradoPath, localOutputPath, { overwrite: true });
+          // fica no job para quem exportou saber o que foi feito — e para o
+          // documento poder declarar a intervenção
+          await jobRef.set(
+            {
+              blurFaces: {
+                aplicado: true,
+                trilhasBorradas: r.trilhasBorradas ?? 0,
+                trilhasPreservadas: r.trilhasPreservadas ?? 0,
+              },
+            },
+            { merge: true },
+          );
+        } else {
+          // passo opcional não derruba exportação: registra e segue
+          await jobRef.set(
+            { blurFaces: { aplicado: false, motivo: r.motivo ?? "indisponível" } },
+            { merge: true },
+          );
+        }
       }
 
       // ---- 7. Sobreposições (logo/rodapé/vinheta) — passo extra ------------

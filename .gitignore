@@ -60,3 +60,9 @@ pubsub-debug.log
 # Fica no disco junto do NEXO, mas fora do git: e evidencia, nao produto.
 docs/fiscal-fontes/
 .nexo-emu-data.bak/
+
+# modelos de rosto: 39 MB, artefato de terceiro, baixados por
+# scripts/nexo-baixar-modelos-rosto.mjs
+tools/borrar-rostos/modelos/
+__pycache__/
+*.pyc

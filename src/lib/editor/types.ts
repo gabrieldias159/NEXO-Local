@@ -744,6 +744,10 @@ export interface ExportSettings {
    * render. Ausente = vídeo completo (comportamento normal).
    */
   trecho?: { start: number; end: number };
+  /** Borra rostos de terceiros antes de exportar (material que vai a público). */
+  blurFaces?: boolean;
+  /** Instante (s) de onde tirar o rosto a PRESERVAR. Sem isto, borra todos. */
+  blurFacesPreservarEm?: number;
 }
 
 // ============================================================================

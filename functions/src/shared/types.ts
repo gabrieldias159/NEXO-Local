@@ -316,6 +316,16 @@ export interface ExportSettings {
   includeEnding?: boolean;
   /** Prévia de trecho: renderiza só este intervalo (s da timeline). */
   trecho?: { start: number; end: number };
+  /**
+   * Borra rostos de terceiros antes de exportar. Para material que vai a
+   * documento público e mostra pessoas que não são objeto da peça.
+   */
+  blurFaces?: boolean;
+  /**
+   * Instante (s) de onde tirar o rosto a PRESERVAR — normalmente o agente
+   * público, que precisa continuar identificável. Sem isto, borra todos.
+   */
+  blurFacesPreservarEm?: number;
 }
 
 export type RenderTier = "low" | "medium" | "high";

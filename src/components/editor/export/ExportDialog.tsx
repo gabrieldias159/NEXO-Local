@@ -42,6 +42,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
@@ -77,6 +78,8 @@ type LocalSettings = {
   includeLogo: boolean;
   includeFooter: boolean;
   includeEnding: boolean;
+  blurFaces: boolean;
+  blurFacesPreservarEm: string;
 };
 
 const DEFAULT_SETTINGS: LocalSettings = {
@@ -87,6 +90,8 @@ const DEFAULT_SETTINGS: LocalSettings = {
   includeLogo: false,
   includeFooter: false,
   includeEnding: false,
+  blurFaces: false,
+  blurFacesPreservarEm: '',
 };
 
 type RemoteJob = Partial<RenderJob> & { error?: string };
@@ -262,6 +267,11 @@ export function ExportDialog() {
       includeLogo: settings.includeLogo,
       includeFooter: settings.includeFooter,
       includeEnding: settings.includeEnding,
+      blurFaces: settings.blurFaces,
+      blurFacesPreservarEm:
+        settings.blurFaces && settings.blurFacesPreservarEm.trim() !== ''
+          ? Number(settings.blurFacesPreservarEm)
+          : undefined,
     }),
     [settings],
   );
@@ -534,6 +544,51 @@ export function ExportDialog() {
                   setSettings((s) => ({ ...s, burnCaptions: v }))
                 }
               />
+            </div>
+
+            <div className="space-y-3 rounded-md border p-3">
+              <div className="flex items-center justify-between">
+                <div className="grid gap-0.5">
+                  <Label htmlFor="export-blur">Borrar rostos</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Para material que vai a documento público e mostra pessoas
+                    que não são objeto da peça. Guarde o original e declare a
+                    intervenção no documento.
+                  </p>
+                </div>
+                <Switch
+                  id="export-blur"
+                  checked={settings.blurFaces}
+                  onCheckedChange={(v) =>
+                    setSettings((s) => ({ ...s, blurFaces: v }))
+                  }
+                />
+              </div>
+              {settings.blurFaces && (
+                <div className="grid gap-1.5 border-t pt-3">
+                  <Label htmlFor="export-blur-keep" className="text-xs">
+                    Preservar quem aparece aos … segundos
+                  </Label>
+                  <Input
+                    id="export-blur-keep"
+                    type="number"
+                    min={0}
+                    step={0.5}
+                    placeholder="deixe vazio para borrar todos"
+                    value={settings.blurFacesPreservarEm}
+                    onChange={(e) =>
+                      setSettings((s) => ({
+                        ...s,
+                        blurFacesPreservarEm: e.target.value,
+                      }))
+                    }
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Escolha um instante em que a pessoa a preservar apareça de
+                    frente e bem enquadrada — é dela que sai a referência.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="space-y-3 rounded-md border p-3">

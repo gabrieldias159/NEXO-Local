@@ -168,6 +168,32 @@ arquivo.
 http://localhost:9002/apps/suite-editor-videos/$PID
 ```
 
+## Borrar rostos de terceiros
+
+Material que vai a documento público e mostra gente que não é objeto da peça —
+crianças em escola, servidores, transeuntes — precisa ter os rostos borrados.
+
+Na exportação existe o botão **Borrar rostos**. Ligando, aparece o campo
+"Preservar quem aparece aos … segundos": informe um instante em que a pessoa que
+**deve continuar identificável** apareça de frente e bem enquadrada (o agente
+público, em regra). Vazio = borra todos.
+
+Fora do editor, a mesma coisa pela linha de comando, e aí também serve para
+imagem (print de rede social, foto de anexo):
+
+```bash
+python tools/borrar-rostos/borrar_rostos.py entrada.mp4 --relatorio --preservar-rosto-em 20
+```
+
+**Sempre rode `--relatorio` antes.** Ele lista as trilhas e o que pretende fazer
+com cada uma, sem gravar nada. É onde se vê se a pessoa certa foi preservada.
+
+Detalhes e ajustes finos: `tools/borrar-rostos/README.md`.
+
+**Ao publicar, declare a intervenção** no documento — que os rostos foram
+borrados, quem foi preservado e que nada mais mudou — e guarde o original. Sem
+isso a peça fica exposta à alegação de vídeo adulterado.
+
 ## Armadilhas (todas já custaram tempo)
 
 1. **403 em tudo / "evaluation error at L255"** → o perfil `users/{uid}` sumiu.
@@ -196,6 +222,13 @@ http://localhost:9002/apps/suite-editor-videos/$PID
    gravar projeto sem `ownerUid`/`updatedAt` — sem ela dava para criar um
    projeto que a interface não lista, porque a lista é
    `where('ownerUid'...) + orderBy('updatedAt')`.
+
+**Borrão de rostos decidido quadro a quadro vira lixo.** O detector acha "rosto"
+em parede e cortina; quadro a quadro cada erro vira um borrão que pisca. E o
+reconhecimento facial perde a pessoa quando ela fica pequena ou de perfil — a
+ponto de um terceiro pontuar mais que ela e o resultado inverter. A ferramenta já
+resolve isso decidindo por trilha, mas se você mexer nos parâmetros, é esse o
+comportamento que volta a aparecer.
 
 ## Verificar de verdade
 
